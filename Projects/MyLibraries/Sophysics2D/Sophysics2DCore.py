@@ -432,7 +432,7 @@ class Collider(SimObjectComponent, BoundingBox):
 
 	def start(self):
 		self.manager = self.sim_object.environment.get_component(ColliderManager)
-		self.manager.attach_collider(self)
+		self.manager.attach_manageable(self)
 
 	def attach_collision_listener(self, listener: CollisionListener):
 		"""
@@ -465,30 +465,19 @@ class Collider(SimObjectComponent, BoundingBox):
 			listener.on_collision(other)
 
 
-class ColliderManager(EnvironmentComponent):
+class ColliderManager(Manager):
 	"""
 	A manager for Colliders
 	"""
 	def __init__(self):
-		self._colliders: list[Collider] = []
-
-		super().__init__()
-
-	def attach_collider(self, collider: Collider):
-		"""
-		attaches the collider to the manager
-		"""
-		if(not isinstance(collider, Collider)):
-			raise TypeError("A collider object must be an instance of 'Collider'")
-
-		self._colliders.append(collider)
+		super().__init__(Collider)
 
 	def update(self):
 		checked_pairs = []
 		# TODO implement sweep and prune (or maybe even some kind if object partitioning)
 		# check collision in pairs
-		for i in self._colliders:
-			for j in self._colliders:
+		for i in self._manageables:
+			for j in self._manageables:
 				# skip if i and j are the same collider or if i and j were already checked
 				if(i is j or (i, j) in checked_pairs or (j, i) in checked_pairs):
 					continue
@@ -599,7 +588,6 @@ class Renderer(SimObjectComponent):
 
 	def start(self):
 		self.manager = self.sim_object.environment.get_component(RenderManager)
-		# self.manager.renderers.append(self)
 		self.manager.attach_manageable(self)
 
 	def update(self):
