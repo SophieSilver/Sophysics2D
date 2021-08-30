@@ -8,7 +8,7 @@ from helperFunctions import *
 
 class Component:
 	"""
-	A base class for Components
+	The base class for Components
 	"""
 	def __init__(self):
 		self.is_active = True
@@ -30,7 +30,7 @@ class Component:
 
 class SimObjectComponent(Component):
 	"""
-	A base class for SimObject components
+	The base class for SimObject components
 	"""
 	def __init__(self):
 		# a reference to the object
@@ -44,7 +44,7 @@ class SimObjectComponent(Component):
 
 class EnvironmentComponent(Component):
 	"""
-	A base class for environment components.
+	The base class for environment components.
 
 	Typically an EnvironmentComponent would call update() on every corresponding SimObjectComponent
 	"""
@@ -55,9 +55,43 @@ class EnvironmentComponent(Component):
 		super().__init__()
 
 
+class Manager(EnvironmentComponent):
+	"""
+	The base class for managers
+
+	Managers provide an efficient way for the environment to communicate with sim object components
+	"""
+	def __init__(self, manageable_type: type = SimObjectComponent):
+		# Type of the objects that the manager manages
+		self._manageable_type: type = manageable_type
+		self._manageables: list[manageable_type] = []
+		super().__init__()
+
+	@property
+	def manageables(self):
+		"""
+		Returns a copy of the manageables list
+		"""
+		return self._manageables.copy()
+
+	def attach_manageable(self, manageable: SimObjectComponent):
+		"""
+		Attaches a manageable object to the manager.
+		"""
+		if(not isinstance(manageable, self._manageable_type)):
+			raise TypeError(f"A manageable object must be an instance of '{self._manageable_type.__name__}'")
+
+		self._manageables.append(manageable)
+
+	def update(self):
+		for m in self._manageables:
+			if(m.is_active):
+				m.update()
+
+
 class ComponentContainer:
 	"""
-	A base class for Component containers such as SimObject and SimEnvironment.
+	The base class for Component containers such as SimObject and SimEnvironment.
 	"""
 	def __init__(self, components: Iterable[Component] = ()):
 		self.components = []
@@ -566,7 +600,7 @@ class Renderer(SimObjectComponent):
 	def start(self):
 		self.manager = self.sim_object.environment.get_component(RenderManager)
 		# self.manager.renderers.append(self)
-		self.manager.attach_renderer(self)
+		self.manager.attach_manageable(self)
 
 	def update(self):
 		self.render()
@@ -575,7 +609,7 @@ class Renderer(SimObjectComponent):
 		pass
 
 
-class RenderManager(EnvironmentComponent):
+class RenderManager(Manager):
 	"""
 	Manages all the renderers.
 
@@ -595,19 +629,10 @@ class RenderManager(EnvironmentComponent):
 		self.units_per_pixel = units_per_pixel
 		self.background_color = background_color
 
-		self._renderers: list[Renderer] = []
-		super().__init__()
+		# self._renderers: list[Renderer] = []
+		super().__init__(Renderer)
 
-	number = Union[int, float]		# a shortcut for typing
-
-	@property
-	def renderers(self):
-		"""
-		returns a copy of the renderers list.
-		"""
-		return self._renderers.copy()
-
-	def attach_renderer(self, renderer: Renderer):
+	def attach_manageable(self, renderer: Renderer):
 		"""
 		attaches the renderer to the manager
 		"""
@@ -622,14 +647,14 @@ class RenderManager(EnvironmentComponent):
 			# start and end indices of the sublist in which we're searching
 			# every iteration of the loop the sublist halves (that's how binary search works)
 			start = 0
-			end = len(self._renderers) - 1
+			end = len(self._manageables) - 1
 
 			# a target for binary search
 			target = renderer.layer
 
 			while(start <= end):
 				i = (start + end) // 2
-				value = self._renderers[i].layer
+				value = self._manageables[i].layer
 
 				if(value == target):
 					return i + 1
@@ -650,7 +675,7 @@ class RenderManager(EnvironmentComponent):
 			# (i.e. the list is empty)
 			return 0
 
-		self._renderers.insert(get_index(), renderer)
+		self._manageables.insert(get_index(), renderer)
 
 	def update(self):
 		"""
@@ -658,7 +683,7 @@ class RenderManager(EnvironmentComponent):
 		"""
 		# Fills the background
 		self.surface.fill(self.background_color)
-		for r in self.renderers:
+		for r in self._manageables:
 			if(r.is_active):
 				r.update()
 
