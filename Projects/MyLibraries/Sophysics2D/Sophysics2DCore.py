@@ -613,11 +613,9 @@ class RenderManager(Manager):
 		self._units_per_pixel = None
 
 		self.surface = surface
-		# self._units_per_pixel = units_per_pixel TODO check if it works or not
 		self.units_per_pixel = units_per_pixel
 		self.background_color = background_color
 
-		# self._renderers: list[Renderer] = []
 		super().__init__(Renderer)
 
 	def attach_manageable(self, renderer: Renderer):
