@@ -36,9 +36,11 @@ class SimObjectComponent(Component):
 		# a reference to the object
 		# defaults to None, should be set by the object
 		self.sim_object: Optional[SimObject] = None
+		# DEPRECATED
 		# a reference to the component's manager
 		# the manager is responsible for calling the update() method on the component
-		self.manager: Optional[EnvironmentComponent] = None
+		# self.manager: Optional[EnvironmentComponent] = None
+
 		super().__init__()
 
 
@@ -61,9 +63,9 @@ class Manager(EnvironmentComponent):
 
 	Managers provide an efficient way for the environment to communicate with sim object components
 	"""
-	def __init__(self, manageable_type: type = SimObjectComponent):
+	def __init__(self, manageable_type: type = None):
 		# Type of the objects that the manager manages
-		self._manageable_type: type = manageable_type
+		self._manageable_type: type = Manageable if manageable_type is None else manageable_type
 		self._manageables: list[manageable_type] = []
 		super().__init__()
 
@@ -87,6 +89,21 @@ class Manager(EnvironmentComponent):
 		for m in self._manageables:
 			if(m.is_active):
 				m.update()
+
+
+class Manageable(SimObjectComponent):
+	"""
+	An object that's managed by a manager
+	"""
+	def __init__(self, manager_type: type = Manager):
+		self._manager_type = manager_type
+		self._manager = None
+
+		super().__init__()
+
+	def start(self):
+		self._manager = self.sim_object.environment.get_component(self._manager_type)
+		self._manager.attach_manageable(self)
 
 
 class ComponentContainer:
@@ -419,7 +436,7 @@ class CollisionListener(SimObjectComponent):
 		pass
 
 
-class Collider(SimObjectComponent, BoundingBox):
+class Collider(Manageable, BoundingBox):
 	"""
 	A base class for colliders.
 
@@ -427,12 +444,8 @@ class Collider(SimObjectComponent, BoundingBox):
 	"""
 	# !IMPORTANT! When inheriting, don't forget to override top, bottom, left, right properties
 	def __init__(self):
-		super().__init__()
+		super().__init__(ColliderManager)
 		self._listeners: list[CollisionListener] = []
-
-	def start(self):
-		self.manager = self.sim_object.environment.get_component(ColliderManager)
-		self.manager.attach_manageable(self)
 
 	def attach_collision_listener(self, listener: CollisionListener):
 		"""
@@ -573,7 +586,7 @@ class Force(SimObjectComponent):
 		self._rigidbody.attach_force(self)
 
 
-class Renderer(SimObjectComponent):
+class Renderer(Manageable):
 	"""
 	A base class for renderers
 
@@ -584,11 +597,11 @@ class Renderer(SimObjectComponent):
 		:param layer: objects on lower layers will be drawn first and may be occluded by objects on higher levels.
 		"""
 		self.layer = layer
-		super().__init__()
+		super().__init__(RenderManager)
 
-	def start(self):
-		self.manager = self.sim_object.environment.get_component(RenderManager)
-		self.manager.attach_manageable(self)
+	# def start(self):
+	#   self.manager = self.sim_object.environment.get_component(RenderManager)
+	#   self.manager.attach_manageable(self)
 
 	def update(self):
 		self.render()

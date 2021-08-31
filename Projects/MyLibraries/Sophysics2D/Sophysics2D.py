@@ -145,7 +145,7 @@ class BoundaryRenderer(Renderer):
 		self.__stroke_width = value
 
 	def render(self):
-		surface = self.manager.surface
+		surface = self._manager.surface
 
 		# getting dimensions in world space
 		position = self.sim_object.transform.position
@@ -156,8 +156,8 @@ class BoundaryRenderer(Renderer):
 		world_right = self.__boundary.right + position.x
 
 		# converting dimensions to screen space
-		screen_left, screen_top = self.manager.world_to_screen((world_left, world_top))
-		screen_right, screen_bottom = self.manager.world_to_screen((world_right, world_bottom))
+		screen_left, screen_top = self._manager.world_to_screen((world_left, world_top))
+		screen_right, screen_bottom = self._manager.world_to_screen((world_right, world_bottom))
 
 		# defining the rect
 		screen_height = screen_bottom - screen_top      # because y screen coords are flipped (y axis goes down)
@@ -200,13 +200,13 @@ class CircleRenderer(Renderer):
 		"""
 		Radius of the circle in pixels on the screen
 		"""
-		return self.__world_radius * self.manager.pixels_per_unit
+		return self.__world_radius * self._manager.pixels_per_unit
 
 	@pixel_radius.setter
 	def pixel_radius(self, value: number):
 		validate_positive_number(value, "radius")
 
-		self.__world_radius = value * self.manager.units_per_pixel
+		self.__world_radius = value * self._manager.units_per_pixel
 
 	@property
 	def diameter(self):
@@ -235,10 +235,10 @@ class CircleRenderer(Renderer):
 		self.pixel_radius = value / 2
 
 	def render(self):
-		surface = self.manager.surface
+		surface = self._manager.surface
 
 		world_position = self.sim_object.transform.position
-		screen_position = self.manager.world_to_screen(world_position)
+		screen_position = self._manager.world_to_screen(world_position)
 
 		pygame.draw.circle(surface, self.color, screen_position, self.pixel_radius)
 
