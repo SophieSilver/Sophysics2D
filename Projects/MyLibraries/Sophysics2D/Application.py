@@ -16,10 +16,7 @@ def main():
 
     # ball2 = CircleObject(radius=0.5, color=(0, 255, 0), layer=1)
 
-    border = get_border_object(4, -4, -7.5, 7.5, layer=3)
-
     env.attach_object(ball1)
-    env.attach_object(border)
     # env.attach_object(ball2)
     env.start()
     running = True

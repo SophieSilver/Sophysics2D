@@ -271,234 +271,7 @@ class SimEnvironment(ComponentContainer):
 		pass
 
 
-class BoundingBox:
-	"""
-	Abstract base class for BoundingBox objects.
-
-	Represents a box around some object. Has properties describing top, bottom, left, and right edges of the box.
-	Has a method for checking if the current bounding box intersects with another bounding box.
-	"""
-	# when overriding these, make sure they're properties
-	# Those are supposed to be abstract, but pyCharm gives a warning if getters don't return anything
-	# So, by default they return 0
-	@property
-	def top(self) -> number:
-		"""
-		Top edge of the bounding box.
-		"""
-		return 0
-
-	@property
-	def bottom(self) -> number:
-		"""
-		Bottom edge of the bounding box.
-		"""
-		return 0
-
-	@property
-	def left(self) -> number:
-		"""
-		Left edge of the bounding box.
-		"""
-		return 0
-
-	@property
-	def right(self) -> number:
-		"""
-		Right edge of the bounding box
-		"""
-		return 0
-
-	def intersects_bounding_box(self, other) -> bool:
-		"""
-		Checks if this bounding box intersects another bounding box
-		"""
-		# check if the argument is valid
-		# (thanks python for dynamic typing btw)
-		if(not isinstance(other, BoundingBox)):
-			raise TypeError("'other' must be of type BoundingBox")
-
-		# check if boxes intersect on x and y axes
-		x_intersect = intervals_intersect(self.left, self.right, other.left, other.right)
-		y_intersect = intervals_intersect(self.bottom, self.top, other.bottom, other.top)
-
-		return x_intersect and y_intersect
-
-
-class BoundingVolume(BoundingBox):
-	"""
-	Represents a volume in space. Could be used for space partitioning.
-	"""
-	def __init__(self, top: number, bottom: number, left: number, right: number):
-		"""
-		:param top: top edge of the bounding box
-		:param bottom: bottom edge of the bounding box
-		:param left: left edge of the bounding box
-		:param right: right edge of the bounding box
-		"""
-		# validate values
-		validate_number(top, "parameter 'top'")
-		validate_number(bottom, "parameter 'bottom'")
-		validate_number(left, "parameter 'left'")
-		validate_number(right, "parameter 'right'")
-
-		# check if top >= bottom and right >= left
-		if (top < bottom):
-			raise ValueError("'top' is lower than 'bottom'")
-		if (right < left):
-			raise ValueError("'right' is lower than 'left'")
-
-		# assign values
-		self._top = top
-		self._bottom = bottom
-		self._left = left
-		self._right = right
-
-	@property
-	def top(self):
-		return self._top
-
-	@top.setter
-	def top(self, value: number):
-		# validate value
-		validate_number(value, "top argument")
-
-		if(value < self._bottom):
-			raise ValueError("top is lower than bottom")
-
-		self._top = value
-
-	@property
-	def bottom(self):
-		return self._bottom
-
-	@bottom.setter
-	def bottom(self, value: number):
-		# validate value
-		validate_number(value)
-
-		if (self._top < value):
-			raise ValueError("top is lower than bottom")
-
-		# assign value
-		self._bottom = value
-
-	@property
-	def left(self):
-		return self._left
-
-	@left.setter
-	def left(self, value: number):
-		# validate value
-		validate_number(value)
-
-		if (self._right < value):
-			raise ValueError("right is lower than left")
-
-		# assign value
-		self._left = value
-
-	@property
-	def right(self):
-		return self._right
-
-	@right.setter
-	def right(self, value: number):
-		# validate value
-		validate_number(value)
-
-		if (value < self._left):
-			raise ValueError("right is lower than right")
-
-		# assign value
-		self._right = value
-
-
-class CollisionListener(SimObjectComponent):
-	"""
-	A base class for collision listeners.
-
-	Collision listeners have on_collision method which
-	gets called by the collider whenever it detects a collision
-	"""
-	def start(self):
-		colliders = self.sim_object.get_components(Collider)
-
-		for c in colliders:
-			c.attach_collision_listener(self)
-
-	def on_collision(self, other):
-		"""
-		Method that gets called when the corresponding sim object's collider detects a collision
-
-		:param other: Collider of the object with which the collision was detected
-		"""
-		pass
-
-
-class Collider(Manageable, BoundingBox):
-	"""
-	A base class for colliders.
-
-	Colliders check for collisions with other sim objects.
-	"""
-	# !IMPORTANT! When inheriting, don't forget to override top, bottom, left, right properties
-	def __init__(self):
-		super().__init__(ColliderManager)
-		self._listeners: list[CollisionListener] = []
-
-	def attach_collision_listener(self, listener: CollisionListener):
-		"""
-		Attaches a listener to the collider. When the collider detects a collision
-		it calls the on_collision method on all of its listeners.
-		"""
-		if(not isinstance(listener, CollisionListener)):
-			raise TypeError("listener must be of type CollisionListener")
-
-		self._listeners.append(listener)
-
-	def check_collision(self, other):
-		"""
-		Checks if this collider collides with the 'other' collider.
-		"""
-		pass
-
-	def on_collision(self, other):
-		"""
-		Method to be called when the collision with 'other' is detected
-
-		Calls on_collision on every collision listener
-		"""
-		if(not isinstance(other, Collider)):
-			raise TypeError("'other' must be an instance of 'Collider'")
-
-		print("Collision")
-
-		for listener in self._listeners:
-			listener.on_collision(other)
-
-
-class ColliderManager(Manager):
-	"""
-	A manager for Colliders
-	"""
-	def __init__(self):
-		super().__init__(Collider)
-
-	def update(self):
-		checked_pairs = []
-		# TODO implement sweep and prune (or maybe even some kind if object partitioning)
-		# check collision in pairs
-		for i in self._manageables:
-			for j in self._manageables:
-				# skip if i and j are the same collider or if i and j were already checked
-				if(i is j or (i, j) in checked_pairs or (j, i) in checked_pairs):
-					continue
-				i.check_collision(j)
-				checked_pairs.append((i, j))
-
-
-class RigidBody(CollisionListener):
+class RigidBody(SimObjectComponent):
 	"""
 	Handles the movement of the SimObject according to physics.
 	"""
@@ -506,19 +279,16 @@ class RigidBody(CollisionListener):
 	def __init__(
 			self,
 			mass: number = 1,
-			velocity: Optional[pygame.Vector2] = None,
-			acceleration: Optional[pygame.Vector2] = None):
+			velocity: Optional[pygame.Vector2] = None):
 		# initializing fields
 		self._transform = None
 		self._velocity = None
-		self._acceleration = None
 		self._mass = None
 		self._forces: list[Force] = []
 
 		# calling setters
 		self.mass = mass
 		self.velocity = pygame.Vector2() if (velocity is None) else velocity
-		self.acceleration = pygame.Vector2() if (acceleration is None) else acceleration
 		super().__init__()
 
 	def start(self):
@@ -549,17 +319,6 @@ class RigidBody(CollisionListener):
 			raise TypeError("velocity must be a Vector2")
 
 		self._velocity = value
-
-	@property
-	def acceleration(self):
-		return self._acceleration
-
-	@acceleration.setter
-	def acceleration(self, value):
-		if (not isinstance(value, pygame.Vector2)):
-			raise TypeError("acceleration must be a Vector2")
-
-		self._acceleration = value
 
 	def attach_force(self, force):
 		"""
