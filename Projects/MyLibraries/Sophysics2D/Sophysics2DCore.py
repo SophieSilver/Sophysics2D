@@ -3,6 +3,7 @@ The core structure of Sophysics2D
 """
 # TODO refactor code, put classes into separate files
 import pygame
+import pymunk
 from helperFunctions import *
 
 
@@ -37,9 +38,9 @@ class SimObjectComponent(Component):
 		# defaults to None, should be set by the object
 		self.sim_object: Optional[SimObject] = None
 		# DEPRECATED
-		# a reference to the component's manager
-		# the manager is responsible for calling the update() method on the component
-		# self.manager: Optional[EnvironmentComponent] = None
+		# a reference to the component's _manager
+		# the _manager is responsible for calling the update() method on the component
+		# self._manager: Optional[EnvironmentComponent] = None
 
 		super().__init__()
 
@@ -64,7 +65,7 @@ class Manager(EnvironmentComponent):
 	Managers provide an efficient way for the environment to communicate with sim object components
 	"""
 	def __init__(self, manageable_type: type = None):
-		# Type of the objects that the manager manages
+		# Type of the objects that the _manager manages
 		self._manageable_type: type = Manageable if manageable_type is None else manageable_type
 		self._manageables: list[manageable_type] = []
 		super().__init__()
@@ -78,7 +79,7 @@ class Manager(EnvironmentComponent):
 
 	def attach_manageable(self, manageable: SimObjectComponent):
 		"""
-		Attaches a manageable object to the manager.
+		Attaches a manageable object to the _manager.
 		"""
 		if(not isinstance(manageable, self._manageable_type)):
 			raise TypeError(f"A manageable object must be an instance of '{self._manageable_type.__name__}'")
@@ -93,13 +94,20 @@ class Manager(EnvironmentComponent):
 
 class Manageable(SimObjectComponent):
 	"""
-	An object that's managed by a manager
+	An object that's managed by a _manager
 	"""
 	def __init__(self, manager_type: type = Manager):
 		self._manager_type = manager_type
 		self._manager = None
 
 		super().__init__()
+
+	@property
+	def manager(self):
+		"""
+		The _manager of the component
+		"""
+		return self._manager
 
 	def start(self):
 		self._manager = self.sim_object.environment.get_component(self._manager_type)
@@ -271,7 +279,7 @@ class SimEnvironment(ComponentContainer):
 		pass
 
 
-class RigidBody(SimObjectComponent):
+class RigidBody(Manageable):
 	"""
 	Handles the movement of the SimObject according to physics.
 	"""
@@ -359,8 +367,8 @@ class Renderer(Manageable):
 		super().__init__(RenderManager)
 
 	# def start(self):
-	#   self.manager = self.sim_object.environment.get_component(RenderManager)
-	#   self.manager.attach_manageable(self)
+	#   self._manager = self.sim_object.environment.get_component(RenderManager)
+	#   self._manager.attach_manageable(self)
 
 	def update(self):
 		self.render()
