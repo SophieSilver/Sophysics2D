@@ -13,7 +13,8 @@ def main():
     env = DefaultEnvironment(components=(rm, rbm))
 
     ball_transform = Transform(pygame.Vector2(0, 0))
-    ball1 = get_circle_body(1, 0.5, (255, 0, 0), 1, (ball_transform,))
+    grav_acc = ConstantAcceleration((0, -1))
+    ball1 = get_circle_body(1, 0.5, (255, 0, 0), 1, (ball_transform, grav_acc))
 
     # ball2 = CircleObject(radius=0.5, color=(0, 255, 0), layer=1)
 

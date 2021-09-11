@@ -379,15 +379,29 @@ class RigidBody(Manageable):
 	def body(self) -> pymunk.Body:
 		return self._body
 
+	@property
 	def shape(self) -> pymunk.Shape:
 		"""
 		Shape of the rigid body
 		"""
 		return self._shape
 
+	@property
+	def mass(self) -> float:
+		"""
+		Same as RigidBody.body.mass
+		"""
+		return self._body.mass
+
+	@mass.setter
+	def mass(self, value: float):
+		validate_positive_number(value, "mass")
+
+		self._body.mass = value
+
 	def attach_force(self, force: Force):
 		"""
-		Attaches a force to a rigidbody
+		Attaches a force component to the list of forces
 		"""
 		if(not isinstance(force, Force)):
 			raise TypeError("force must be a type of Force")
@@ -396,9 +410,15 @@ class RigidBody(Manageable):
 
 	def remove_force(self, force: Force):
 		"""
-		Removes a force from the rigidbody
+		Removes a force component from the list of forces
 		"""
 		self._forces.remove(force)
+
+	def apply_force(self, force: Sequence[number]):
+		x = force[0]
+		y = force[1]
+
+		self._body.apply_force_at_local_point((x, y))
 
 
 class RigidBodyManager(Manager):

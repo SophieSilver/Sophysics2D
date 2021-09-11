@@ -1,5 +1,4 @@
 import pygame.draw
-import pymunk
 
 from Sophysics2DCore import *
 
@@ -101,6 +100,55 @@ class DefaultEnvironment(SimEnvironment):
 		Renders a snapshot of the simulation
 		"""
 		self.render_manager.update()
+
+
+class ConstantAcceleration(Force):
+	"""
+	A force that accelerates the body a certain amount of units per second. Could be used to simulate the
+	acceleration due to gravity.
+	"""
+	def __init__(self, acceleration: Sequence[number] = (0, 0)):
+		"""
+		acceleration must be an sequence with at least 2 items, e.g. pygame.Vector2, pymunk.Vec2d, a tuple, a list or
+		any user defined type that has a __getitem__ method and at least 2 items.
+
+		The first two items represent the x and y components of the acceleration respectively. Any subsequent items
+		are ignored.
+
+		Under the hood the acceleration is represented as pygame.Vector2
+		"""
+		super().__init__()
+
+		self._acceleration: Optional[pygame.Vector2] = None
+		self.acceleration = acceleration
+
+	@property
+	def acceleration(self) -> pygame.Vector2:
+		return self._acceleration
+
+	@acceleration.setter
+	def acceleration(self, value: Sequence[number]):
+		"""
+		acceleration must be an sequence with at least 2 items, e.g. pygame.Vector2, pymunk.Vec2d, a tuple, a list or
+		any user defined type that has a __getitem__ method and at least 2 items.
+
+		The first two items represent the x and y components of the acceleration respectively. Any subsequent items
+		are ignored.
+
+		Under the hood the acceleration is represented as pygame.Vector2
+		"""
+		x = value[0]
+		y = value[1]
+		self._acceleration = pygame.Vector2(x, y)
+
+	def update(self):
+		# applies the force that causes a particular acceleration
+		# From the Newton's second law
+		# F = m * a
+		mass = self._rigidbody.mass
+		force = mass * self._acceleration
+
+		self._rigidbody.apply_force(force)
 
 
 def get_circle_body(
