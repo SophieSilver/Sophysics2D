@@ -11,9 +11,6 @@ class Component:
 	"""
 	The base class for Components
 	"""
-	def __init__(self):
-		self.is_active = True
-
 	def start(self):
 		"""
 		Called when the simulation starts to prepare the component.
@@ -88,8 +85,7 @@ class Manager(EnvironmentComponent):
 
 	def update(self):
 		for m in self._manageables:
-			if(m.is_active):
-				m.update()
+			m.update()
 
 
 class Manageable(SimObjectComponent):
@@ -105,7 +101,7 @@ class Manageable(SimObjectComponent):
 	@property
 	def manager(self):
 		"""
-		The _manager of the component
+		The manager of the component
 		"""
 		return self._manager
 
@@ -136,6 +132,12 @@ class ComponentContainer:
 			raise TypeError("component must be of type Component")
 
 		self.components.append(component)
+
+	def remove_component(self, component: Component):
+		"""
+		Removes the component from the container
+		"""
+		self.components.remove(component)
 
 	def get_component(self, comp_type: type) -> Any:
 		"""
@@ -216,6 +218,10 @@ class SimObject(ComponentContainer):
 		component.sim_object = self
 		super().attach_component(component)
 
+	def remove_component(self, component: SimObjectComponent):
+		component.sim_object = None
+		super().remove_component(component)
+
 
 class SimEnvironment(ComponentContainer):
 	"""
@@ -246,6 +252,10 @@ class SimEnvironment(ComponentContainer):
 		"""
 		component.environment = self
 		super().attach_component(component)
+
+	def remove_component(self, component: EnvironmentComponent):
+		component.environment = None
+		super().remove_component(component)
 
 	def start(self):
 		"""
@@ -279,65 +289,6 @@ class SimEnvironment(ComponentContainer):
 		pass
 
 
-class RigidBody(Manageable):
-	"""
-	Handles the movement of the SimObject according to physics.
-	"""
-	# TODO
-	def __init__(
-			self,
-			mass: number = 1,
-			velocity: Optional[pygame.Vector2] = None):
-		# initializing fields
-		self._transform = None
-		self._velocity = None
-		self._mass = None
-		self._forces: list[Force] = []
-
-		# calling setters
-		self.mass = mass
-		self.velocity = pygame.Vector2() if (velocity is None) else velocity
-		super().__init__()
-
-	def start(self):
-		super().start()
-
-		self._transform = self.sim_object.transform
-
-	def update(self):
-		pass
-
-	@property
-	def mass(self):
-		return self._mass
-
-	@mass.setter
-	def mass(self, value: number):
-		validate_positive_number(value, "mass")
-
-		self._mass = value
-
-	@property
-	def velocity(self):
-		return self._velocity
-
-	@velocity.setter
-	def velocity(self, value: pygame.Vector2):
-		if(not isinstance(value, pygame.Vector2)):
-			raise TypeError("velocity must be a Vector2")
-
-		self._velocity = value
-
-	def attach_force(self, force):
-		"""
-		Attaches a force to a rigidbody
-		"""
-		if(not isinstance(force, Force)):
-			raise TypeError("force must be a type of Force")
-
-		self._forces.append(force)
-
-
 class Force(SimObjectComponent):
 	"""
 	A base class for Force components.
@@ -353,6 +304,129 @@ class Force(SimObjectComponent):
 		self._rigidbody.attach_force(self)
 
 
+class RigidBody(Manageable):
+	"""
+	Handles the movement of the SimObject according to physics.
+
+	A wrapper for pymunk's shape and body
+	"""
+	def __init__(
+			self,
+			shape: pymunk.Shape = None,
+			body_type: int = pymunk.Body.DYNAMIC):
+		# initializing fields
+		self._transform: Optional[Transform] = None
+		self._space: Optional[pymunk.Space] = None
+		self._forces: list[Force] = []
+		self._body = pymunk.Body(body_type=body_type)
+		self._shape = None
+
+		if(shape is None):
+			self._shape = pymunk.Circle(self._body, 1)
+			self._shape.mass = 1
+			self._shape.elasticity = 0.5
+		else:
+			self._shape = shape
+
+		self._shape.body = self._body
+
+		# calling setters
+		super().__init__(RigidBodyManager)
+
+	def start(self):
+		super().start()
+
+		self._transform = self.sim_object.transform
+		self._space: pymunk.Space = self.manager.space
+		self._space.add(self._body, self._shape)
+
+		# syncing the pymunk body position and sim_object's position
+		# (doing that awkwardness because pymunk and pygame use different Vector classes)
+		# (Both are iterables so we can unpack like that)
+		self._body.position = pymunk.Vec2d(*self._transform.position)
+
+	def update(self):
+		self.__sync_body_with_sim_object()
+
+		for force in self._forces:
+			force.update()
+
+	def post_update(self):
+		"""
+		Executes after all physics calculations were done for the current timestep
+
+		Updates the sim_object's position to match the pymunk's body position
+		"""
+		self.__sync_sim_object_with_body()
+
+	def __sync_sim_object_with_body(self):
+		"""
+		Synchronizes the orientation of the sim_object with the pymunk body
+		"""
+		self._transform.position.x = self._body.position.x
+		self._transform.position.y = self._body.position.y
+		self._transform.rotation = self._body.angle
+
+	def __sync_body_with_sim_object(self):
+		"""
+		Synchronizes the orientation of the pymunk body with the sim_object
+		"""
+		# In case the sim_object's position was updated externally
+		self._body.position = pymunk.Vec2d(*self._transform.position)
+		self._body.angle = self._transform.rotation
+
+	@property
+	def body(self) -> pymunk.Body:
+		return self._body
+
+	def shape(self) -> pymunk.Shape:
+		"""
+		Shape of the rigid body
+		"""
+		return self._shape
+
+	def attach_force(self, force: Force):
+		"""
+		Attaches a force to a rigidbody
+		"""
+		if(not isinstance(force, Force)):
+			raise TypeError("force must be a type of Force")
+
+		self._forces.append(force)
+
+	def remove_force(self, force: Force):
+		"""
+		Removes a force from the rigidbody
+		"""
+		self._forces.remove(force)
+
+
+class RigidBodyManager(Manager):
+	"""
+	The manager for RigidBody components
+	"""
+	def __init__(self, dt: float = 1 / 60):
+		super().__init__(RigidBody)
+		self.dt = dt
+		self._space = pymunk.Space()
+
+	@property
+	def space(self):
+		"""
+		The reference to the current pymunk's simulation space
+		"""
+		return self._space
+
+	def update(self):
+		for rb in self.manageables:
+			rb.update()
+
+		self._space.step(self.dt)
+
+		for rb in self.manageables:
+			rb.post_update()
+
+
 class Renderer(Manageable):
 	"""
 	A base class for renderers
@@ -363,6 +437,7 @@ class Renderer(Manageable):
 		"""
 		:param layer: objects on lower layers will be drawn first and may be occluded by objects on higher levels.
 		"""
+		self.is_active = True
 		self.layer = layer
 		super().__init__(RenderManager)
 
