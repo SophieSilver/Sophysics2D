@@ -202,9 +202,11 @@ class SimObject(ComponentContainer):
 		super().__init__(components)
 		self.environment = None
 
-		transform_component = self.try_get_component(Transform)
-		self._transform = Transform() if (transform_component is None) else transform_component
-		self.attach_component(self.transform)
+		self._transform: Optional[Transform] = self.try_get_component(Transform)
+
+		if(self._transform is None):
+			self._transform = Transform()
+			self.attach_component(self.transform)
 
 	@property
 	def transform(self):
@@ -374,6 +376,7 @@ class RigidBody(Manageable):
 		# In case the sim_object's position was updated externally
 		self._body.position = pymunk.Vec2d(*self._transform.position)
 		self._body.angle = self._transform.rotation
+		self._space.reindex_shapes_for_body(self._body)
 
 	@property
 	def body(self) -> pymunk.Body:
@@ -415,6 +418,9 @@ class RigidBody(Manageable):
 		self._forces.remove(force)
 
 	def apply_force(self, force: Sequence[number]):
+		"""
+		Applies a force to the center of mass of the object's pymunk body
+		"""
 		x = force[0]
 		y = force[1]
 
@@ -458,18 +464,26 @@ class Renderer(Manageable):
 		:param layer: objects on lower layers will be drawn first and may be occluded by objects on higher levels.
 		"""
 		self.is_active = True
-		self.layer = layer
+		self._layer = layer
 		super().__init__(RenderManager)
 
 	# def start(self):
 	#   self._manager = self.sim_object.environment.get_component(RenderManager)
 	#   self._manager.attach_manageable(self)
 
-	def update(self):
-		self.render()
-
-	def render(self):
+	def render(self, surface: pygame.Surface):
 		pass
+
+	@property
+	def layer(self):
+		return self._layer
+
+	@layer.setter
+	def layer(self, value: int):
+		if(value < 0):
+			raise ValueError("layer cannot be lower than zero")
+
+		self._layer = value
 
 
 class RenderManager(Manager):
@@ -478,86 +492,99 @@ class RenderManager(Manager):
 
 	Provides methods for converting from World Coordinates into screenspace coordinates and vice versa
 	"""
-	# TODO rework the way layers work
-	def __init__(
-			self, surface: pygame.Surface,
-			units_per_pixel: float = 1 / 80,
-			background_color = (0, 0, 0)):
-		# initializing to then call the setters, which would check if the values are valid
-		self._surface = None
-		self._units_per_pixel = None
 
-		self.surface = surface
+	# colors
+	TRANSPARENT = (0, 0, 0, 0)
+	WHITE = (255, 255, 255)
+	RED = (255, 0, 0)
+	GREEN = (0, 255, 0)
+	BLUE = (0, 0, 255)
+	YELLOW = (255, 255, 0)
+	CYAN = (0, 255, 255)
+	MAGENTA = (255, 0, 255)
+	BLACK = (0, 0, 0)
+
+	def __init__(
+			self, display: pygame.Surface,
+			units_per_pixel: float = 1 / 80,
+			background_color = BLACK,
+			n_layers: int = 32):
+		"""
+		:param display: surface on which the image will be drawn
+		:param units_per_pixel: number of world space units 1 pixel represents
+		:param background_color: color of the background
+		:param n_layers: amount of layers. More layers give more flexibility, but take up more memory.
+		"""
+		# initializing to then call the setters, which would check if the values are valid
+		self._surface: Optional[pygame.Surface] = None
+		self._units_per_pixel: Optional[float] = None
+
+		self._display = display
 		self.units_per_pixel = units_per_pixel
 		self.background_color = background_color
 
+		# layers are a list of surfaces. Each renderer has a layer that it draws on, to ensure that certain
+		# elements are drawn on top of each other
+		# after all drawing is done, the layers are blitted onto the display
+		# before the drawing all layers are cleared (i.e. filled with the transparent color)
+		self._layers: List[pygame.Surface] = []
+		self.__create_layer_surfaces(n_layers)
+
+		# tells the program which layers have been modified, unmodified layers will not be blitted onto the display
+		# and the will not be cleared (since it is assumed that they're transparent)
+		self.__layer_modified: List[bool] = [False] * n_layers
+
 		super().__init__(Renderer)
-
-	def attach_manageable(self, renderer: Renderer):
-		"""
-		attaches the renderer to the manager
-		"""
-		if(not isinstance(renderer, Renderer)):
-			raise TypeError("A renderer object must be an instance of 'Renderer'")
-
-		def get_index():
-			"""
-			calculates the index at which to insert the renderer
-			based on its layer using binary search
-			"""
-			# start and end indices of the sublist in which we're searching
-			# every iteration of the loop the sublist halves (that's how binary search works)
-			start = 0
-			end = len(self._manageables) - 1
-
-			# a target for binary search
-			target = renderer.layer
-
-			while(start <= end):
-				i = (start + end) // 2
-				value = self._manageables[i].layer
-
-				if(value == target):
-					return i + 1
-
-				# since on the end of the loop we might end up on a value
-				# that's either smaller or larger than the target,
-				# on the last iteration we return either i or i + 1 accordingly
-				elif(target < value):
-					if(start == end):
-						return i
-					end = i - 1
-				else:
-					if(start == end):
-						return i + 1
-					start = i + 1
-
-			# return 0 if the loop never started
-			# (i.e. the list is empty)
-			return 0
-
-		self._manageables.insert(get_index(), renderer)
 
 	def update(self):
 		"""
 		Render the scene
 		"""
-		# Fills the background
-		self.surface.fill(self.background_color)
-		for r in self._manageables:
-			if(r.is_active):
-				r.update()
+		# Clear the screen
+		self.display.fill(self.background_color)
+		self.__clear_layer_surfaces()
+
+		# render onto the layers
+		for renderer in self._manageables:
+			if(renderer.is_active):
+				renderer.render(self._layers[renderer.layer])
+				self.__layer_modified[renderer.layer] = True
+
+		# blit the layers onto the display
+		for i, layer in enumerate(self._layers):
+			if(self.__layer_modified[i]):
+				self._display.blit(layer, (0, 0))
+
+	def __create_layer_surfaces(self, n_layers: int):
+		if(n_layers < 1):
+			raise ValueError("The amount of layers cannot be lower than 1")
+
+		for _ in range(n_layers):
+			# create a surface that uses per pixel alpha
+			surface = pygame.Surface(self.display.get_size(), pygame.SRCALPHA)
+			# make the surface transparent
+			surface.fill(self.TRANSPARENT)
+			self._layers.append(surface)
+
+	def __clear_layer_surfaces(self):
+		"""
+		Fills the layers with the transparent color
+		"""
+		for i, layer in enumerate(self._layers):
+			if(self.__layer_modified[i]):
+				layer.fill(self.TRANSPARENT)
+				self.__layer_modified[i] = False
 
 	@property
-	def surface(self):
-		return self._surface
+	def display(self):
+		return self._display
 
-	@surface.setter
-	def surface(self, value: pygame.Surface):
+	@display.setter
+	def display(self, value: pygame.Surface):
 		if(not isinstance(value, pygame.Surface)):
-			raise TypeError("surface can only be of type pygame.Surface")
+			raise TypeError("display can only be of type pygame.Surface")
 
-		self._surface = value
+		self._display = value
 
 	@property
 	def units_per_pixel(self):
@@ -590,7 +617,7 @@ class RenderManager(Manager):
 		Converts a worldspace position into a position on the screen in pixels
 		"""
 		world_x, world_y = world_coords
-		surface_rect = self.surface.get_rect()
+		surface_rect = self.display.get_rect()
 		screen_x = world_x * self.pixels_per_unit + surface_rect.centerx
 		screen_y = - (world_y * self.pixels_per_unit) + surface_rect.centery
 		return (screen_x, screen_y)
@@ -600,7 +627,7 @@ class RenderManager(Manager):
 		Converts from a position on the screen into a position in the world
 		"""
 		screen_x, screen_y = screen_coords
-		surface_rect = self.surface.get_rect()
+		surface_rect = self.display.get_rect()
 		world_x = (screen_x - surface_rect.centerx) * self.units_per_pixel
 		# this might cause world_y to be -0.0 in some cases, but it doesn't really matter.
 		world_y = -(screen_y - surface_rect.centery) * self.units_per_pixel

@@ -12,14 +12,15 @@ def main():
     rbm = RigidBodyManager()
     env = DefaultEnvironment(components=(rm, rbm))
 
-    ball_transform = Transform(pygame.Vector2(0, 0))
+    ball1_transform = Transform(pygame.Vector2(0, 0))
     grav_acc = ConstantAcceleration((0, -1))
-    ball1 = get_circle_body(1, 0.5, (255, 0, 0), 1, (ball_transform, grav_acc))
+    ball1 = get_circle_body(1, 1, 1, (255, 0, 0), 1, (ball1_transform, grav_acc))
+    print(ball1.get_component(RigidBody).shape.radius)
 
-    # ball2 = CircleObject(radius=0.5, color=(0, 255, 0), layer=1)
+    ball2 = get_circle_body(1, 1, radius=1, color=(0, 255, 0), layer=1)
 
     env.attach_object(ball1)
-    # env.attach_object(ball2)
+    env.attach_object(ball2)
     env.start()
     running = True
     clock = pygame.time.Clock()
@@ -32,7 +33,7 @@ def main():
 
         env.advance()
         env.render()
-        # ball_transform.position.x += 0.01
+        # ball1_transform.position.x -= 0.01
         pygame.display.update()
 
 

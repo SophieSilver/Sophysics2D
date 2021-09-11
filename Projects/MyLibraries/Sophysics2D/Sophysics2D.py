@@ -69,9 +69,7 @@ class CircleRenderer(Renderer):
 
 		self.pixel_radius = value / 2
 
-	def render(self):
-		surface = self._manager.surface
-
+	def render(self, surface: pygame.Surface):
 		world_position = self.sim_object.transform.position
 		screen_position = self._manager.world_to_screen(world_position)
 
@@ -153,6 +151,7 @@ class ConstantAcceleration(Force):
 
 def get_circle_body(
 		mass: number = 1,
+		elasticity: number = 1,
 		radius: number = 1,
 		color = (255, 255, 255), layer: int = 1,
 		components: Iterable[SimObjectComponent] = ()):
@@ -163,6 +162,7 @@ def get_circle_body(
 	# kinda like a prefab in Unity
 	shape = pymunk.Circle(None, radius)
 	shape.mass = mass
+	shape.elasticity = elasticity
 	rigidbody = RigidBody(shape)
 	renderer = CircleRenderer(radius, color, layer)
 
