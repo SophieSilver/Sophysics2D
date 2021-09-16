@@ -11,13 +11,23 @@ class Component:
 	"""
 	The base class for Components
 	"""
+	def __init__(self):
+		self._started: bool = False
+
+	@property
+	def started(self) -> bool:
+		"""
+		A boolean that tells whether the start method has been called
+		"""
+		return self._started
+
 	def start(self):
 		"""
 		Called when the simulation starts to prepare the component.
 
 		I.e. get references to all necessary components, managers, etc.
 		"""
-		pass
+		self._started = True
 
 	def update(self):
 		"""
@@ -31,14 +41,7 @@ class SimObjectComponent(Component):
 	The base class for SimObject components
 	"""
 	def __init__(self):
-		# a reference to the object
-		# defaults to None, should be set by the object
 		self.sim_object: Optional[SimObject] = None
-		# DEPRECATED
-		# a reference to the component's _manager
-		# the _manager is responsible for calling the update() method on the component
-		# self._manager: Optional[EnvironmentComponent] = None
-
 		super().__init__()
 
 
@@ -108,6 +111,7 @@ class Manageable(SimObjectComponent):
 	def start(self):
 		self._manager = self.sim_object.environment.get_component(self._manager_type)
 		self._manager.attach_manageable(self)
+		super().start()
 
 
 class ComponentContainer:
@@ -189,9 +193,18 @@ class Transform(SimObjectComponent):
 			rotation: float = 0):
 		if(position is None):
 			position = pygame.Vector2()
-		self.position = position
+		self._position = position
 		self.rotation = rotation
 		super().__init__()
+
+	@property
+	def position(self):
+		return self._position
+
+	@position.setter
+	def position(self, value: Sequence[float]):
+		self._position.x = value[0]
+		self._position.y = value[1]
 
 
 class SimObject(ComponentContainer):
@@ -234,7 +247,7 @@ class SimEnvironment(ComponentContainer):
 			components: Iterable[EnvironmentComponent] = ()):
 		super().__init__(components)
 		# A flag that tells whether the start() method has been called
-		self.__has_started = False
+		self.__started = False
 		self.sim_objects = []
 
 		for o in sim_objects:
@@ -272,7 +285,7 @@ class SimEnvironment(ComponentContainer):
 			for component in sim_object.components:
 				component.start()
 
-		self.__has_started = True
+		self.__started = True
 
 	def advance(self):
 		"""
@@ -304,6 +317,7 @@ class Force(SimObjectComponent):
 	def start(self):
 		self._rigidbody: RigidBody = self.sim_object.get_component(RigidBody)
 		self._rigidbody.attach_force(self)
+		super().start()
 
 
 class RigidBody(Manageable):
@@ -314,33 +328,34 @@ class RigidBody(Manageable):
 	"""
 	def __init__(
 			self,
-			shape: pymunk.Shape = None,
+			shapes: Iterable[pymunk.Shape] = (),
 			body_type: int = pymunk.Body.DYNAMIC):
+		super().__init__(RigidBodyManager)
+
 		# initializing fields
 		self._transform: Optional[Transform] = None
 		self._space: Optional[pymunk.Space] = None
 		self._forces: list[Force] = []
-		self._body = pymunk.Body(body_type=body_type)
-		self._shape = None
+		self._body: pymunk.Body = pymunk.Body(body_type=body_type)
+		self._shapes: list[pymunk.Shape] = []
 
-		if(shape is None):
-			self._shape = pymunk.Circle(self._body, 1)
-			self._shape.mass = 1
-			self._shape.elasticity = 0.5
-		else:
-			self._shape = shape
+		# attaching the shapes
+		for s in shapes:
+			self.attach_shape(s)
 
-		self._shape.body = self._body
-
-		# calling setters
-		super().__init__(RigidBodyManager)
+		# setting a default shape (if no shapes were passed)
+		if(len(self.shapes) <= 0):
+			default_shape = pymunk.Circle(self._body, 1)
+			default_shape.mass = 1
+			default_shape.elasticity = 0.5
+			self.attach_shape(default_shape)
 
 	def start(self):
 		super().start()
 
 		self._transform = self.sim_object.transform
 		self._space: pymunk.Space = self.manager.space
-		self._space.add(self._body, self._shape)
+		self._space.add(self._body, *self.shapes)
 
 		# syncing the pymunk body position and sim_object's position
 		# (doing that awkwardness because pymunk and pygame use different Vector classes)
@@ -383,11 +398,37 @@ class RigidBody(Manageable):
 		return self._body
 
 	@property
-	def shape(self) -> pymunk.Shape:
+	def shapes(self) -> list[pymunk.Shape]:
 		"""
-		Shape of the rigid body
+		A set of shapes attached to the rigidbody
 		"""
-		return self._shape
+		return self._shapes
+
+	def attach_shape(self, shape: pymunk.Shape):
+		"""
+		Attaches the shape to the rigidbody
+		"""
+		if(not isinstance(shape, pymunk.Shape)):
+			raise TypeError("shape should be an instance of pymunk.Shape")
+
+		shape.body = self._body
+		self._shapes.append(shape)
+
+		if(self.started):
+			self._space.add(shape)
+
+	def remove_shape(self, shape: pymunk.Shape):
+		"""
+		Removes the shape from the rigidbody
+		"""
+		if (not isinstance(shape, pymunk.Shape)):
+			raise TypeError("shape should be an instance of pymunk.Shape")
+
+		shape.body = None
+		self._shapes.remove(shape)
+
+		if(self.started):
+			self._space.remove(shape)
 
 	@property
 	def mass(self) -> float:
@@ -459,17 +500,17 @@ class Renderer(Manageable):
 
 	Handles the rendering of an object
 	"""
-	def __init__(self, layer: int = 0):
+	def __init__(self, color = (255, 255, 255), layer: int = 0):
 		"""
 		:param layer: objects on lower layers will be drawn first and may be occluded by objects on higher levels.
 		"""
 		self.is_active = True
-		self._layer = layer
-		super().__init__(RenderManager)
 
-	# def start(self):
-	#   self._manager = self.sim_object.environment.get_component(RenderManager)
-	#   self._manager.attach_manageable(self)
+		self._layer = None
+		self.layer = layer
+
+		self.color = color
+		super().__init__(RenderManager)
 
 	def render(self, surface: pygame.Surface):
 		pass

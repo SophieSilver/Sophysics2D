@@ -8,14 +8,13 @@ class CircleRenderer(Renderer):
 	Renderer for circles
 	"""
 	# maybe add stuff like stroke width stroke and fill colors, etc, whatever, probably not this year
-	def __init__(self, radius: Union[int, float] = 1, color = (255, 255, 255), layer: int = 0):
+	def __init__(self, radius: Union[int, float] = 1, color = RenderManager.WHITE, layer: int = 0):
 		validate_positive_number(radius, "radius")
 
 		self.__world_radius = 0
 		self.radius = radius
 
-		self.color = color
-		super().__init__(layer)
+		super().__init__(color, layer)
 
 	@property
 	def radius(self):
@@ -74,6 +73,73 @@ class CircleRenderer(Renderer):
 		screen_position = self._manager.world_to_screen(world_position)
 
 		pygame.draw.circle(surface, self.color, screen_position, self.pixel_radius)
+
+
+class PolyRenderer(Renderer):
+	"""
+	Renderer for polygons
+	"""
+	def __init__(
+			self, vertices: Iterable[Sequence[number]],
+			closed: bool = True, color = RenderManager.WHITE, layer: int = 0):
+		"""
+		For the vertices parameter you are free to pass an iterable with any type that has 2 attributes
+		that can be accessed using [0] and [1], but internally they will be converted into
+		pygame.Vector2 and stored as such.
+
+		Vertices are described using x and y position in WORLD SPACE!
+		"""
+		self._vertices = None
+		self._closed = None
+
+		self.closed = closed
+		self.vertices = vertices
+
+		super().__init__(color, layer)
+
+	@property
+	def vertices(self) -> list[pygame.Vector2]:
+		"""
+		The list of vertices of the polygon in world coordinates
+		"""
+		return self._vertices
+
+	@vertices.setter
+	def vertices(self, vertices: Iterable[Sequence[number]]):
+		"""
+		For the vertices parameter you are free to pass an iterable with any type that has 2 attributes
+		that can be accessed using [0] and [1], but internally they will be converted into
+		pygame.Vector2 and stored as such.
+
+		Vertices are described using x and y position in WORLD SPACE!
+		"""
+		if(vertices is not None):
+			self._vertices = [pygame.Vector2(v[0], v[1]) for v in vertices]
+		else:
+			self._vertices = []
+
+	@property
+	def closed(self) -> bool:
+		"""
+		Describes whether the polygon is closed
+		"""
+		return self._closed
+
+	@closed.setter
+	def closed(self, value: bool):
+		self._closed = bool(value)
+
+	@property
+	def screen_vertices(self) -> list[pygame.Vector2]:
+		"""
+		The list of vertices of the polygon in screen coordinates
+		"""
+		# loops through the self.vertices list
+		return [pygame.Vector2(*self.manager.world_to_screen(vertex)) for vertex in self.vertices]
+
+	def render(self, surface: pygame.Surface):
+		if(len(self.vertices) >= 2):
+			pygame.draw.lines(surface, self.color, self.closed, self.screen_vertices)
 
 
 class DefaultEnvironment(SimEnvironment):
@@ -150,10 +216,8 @@ class ConstantAcceleration(Force):
 
 
 def get_circle_body(
-		mass: number = 1,
-		elasticity: number = 1,
-		radius: number = 1,
-		color = (255, 255, 255), layer: int = 1,
+		mass: number = 1, elasticity: number = 1, radius: number = 1,
+		color = (255, 255, 255), layer: int = 0,
 		components: Iterable[SimObjectComponent] = ()):
 	"""
 	A factory function for creating a sim_object that models a circle
@@ -163,7 +227,58 @@ def get_circle_body(
 	shape = pymunk.Circle(None, radius)
 	shape.mass = mass
 	shape.elasticity = elasticity
-	rigidbody = RigidBody(shape)
+	rigidbody = RigidBody((shape,))
 	renderer = CircleRenderer(radius, color, layer)
 
+	return SimObject((renderer, rigidbody, *components))
+
+
+def get_border_object(
+		up: number, down: number, left: number, right: number,
+		elasticity: number = 1, color = RenderManager.WHITE, layer: int = 0,
+		components: Iterable[SimObjectComponent] = ()):
+	"""
+	A factory function for creating a border object for the simulation
+
+	up: the upper edge of the border
+
+	down: the lower edge of the border
+
+	left: the left edge of the border
+
+	right: the right edge of the border
+	"""
+	# Since poly shape is convex, and we need the border to be concave,
+	# instead we're gonna make it with 4 segment shapes
+	# --------------------------------------------------------------
+	# First we check if top >= bottom and right >= left
+	if(up < down):
+		raise ValueError("up is lower than down")
+	if(right < left):
+		raise ValueError("right is lower than left")
+
+	# Convert side coordinates into vertices
+	a = (left, up)
+	b = (right, up)
+	c = (right, down)
+	d = (left, down)
+
+	# creating a renderer
+	renderer = PolyRenderer((a, b, c, d), True, color, layer)
+
+	# create a segment for each side
+	ab = pymunk.Segment(None, a, b, 0)
+	bc = pymunk.Segment(None, b, c, 0)
+	cd = pymunk.Segment(None, c, d, 0)
+	da = pymunk.Segment(None, d, a, 0)
+
+	# setting the mass and elasticity for the segments
+	for segment in (ab, bc, cd, da):
+		segment.mass = 1
+		segment.elasticity = elasticity
+
+	# creating the body
+	rigidbody = RigidBody((ab, bc, cd, da), pymunk.Body.STATIC)
+
+	# packing everything into a sim_object and returning
 	return SimObject((renderer, rigidbody, *components))
