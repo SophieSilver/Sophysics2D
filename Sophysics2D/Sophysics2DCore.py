@@ -149,9 +149,10 @@ class ComponentContainer:
 
 		If the component isn't found raises ValueError
 		"""
-		for c in self.components:
-			if(isinstance(c, comp_type)):
-				return c
+		component = self.try_get_component(comp_type)
+		if component is not None:
+			return component
+
 		raise ValueError(f"component {comp_type} not found")
 
 	def get_components(self, comp_type: type) -> Any:
@@ -172,10 +173,12 @@ class ComponentContainer:
 		"""
 		Returns a component of a specified type or None if the component wasn't found.
 		"""
-		try:
-			return self.get_component(comp_type)
-		except ValueError:
-			return None
+		component = None
+		for c in self.components:
+			if(isinstance(c, comp_type)):
+				component = c
+
+		return component
 
 	def has_component(self, comp_type: type) -> bool:
 		"""
@@ -400,9 +403,33 @@ class RigidBody(Manageable):
 	@property
 	def shapes(self) -> list[pymunk.Shape]:
 		"""
-		A set of shapes attached to the rigidbody
+		A list of shapes attached to the rigidbody
 		"""
 		return self._shapes
+
+	@property
+	def velocity(self) -> pymunk.Vec2d:
+		"""
+		The object's velocity
+		"""
+		return self._body.velocity
+
+	@velocity.setter
+	def velocity(self, value: Iterable[number]):
+		"""
+		velocity must be an iterable with at least 2 items, e.g. pygame.Vector2, pymunk.Vec2d, a tuple, a list or
+		any user defined iterable type.
+
+		The first two items represent the x and y components of the velocity vector respectively. Any subsequent items
+		are ignored.
+
+		Under the hood the velocity is represented as pymunk.Vec2d
+		"""
+		value_iterator = iter(value)
+		x = next(value_iterator)
+		y = next(value_iterator)
+
+		self._body.velocity = pymunk.Vec2d(x, y)
 
 	def attach_shape(self, shape: pymunk.Shape):
 		"""

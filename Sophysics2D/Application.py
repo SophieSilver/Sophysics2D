@@ -42,7 +42,8 @@ def main():
 		# ball1_transform.position.x -= 0.01
 		e1 = get_energy(rb1)
 		e2 = get_energy(rb2)
-		text = consolas.render(f"e1: {e1:.3}, e2: {e2:.3}, e_total: {e1 + e2:.3}", True, (0, 255, 0))
+		text = consolas.render(f"e1: {e1:.3}, e2: {e2:.3}, e_total: {e1 + e2:.2f}", True, (0, 255, 0))
+
 		display.blit(text, (0, 0))
 
 		pygame.display.update()
