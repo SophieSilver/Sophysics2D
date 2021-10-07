@@ -191,18 +191,20 @@ class ConstantAcceleration(Force):
 		return self._acceleration
 
 	@acceleration.setter
-	def acceleration(self, value: Sequence[number]):
+	def acceleration(self, value: Iterable[number]):
 		"""
-		acceleration must be an sequence with at least 2 items, e.g. pygame.Vector2, pymunk.Vec2d, a tuple, a list or
-		any user defined type that has a __getitem__ method and at least 2 items.
+		acceleration must be an iterable with at least 2 items, e.g. pygame.Vector2, pymunk.Vec2d, a tuple, a list or
+		any user defined iterable type.
 
 		The first two items represent the x and y components of the acceleration respectively. Any subsequent items
 		are ignored.
 
 		Under the hood the acceleration is represented as pygame.Vector2
 		"""
-		x = value[0]
-		y = value[1]
+		value_iterator = iter(value)
+
+		x = next(value_iterator)
+		y = next(value_iterator)
 		self._acceleration = pygame.Vector2(x, y)
 
 	def update(self):
