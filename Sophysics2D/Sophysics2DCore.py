@@ -215,12 +215,12 @@ class SimObject(ComponentContainer):
 	A container for SimObject Components. Must have a Transform
 	"""
 	def __init__(self, components: Iterable[SimObjectComponent] = ()):
-		super().__init__(components)
 		self.environment = None
+		super().__init__(components)
 
 		self._transform: Optional[Transform] = self.try_get_component(Transform)
 
-		if(self._transform is None):
+		if (self._transform is None):
 			self._transform = Transform()
 			self.attach_component(self.transform)
 
@@ -236,6 +236,9 @@ class SimObject(ComponentContainer):
 		component.sim_object = self
 		super().attach_component(component)
 
+		if self.environment is not None and self.environment.started:
+			component.start()
+
 	def remove_component(self, component: SimObjectComponent):
 		component.sim_object = None
 		super().remove_component(component)
@@ -248,13 +251,21 @@ class SimEnvironment(ComponentContainer):
 	def __init__(
 			self, sim_objects: Iterable[SimObject] = (),
 			components: Iterable[EnvironmentComponent] = ()):
-		super().__init__(components)
 		# A flag that tells whether the start() method has been called
-		self.__started = False
+		self._started = False
 		self.sim_objects = []
 
 		for o in sim_objects:
 			self.attach_object(o)
+
+		super().__init__(components)
+
+	@property
+	def started(self):
+		"""
+		A bool that says_whether the environment has started or not
+		"""
+		return self._started
 
 	def attach_object(self, sim_object: SimObject):
 		"""
@@ -270,6 +281,9 @@ class SimEnvironment(ComponentContainer):
 		"""
 		component.environment = self
 		super().attach_component(component)
+
+		if self._started:
+			component.start()
 
 	def remove_component(self, component: EnvironmentComponent):
 		component.environment = None
@@ -288,7 +302,7 @@ class SimEnvironment(ComponentContainer):
 			for component in sim_object.components:
 				component.start()
 
-		self.__started = True
+		self._started = True
 
 	def advance(self):
 		"""
@@ -323,6 +337,68 @@ class Force(SimObjectComponent):
 		super().start()
 
 
+class CollisionListener(SimObjectComponent):
+	"""
+	A collision listener contains methods that get called whenever the sim object it is attached to
+	is colliding with another sim object.
+	"""
+	def __init__(self):
+		self._rigidbody: Optional[RigidBody] = None
+
+		super().__init__()
+
+	def start(self):
+		self._rigidbody = self.sim_object.get_component(RigidBody)
+		self._rigidbody.attach_collision_listener(self)
+
+	def begin(self, other_body, arbiter: pymunk.Arbiter) -> bool:
+		"""
+		Two shapes just started touching for the first time this step.
+
+		Return true from the callback to process the collision normally or false
+		to cause pymunk to ignore the collision entirely. If you return false,
+		the pre_solve and post_solve callbacks will never be run, but you will still
+		receive a separate event when the shapes stop overlapping.
+
+		When returning a bool, be aware that the final value, that determines whether the collision will be processed
+		is the 'and' operation of all return values of all collision listeners on both bodies.
+		"""
+		pass
+
+	def pre_solve(self, other_body, arbiter: pymunk.Arbiter) -> bool:
+		"""
+		Two shapes are touching and their collision response has been processed.
+
+		Return false from the callback to make pymunk ignore the collision this
+		step or true to process it normally. Additionally, you may override collision
+		values using Arbiter.friction, Arbiter.elasticity or Arbiter.surfaceVelocity to provide custom
+		friction, elasticity, or surface velocity values.
+
+		When returning a bool, be aware that the final value, that determines whether the collision will be processed
+		is the 'and' operation of all return values of all collision listeners on both bodies.
+		"""
+		pass
+
+	def post_solve(self, other_body, arbiter: pymunk.Arbiter):
+		"""
+		Two shapes are touching and their collision response has been processed.
+
+		You can retrieve the collision impulse or kinetic energy at this time if you want
+		to use it to calculate sound volumes or damage amounts.
+		"""
+		pass
+
+	def separate(self, other_body, arbiter: pymunk.Arbiter):
+		"""
+		Two shapes have just stopped touching for the first time this step.
+
+		To ensure that begin()/separate() are always called in balanced pairs,
+		it will also be called when removing a shape while its in contact with something
+		or when de-allocating the space.
+		"""
+		pass
+
+
 class RigidBody(Manageable):
 	"""
 	Handles the movement of the SimObject according to physics.
@@ -339,8 +415,9 @@ class RigidBody(Manageable):
 		self._transform: Optional[Transform] = None
 		self._space: Optional[pymunk.Space] = None
 		self._forces: list[Force] = []
-		self._body: pymunk.Body = pymunk.Body(body_type=body_type)
+		self._body: pymunk.Body = SophysicsBody(self, body_type=body_type)
 		self._shapes: list[pymunk.Shape] = []
+		self._collision_listeners: list[CollisionListener] = []
 
 		# attaching the shapes
 		for s in shapes:
@@ -494,15 +571,134 @@ class RigidBody(Manageable):
 
 		self._body.apply_force_at_local_point((x, y))
 
+	def attach_collision_listener(self, listener: CollisionListener):
+		"""
+		adds a collision listener to the list of collision listeners
+		"""
+		if (not isinstance(listener, CollisionListener)):
+			raise TypeError("listener argument has to be of type CollisionListener")
+
+		self._collision_listeners.append(listener)
+
+	def remove_collision_listener(self, listener: CollisionListener):
+		if (not isinstance(listener, CollisionListener)):
+			raise TypeError("listener argument has to be of type CollisionListener")
+
+		self._collision_listeners.remove(listener)
+
+	@property
+	def collision_listeners(self) -> list[CollisionListener]:
+		"""
+		all collision listeners attached to this
+		"""
+		return self._collision_listeners
+
+
+class SophysicsBody(pymunk.Body):
+	"""
+	A subclass of pymunk.Body that includes a reference to the Sophysics RigidBody component
+	"""
+	def __init__(
+			self, rigidbody: RigidBody, mass: float = 0,
+			moment: float = 0, body_type: int = pymunk.Body.DYNAMIC):
+
+		if (not isinstance(rigidbody, RigidBody)):
+			raise TypeError("rigidbody argument has to be a type of RigidBody")
+
+		self._rigidbody = rigidbody
+
+		super().__init__(mass, moment, body_type)
+
+	@property
+	def rigidbody(self) -> RigidBody:
+		"""
+		A reference to the Sophysics RigidBody component
+		"""
+		return self._rigidbody
+
 
 class RigidBodyManager(Manager):
 	"""
 	The manager for RigidBody components
 	"""
 	def __init__(self, dt: float = 1 / 60):
-		super().__init__(RigidBody)
-		self.dt = dt
-		self._space = pymunk.Space()
+		super().__init__(RigidBody)		# giving the type of the manageable to the superclass initializer
+		self.dt: float = dt
+		self._space: pymunk.Space = pymunk.Space()
+		self.__initialize_collision_callback_functions()
+
+	def __initialize_collision_callback_functions(self):
+		"""
+		configures collision callbacks to call collision listeners
+		"""
+
+		# these functions iterate over all the collision listeners attached to the 2 bodies and call respective
+		# methods on them
+		def begin(arbiter: pymunk.Arbiter, *_) -> bool:
+			shapes = arbiter.shapes
+			body1: RigidBody = shapes[0].body.rigidbody
+			body2: RigidBody = shapes[1].body.rigidbody
+
+			process_collision = True
+
+			# call the method on all collision listeners that are attached to the 2 colliding bodies
+			for listener in body1.collision_listeners:
+				result = listener.begin(body2, arbiter)
+				process_collision = process_collision and result if result is not None else process_collision
+
+			for listener in body2.collision_listeners:
+				result = listener.begin(body1, arbiter)
+				process_collision = process_collision and result if result is not None else process_collision
+
+			return process_collision
+
+		def pre_solve(arbiter: pymunk.Arbiter, *_) -> bool:
+			shapes = arbiter.shapes
+			body1: RigidBody = shapes[0].body.rigidbody
+			body2: RigidBody = shapes[1].body.rigidbody
+
+			process_collision = True
+
+			# call the method on all collision listeners that are attached to the 2 colliding bodies
+			for listener in body1.collision_listeners:
+				result = listener.pre_solve(body2, arbiter)
+				process_collision = process_collision and result if result is not None else process_collision
+
+			for listener in body2.collision_listeners:
+				result = listener.pre_solve(body1, arbiter)
+				process_collision = process_collision and result if result is not None else process_collision
+
+			return process_collision
+
+		def post_solve(arbiter: pymunk.Arbiter, *_):
+			shapes = arbiter.shapes
+			body1: RigidBody = shapes[0].body.rigidbody
+			body2: RigidBody = shapes[1].body.rigidbody
+
+			# call the method on all collision listeners that are attached to the 2 colliding bodies
+			for listener in body1.collision_listeners:
+				listener.post_solve(body2, arbiter)
+
+			for listener in body2.collision_listeners:
+				listener.post_solve(body1, arbiter)
+
+		def separate(arbiter: pymunk.Arbiter, *_):
+			shapes = arbiter.shapes
+			body1: RigidBody = shapes[0].body.rigidbody
+			body2: RigidBody = shapes[1].body.rigidbody
+
+			# call the method on all collision listeners that are attached to the 2 colliding bodies
+			for listener in body1.collision_listeners:
+				listener.separate(body2, arbiter)
+
+			for listener in body2.collision_listeners:
+				listener.separate(body1, arbiter)
+
+		collision_handler = self._space.add_default_collision_handler()
+		collision_handler.begin = begin
+		collision_handler.pre_solve = pre_solve
+		collision_handler.post_solve = post_solve
+		collision_handler.separate = separate
 
 	@property
 	def space(self):

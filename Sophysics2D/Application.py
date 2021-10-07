@@ -28,6 +28,9 @@ def main():
 	running = True
 	clock = pygame.time.Clock()
 
+	ball1.attach_component(BoingColListener())
+	ball2.attach_component(BoingColListener())
+
 	rb1 = ball1.get_component(RigidBody)
 	rb2 = ball2.get_component(RigidBody)
 
