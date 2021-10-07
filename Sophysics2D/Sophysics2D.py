@@ -8,7 +8,7 @@ class CircleRenderer(Renderer):
 	Renderer for circles
 	"""
 	# maybe add stuff like stroke width stroke and fill colors, etc, whatever, probably not this year
-	def __init__(self, radius: Union[int, float] = 1, color = RenderManager.WHITE, layer: int = 0):
+	def __init__(self, radius: Union[int, float] = 1, color = Color.WHITE, layer: int = 0):
 		validate_positive_number(radius, "radius")
 
 		self.__world_radius = 0
@@ -81,7 +81,7 @@ class PolyRenderer(Renderer):
 	"""
 	def __init__(
 			self, vertices: Iterable[Sequence[number]],
-			closed: bool = True, color = RenderManager.WHITE, layer: int = 0):
+			closed: bool = True, color = Color.WHITE, layer: int = 0):
 		"""
 		For the vertices parameter you are free to pass an iterable with any type that has 2 attributes
 		that can be accessed using [0] and [1], but internally they will be converted into
@@ -217,7 +217,7 @@ class ConstantAcceleration(Force):
 
 def get_circle_body(
 		mass: number = 1, elasticity: number = 1, radius: number = 1,
-		color = (255, 255, 255), layer: int = 0,
+		color = Color.WHITE, layer: int = 0,
 		components: Iterable[SimObjectComponent] = ()):
 	"""
 	A factory function for creating a sim_object that models a circle
@@ -235,7 +235,7 @@ def get_circle_body(
 
 def get_border_object(
 		up: number, down: number, left: number, right: number,
-		elasticity: number = 1, color = RenderManager.WHITE, layer: int = 0,
+		elasticity: number = 1, color = Color.WHITE, layer: int = 0,
 		components: Iterable[SimObjectComponent] = ()):
 	"""
 	A factory function for creating a border object for the simulation

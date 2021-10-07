@@ -494,13 +494,28 @@ class RigidBodyManager(Manager):
 			rb.post_update()
 
 
+class Color:
+	"""
+	A class containing constants for colors
+	"""
+	TRANSPARENT = (0, 0, 0, 0)
+	WHITE = (255, 255, 255)
+	RED = (255, 0, 0)
+	GREEN = (0, 255, 0)
+	BLUE = (0, 0, 255)
+	YELLOW = (255, 255, 0)
+	CYAN = (0, 255, 255)
+	MAGENTA = (255, 0, 255)
+	BLACK = (0, 0, 0)
+
+
 class Renderer(Manageable):
 	"""
 	A base class for renderers
 
 	Handles the rendering of an object
 	"""
-	def __init__(self, color = (255, 255, 255), layer: int = 0):
+	def __init__(self, color = Color.WHITE, layer: int = 0):
 		"""
 		:param layer: objects on lower layers will be drawn first and may be occluded by objects on higher levels.
 		"""
@@ -533,22 +548,10 @@ class RenderManager(Manager):
 
 	Provides methods for converting from World Coordinates into screenspace coordinates and vice versa
 	"""
-
-	# colors
-	TRANSPARENT = (0, 0, 0, 0)
-	WHITE = (255, 255, 255)
-	RED = (255, 0, 0)
-	GREEN = (0, 255, 0)
-	BLUE = (0, 0, 255)
-	YELLOW = (255, 255, 0)
-	CYAN = (0, 255, 255)
-	MAGENTA = (255, 0, 255)
-	BLACK = (0, 0, 0)
-
 	def __init__(
 			self, display: pygame.Surface,
 			units_per_pixel: float = 1 / 80,
-			background_color = BLACK,
+			background_color = Color.BLACK,
 			n_layers: int = 32):
 		"""
 		:param display: surface on which the image will be drawn
@@ -604,7 +607,7 @@ class RenderManager(Manager):
 			# create a surface that uses per pixel alpha
 			surface = pygame.Surface(self.display.get_size(), pygame.SRCALPHA)
 			# make the surface transparent
-			surface.fill(self.TRANSPARENT)
+			surface.fill(Color.TRANSPARENT)
 			self._layers.append(surface)
 
 	def __clear_layer_surfaces(self):
@@ -613,7 +616,7 @@ class RenderManager(Manager):
 		"""
 		for i, layer in enumerate(self._layers):
 			if(self.__layer_modified[i]):
-				layer.fill(self.TRANSPARENT)
+				layer.fill(Color.TRANSPARENT)
 				self.__layer_modified[i] = False
 
 	@property
