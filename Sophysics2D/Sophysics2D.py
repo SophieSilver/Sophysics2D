@@ -216,7 +216,7 @@ class ConstantAcceleration(Force):
         self._rigidbody.apply_force(force)
 
 
-def get_circle_body(mass: number = 1, elasticity: number = 1, radius: number = 1,
+def get_circle_body(tag: str = "", mass: number = 1, elasticity: number = 1, radius: number = 1,
                     color = Color.WHITE, layer: int = 0,
                     components: Iterable[SimObjectComponent] = ()):
     """
@@ -230,10 +230,10 @@ def get_circle_body(mass: number = 1, elasticity: number = 1, radius: number = 1
     rigidbody = RigidBody((shape,))
     renderer = CircleRenderer(radius, color, layer)
 
-    return SimObject((renderer, rigidbody, *components))
+    return SimObject(tag, components=(renderer, rigidbody, *components))
 
 
-def get_border_object(up: number, down: number, left: number, right: number,
+def get_border_object(tag: str, up: number, down: number, left: number, right: number,
                       elasticity: number = 1, color = Color.WHITE, layer: int = 0,
                       components: Iterable[SimObjectComponent] = ()):
     """
@@ -280,4 +280,4 @@ def get_border_object(up: number, down: number, left: number, right: number,
     rigidbody = RigidBody((ab, bc, cd, da), pymunk.Body.STATIC)
 
     # packing everything into a sim_object and returning
-    return SimObject((renderer, rigidbody, *components))
+    return SimObject(tag, components=(renderer, rigidbody, *components))

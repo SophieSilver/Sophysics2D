@@ -213,8 +213,9 @@ class SimObject(ComponentContainer):
     """
     A container for SimObject Components. Must have a Transform
     """
-    def __init__(self, components: Iterable[SimObjectComponent] = ()):
+    def __init__(self, tag: str = "", components: Iterable[SimObjectComponent] = ()):
         self.environment = None
+        self._tag = tag
         super().__init__(components)
 
         self._transform: Optional[Transform] = self.try_get_component(Transform)
@@ -222,6 +223,17 @@ class SimObject(ComponentContainer):
         if (self._transform is None):
             self._transform = Transform()
             self.attach_component(self.transform)
+
+    @property
+    def tag(self):
+        return self._tag
+
+    @tag.setter
+    def tag(self, value: str):
+        if (not isinstance(value, str)):
+            raise TypeError("tag should be a string")
+
+        self._tag = value
 
     @property
     def transform(self):

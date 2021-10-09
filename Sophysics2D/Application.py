@@ -15,10 +15,10 @@ def main():
 
     ball1_transform = Transform(pygame.Vector2(0, 0))
     grav_acc1 = ConstantAcceleration((0, -9.8))
-    ball1 = get_circle_body(1, 1, 1, (255, 0, 0), 1, (ball1_transform, grav_acc1))
+    ball1 = get_circle_body("red ball", 1, 1, 1, (255, 0, 0), 1, (ball1_transform, grav_acc1))
     grav_acc2 = ConstantAcceleration((0, -9.8))
-    ball2 = get_circle_body(1, 1, radius=1, color=(0, 255, 0), layer=1, components=(grav_acc2,))
-    border = get_border_object(4, -4, -7, 7, 1, Color.WHITE, 0)
+    ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=1, components=(grav_acc2,))
+    border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 0)
 
     env.attach_object(ball1)
     ball1.get_component(RigidBody).body.velocity = pymunk.Vec2d(3, 4)
