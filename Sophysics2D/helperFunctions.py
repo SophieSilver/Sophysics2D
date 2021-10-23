@@ -33,3 +33,12 @@ def intervals_intersect(x1, x2, y1, y2) -> bool:
     # taken from StackOverflow shorturl.at/egqC9
 
     return (x1 <= y2) and (x2 >= y1)
+
+
+def clamp(minimum: number, value: number, maximum: number):
+    """
+    Clamps the value between a given minimum and maximum
+
+    Returns the value if it's in the range between the minimum and maximum.
+    """
+    return max(min(maximum, value), minimum)
