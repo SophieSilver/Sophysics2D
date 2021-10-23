@@ -5,6 +5,7 @@ The core structure of Sophysics2D
 import pygame
 import pymunk
 from helperFunctions import *
+from abc import abstractmethod
 
 
 class Component:
@@ -25,13 +26,24 @@ class Component:
         """
         Called when the simulation starts to prepare the component.
 
-        I.e. get references to all necessary components, managers, etc.
+        A use case example: get references to all necessary components, managers, etc.
+
+        When subclassing, add super().start() to set the self._started to True
         """
         self._started = True
 
     def update(self):
         """
         Gets called every timestep of the simulation
+        """
+        pass
+
+    def on_destroy(self):
+        """
+        Gets called when the object to which the component is attached to is destroyed
+
+        Don't bother overriding it just to release references to other components, GC will do it for you.
+        Use it to cut all ties with the environment that the sim object is attached to.
         """
         pass
 
@@ -71,9 +83,9 @@ class Manager(EnvironmentComponent):
         super().__init__()
 
     @property
-    def manageables(self):
+    def manageables(self) -> set:
         """
-        Returns a copy of the manageables list
+        Returns a copy of the manageables set
         """
         return self._manageables.copy()
 
@@ -85,6 +97,9 @@ class Manager(EnvironmentComponent):
             raise TypeError(f"A manageable object must be an instance of '{self._manageable_type.__name__}'")
 
         self._manageables.add(manageable)
+
+    def remove_manageable(self, manageable: SimObjectComponent):
+        self._manageables.remove(manageable)
 
     def update(self):
         for m in self._manageables:
@@ -112,6 +127,10 @@ class Manageable(SimObjectComponent):
         self._manager = self.sim_object.environment.get_component(self._manager_type)
         self._manager.attach_manageable(self)
         super().start()
+
+    def on_destroy(self):
+        self._manager.remove_manageable(self)
+        self._manager = None
 
 
 class ComponentContainer:
@@ -250,6 +269,18 @@ class SimObject(ComponentContainer):
         component.sim_object = None
         super().remove_component(component)
 
+    def destroy(self):
+        """
+        used to destroy the simobject
+
+        Calling this yourself method is not recommended, instead use environment.destroy_after_step() to
+        ensure no errors with referencing destroyed objects
+        """
+        for c in self.components:
+            c.on_destroy()
+
+        self.environment.remove_sim_object(self)
+
 
 class SimEnvironment(ComponentContainer):
     """
@@ -260,9 +291,10 @@ class SimEnvironment(ComponentContainer):
         # A flag that tells whether the start() method has been called
         self._started = False
         self.sim_objects: set[SimObject] = set()
+        self._to_be_destroyed: set[SimObject] = set()
 
         for o in sim_objects:
-            self.attach_object(o)
+            self.attach_sim_object(o)
 
         super().__init__(components)
 
@@ -273,12 +305,27 @@ class SimEnvironment(ComponentContainer):
         """
         return self._started
 
-    def attach_object(self, sim_object: SimObject):
+    @property
+    def to_be_destroyed_sim_objects(self) -> set[SimObject]:
+        return self._to_be_destroyed
+
+    def attach_sim_object(self, sim_object: SimObject):
         """
-        Attaches an object to the environment.
+        Attaches an simobject to the environment.
         """
         sim_object.environment = self
         self.sim_objects.add(sim_object)
+
+        if self._started:
+            for component in sim_object.components:
+                component.start()
+
+    def remove_sim_object(self, sim_object: SimObject):
+        """
+        Removes the sim_object from the environment
+        """
+        sim_object.environment = None
+        self.sim_objects.remove(sim_object)
 
     # overriding a method to connect the component to self
     def attach_component(self, component: EnvironmentComponent):
@@ -310,19 +357,31 @@ class SimEnvironment(ComponentContainer):
 
         self._started = True
 
+    def destroy_after_step(self, sim_object: SimObject):
+        """
+        Schedule the sim_object to be destroyed at the end of the current step
+        """
+        self._to_be_destroyed.add(sim_object)
+
+    def _destroy_sim_objects(self):
+        for o in self._to_be_destroyed:
+            o.destroy()
+
+        self._to_be_destroyed.clear()
+
+    @abstractmethod
     def advance(self):
         """
         Advance 1 step forward.
 
-        Abstract
+        When overriding, add super().advance() in the end
         """
-        pass
+        self._destroy_sim_objects()
 
+    @abstractmethod
     def render(self):
         """
         Renders a snapshot of the simulation
-
-        Abstract
         """
         pass
 
@@ -532,11 +591,11 @@ class RigidBody(Manageable):
         if (not isinstance(shape, pymunk.Shape)):
             raise TypeError("shape should be an instance of pymunk.Shape")
 
-        shape.body = None
-        self._shapes.remove(shape)
-
         if(self.started):
             self._space.remove(shape)
+
+        shape.body = None
+        self._shapes.remove(shape)
 
     @property
     def mass(self) -> float:
@@ -596,6 +655,12 @@ class RigidBody(Manageable):
         all collision listeners attached to this
         """
         return self._collision_listeners
+
+    def on_destroy(self):
+        for s in self._shapes:
+            self._space.remove(s)
+
+        self._space.remove(self._body)
 
 
 class SophysicsBody(pymunk.Body):
@@ -753,7 +818,19 @@ class Renderer(Manageable):
         self.color = color
         super().__init__(RenderManager)
 
+    def update(self):
+        """
+        Renders the object on the display.
+
+        !IMPORTANT! it's better to use render() to render on a specific surface, the update method will always
+        default to rendering directly on the display
+        """
+        self.render(self.manager.display)
+
     def render(self, surface: pygame.Surface):
+        """
+        Render the object on a specific surface
+        """
         pass
 
     @property

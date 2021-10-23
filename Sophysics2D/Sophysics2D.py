@@ -157,6 +157,7 @@ class DefaultEnvironment(SimEnvironment):
 
     def advance(self):
         self.rigidbody_manager.update()
+        super().advance()
 
     def render(self):
         """

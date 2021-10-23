@@ -20,12 +20,15 @@ def main():
     ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=1, components=(grav_acc(),))
     border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 0)
 
-    env.attach_object(ball1)
+    env.attach_sim_object(ball1)
     ball1.get_component(RigidBody).body.velocity = pymunk.Vec2d(3, 4)
-    env.attach_object(border)
-    env.attach_object(ball2)
+    env.attach_sim_object(border)
+    env.attach_sim_object(ball2)
     env.start()
     clock = pygame.time.Clock()
+    steps = 1
+
+    del ball1_transform
 
     rb1 = ball1.get_component(RigidBody)
     rb2 = ball2.get_component(RigidBody)
@@ -36,6 +39,11 @@ def main():
             if(event.type == pygame.QUIT):
                 sys.exit()
 
+        if steps % 307 == 1:
+            env.destroy_after_step(ball1)
+
+        if steps % 307 == 134:
+            env.attach_sim_object(ball1)
         env.advance()
         env.render()
         e1 = get_energy(rb1)
@@ -45,6 +53,7 @@ def main():
         display.blit(text, (0, 0))
 
         pygame.display.update()
+        steps += 1
 
 
 def get_energy(obj: RigidBody):
