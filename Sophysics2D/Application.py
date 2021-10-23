@@ -1,3 +1,4 @@
+import sys
 from Sophysics2D import *
 
 
@@ -14,10 +15,9 @@ def main():
     env = DefaultEnvironment(components=(rm, rbm))
 
     ball1_transform = Transform(pygame.Vector2(0, 0))
-    grav_acc1 = ConstantAcceleration((0, -9.8))
-    ball1 = get_circle_body("red ball", 1, 1, 1, (255, 0, 0), 1, (ball1_transform, grav_acc1))
-    grav_acc2 = ConstantAcceleration((0, -9.8))
-    ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=1, components=(grav_acc2,))
+    grav_acc = lambda: ConstantAcceleration((0, -9.8))
+    ball1 = get_circle_body("red ball", 1, 1, 1, (255, 0, 0), 1, (ball1_transform, grav_acc()))
+    ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=1, components=(grav_acc(),))
     border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 0)
 
     env.attach_object(ball1)
@@ -25,21 +25,19 @@ def main():
     env.attach_object(border)
     env.attach_object(ball2)
     env.start()
-    running = True
     clock = pygame.time.Clock()
 
     rb1 = ball1.get_component(RigidBody)
     rb2 = ball2.get_component(RigidBody)
 
-    while(running):
+    while True:
         clock.tick(60)
         for event in pygame.event.get():
             if(event.type == pygame.QUIT):
-                running = False
+                sys.exit()
 
         env.advance()
         env.render()
-        # ball1_transform.position.x -= 0.01
         e1 = get_energy(rb1)
         e2 = get_energy(rb2)
         text = consolas.render(f"e1: {e1:.3}, e2: {e2:.3}, e_total: {e1 + e2:.2f}", True, (0, 255, 0))

@@ -67,7 +67,7 @@ class Manager(EnvironmentComponent):
     def __init__(self, manageable_type: type = None):
         # Type of the objects that the _manager manages
         self._manageable_type: type = Manageable if manageable_type is None else manageable_type
-        self._manageables: list[manageable_type] = []
+        self._manageables: set[manageable_type] = set()
         super().__init__()
 
     @property
@@ -84,7 +84,7 @@ class Manager(EnvironmentComponent):
         if(not isinstance(manageable, self._manageable_type)):
             raise TypeError(f"A manageable object must be an instance of '{self._manageable_type.__name__}'")
 
-        self._manageables.append(manageable)
+        self._manageables.add(manageable)
 
     def update(self):
         for m in self._manageables:
@@ -119,7 +119,7 @@ class ComponentContainer:
     The base class for Component containers such as SimObject and SimEnvironment.
     """
     def __init__(self, components: Iterable[Component] = ()):
-        self.components = []
+        self.components: set[Component] = set()
 
         for c in components:
             self.attach_component(c)
@@ -135,7 +135,7 @@ class ComponentContainer:
         if(not isinstance(component, Component)):
             raise TypeError("component must be of type Component")
 
-        self.components.append(component)
+        self.components.add(component)
 
     def remove_component(self, component: Component):
         """
@@ -259,7 +259,7 @@ class SimEnvironment(ComponentContainer):
                  components: Iterable[EnvironmentComponent] = ()):
         # A flag that tells whether the start() method has been called
         self._started = False
-        self.sim_objects = []
+        self.sim_objects: set[SimObject] = set()
 
         for o in sim_objects:
             self.attach_object(o)
@@ -278,7 +278,7 @@ class SimEnvironment(ComponentContainer):
         Attaches an object to the environment.
         """
         sim_object.environment = self
-        self.sim_objects.append(sim_object)
+        self.sim_objects.add(sim_object)
 
     # overriding a method to connect the component to self
     def attach_component(self, component: EnvironmentComponent):
@@ -418,10 +418,10 @@ class RigidBody(Manageable):
         # initializing fields
         self._transform: Optional[Transform] = None
         self._space: Optional[pymunk.Space] = None
-        self._forces: list[Force] = []
+        self._forces: set[Force] = set()
         self._body: pymunk.Body = SophysicsBody(self, body_type=body_type)
-        self._shapes: list[pymunk.Shape] = []
-        self._collision_listeners: list[CollisionListener] = []
+        self._shapes: set[pymunk.Shape] = set()
+        self._collision_listeners: set[CollisionListener] = set()
 
         # attaching the shapes
         for s in shapes:
@@ -482,7 +482,7 @@ class RigidBody(Manageable):
         return self._body
 
     @property
-    def shapes(self) -> list[pymunk.Shape]:
+    def shapes(self) -> set[pymunk.Shape]:
         """
         A list of shapes attached to the rigidbody
         """
@@ -520,7 +520,7 @@ class RigidBody(Manageable):
             raise TypeError("shape should be an instance of pymunk.Shape")
 
         shape.body = self._body
-        self._shapes.append(shape)
+        self._shapes.add(shape)
 
         if(self.started):
             self._space.add(shape)
@@ -558,7 +558,7 @@ class RigidBody(Manageable):
         if(not isinstance(force, Force)):
             raise TypeError("force must be a type of Force")
 
-        self._forces.append(force)
+        self._forces.add(force)
 
     def remove_force(self, force: Force):
         """
@@ -582,7 +582,7 @@ class RigidBody(Manageable):
         if (not isinstance(listener, CollisionListener)):
             raise TypeError("listener argument has to be of type CollisionListener")
 
-        self._collision_listeners.append(listener)
+        self._collision_listeners.add(listener)
 
     def remove_collision_listener(self, listener: CollisionListener):
         if (not isinstance(listener, CollisionListener)):
@@ -591,7 +591,7 @@ class RigidBody(Manageable):
         self._collision_listeners.remove(listener)
 
     @property
-    def collision_listeners(self) -> list[CollisionListener]:
+    def collision_listeners(self) -> set[CollisionListener]:
         """
         all collision listeners attached to this
         """
