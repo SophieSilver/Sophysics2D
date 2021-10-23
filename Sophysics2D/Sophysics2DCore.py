@@ -161,12 +161,7 @@ class ComponentContainer:
 
         If no components were found returns an empty list.
         """
-        components = []
-
-        for c in self.components:
-            if(isinstance(c, comp_type)):
-                components.append(c)
-
+        components = [c for c in self.components if isinstance(c, comp_type)]
         return components
 
     def try_get_component(self, comp_type: type) -> Any:
@@ -177,6 +172,7 @@ class ComponentContainer:
         for c in self.components:
             if(isinstance(c, comp_type)):
                 component = c
+                break
 
         return component
 
@@ -273,7 +269,7 @@ class SimEnvironment(ComponentContainer):
     @property
     def started(self):
         """
-        A bool that says_whether the environment has started or not
+        A flag that says whether the environment has started or not
         """
         return self._started
 
