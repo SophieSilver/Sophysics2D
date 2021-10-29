@@ -1,7 +1,14 @@
 """
 The core structure of Sophysics2D
 """
-# TODO refactor code, put classes into separate files
+# TODO refactor code
+# TODO rename start() into setup()
+# TODO remove update() method from Component
+# TODO reduce coupling by introducing an event system
+# TODO remove start() method from the environment, make it start on __init__
+
+# TODO annotate stuff that couldn't be annotated previously because we didn't import __future__
+from __future__ import annotations
 import pygame
 import pymunk
 from helperFunctions import *
@@ -53,21 +60,62 @@ class SimObjectComponent(Component):
     The base class for SimObject components
     """
     def __init__(self):
-        self.sim_object: Optional[SimObject] = None
+        self._sim_object: Optional[SimObject] = None
         super().__init__()
+
+    @property
+    def sim_object(self) -> SimObject:
+        """
+        A reference to the sim_object that the component is attached to
+        """
+        return self._sim_object
+
+    def attach_sim_object(self, sim_object: SimObject):
+        """
+        Attach a sim_object reference to the component
+        """
+        if not isinstance(sim_object, SimObject):
+            raise TypeError("'sim_object' must be an instance of 'SimObject'")
+
+        self._sim_object = sim_object
+
+    def remove_sim_object(self):
+        """
+        removes the environment reference from the component
+        """
+        self._sim_object = None
 
 
 class EnvironmentComponent(Component):
     """
     The base class for environment components.
-
-    Typically an EnvironmentComponent would call update() on every corresponding SimObjectComponent
     """
     def __init__(self):
         # a reference to the environment
-        # defaults to None, should be set by the environment
-        self.environment: Optional[SimEnvironment] = None
+        self._environment: Optional[SimEnvironment] = None
         super().__init__()
+
+    @property
+    def environment(self):
+        """
+        The environment this component is attached to
+        """
+        return self._environment
+
+    def attach_environment(self, environment: SimEnvironment):
+        """
+        Attaches an environment reference to the component
+        """
+        if not isinstance(environment, SimEnvironment):
+            raise TypeError("'environment' must be an instance of 'SimEnvironment'")
+
+        self._environment = environment
+
+    def remove_environment(self):
+        """
+        removes the environment reference from the component
+        """
+        self._environment = None
 
 
 class Manager(EnvironmentComponent):
@@ -229,7 +277,7 @@ class SimObject(ComponentContainer):
     A container for SimObject Components. Must have a Transform
     """
     def __init__(self, tag: str = "", components: Iterable[SimObjectComponent] = ()):
-        self.environment = None
+        self._environment = None
         self._tag = tag
         super().__init__(components)
 
@@ -238,6 +286,28 @@ class SimObject(ComponentContainer):
         if (self._transform is None):
             self._transform = Transform()
             self.attach_component(self.transform)
+
+    @property
+    def environment(self) -> SimEnvironment:
+        """
+        A reference to the environment this sim object is attached to
+        """
+        return self._environment
+
+    def attach_environment(self, environment: SimEnvironment):
+        """
+        Attaches an environment reference to the sim object
+        """
+        if not isinstance(environment, SimEnvironment):
+            raise TypeError("'environment' must be an instance of 'SimEnvironment'")
+
+        self._environment = environment
+
+    def remove_environment(self):
+        """
+        removes the environment reference from the sim object
+        """
+        self._environment = None
 
     @property
     def tag(self):
@@ -259,14 +329,14 @@ class SimObject(ComponentContainer):
         """
         Attaches component to the object
         """
-        component.sim_object = self
+        component.attach_sim_object(self)
         super().attach_component(component)
 
         if self.environment is not None and self.environment.started:
             component.start()
 
     def remove_component(self, component: SimObjectComponent):
-        component.sim_object = None
+        component.remove_sim_object()
         super().remove_component(component)
 
     def destroy(self):
@@ -311,9 +381,9 @@ class SimEnvironment(ComponentContainer):
 
     def attach_sim_object(self, sim_object: SimObject):
         """
-        Attaches an simobject to the environment.
+        Attaches a sim object to the environment.
         """
-        sim_object.environment = self
+        sim_object.attach_environment(self)
         self.sim_objects.add(sim_object)
 
         if self._started:
@@ -324,7 +394,7 @@ class SimEnvironment(ComponentContainer):
         """
         Removes the sim_object from the environment
         """
-        sim_object.environment = None
+        sim_object.remove_environment()
         self.sim_objects.remove(sim_object)
 
     # overriding a method to connect the component to self
@@ -332,14 +402,14 @@ class SimEnvironment(ComponentContainer):
         """
         Attaches a component to the environment.
         """
-        component.environment = self
+        component.attach_environment(self)
         super().attach_component(component)
 
         if self._started:
             component.start()
 
     def remove_component(self, component: EnvironmentComponent):
-        component.environment = None
+        component.remove_environment()
         super().remove_component(component)
 
     def start(self):
