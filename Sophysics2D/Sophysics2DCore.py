@@ -2,10 +2,9 @@
 The core structure of Sophysics2D
 """
 # TODO refactor code
-# TODO rename start() into setup()
-# TODO remove update() method from Component
+# TODO remove update() method from Component, replace them with more descriptive names
+# the update method will be reintroduced when we add scripts
 # TODO reduce coupling by introducing an event system
-# TODO remove start() method from the environment, make it start on __init__
 
 # TODO annotate stuff that couldn't be annotated previously because we didn't import __future__
 from __future__ import annotations
@@ -20,24 +19,24 @@ class Component:
     The base class for Components
     """
     def __init__(self):
-        self._started: bool = False
+        self._is_set_up: bool = False
 
     @property
-    def started(self) -> bool:
+    def is_set_up(self) -> bool:
         """
-        A boolean that tells whether the start method has been called
+        A flag that tells whether the setup method has been called
         """
-        return self._started
+        return self._is_set_up
 
-    def start(self):
+    def setup(self):
         """
-        Called when the simulation starts to prepare the component.
+        Called when the simulation sets up the component.
 
         A use case example: get references to all necessary components, managers, etc.
 
-        When subclassing, add super().start() to set the self._started to True
+        When subclassing, add super().setup() to set the self._is_set_up to True
         """
-        self._started = True
+        self._is_set_up = True
 
     def update(self):
         """
@@ -171,10 +170,10 @@ class Manageable(SimObjectComponent):
         """
         return self._manager
 
-    def start(self):
+    def setup(self):
         self._manager = self.sim_object.environment.get_component(self._manager_type)
         self._manager.attach_manageable(self)
-        super().start()
+        super().setup()
 
     def on_destroy(self):
         self._manager.remove_manageable(self)
@@ -332,8 +331,8 @@ class SimObject(ComponentContainer):
         component.attach_sim_object(self)
         super().attach_component(component)
 
-        if self.environment is not None and self.environment.started:
-            component.start()
+        if self.environment is not None and self.environment.is_set_up:
+            component.setup()
 
     def remove_component(self, component: SimObjectComponent):
         component.remove_sim_object()
@@ -358,8 +357,11 @@ class SimEnvironment(ComponentContainer):
     """
     def __init__(self, sim_objects: Iterable[SimObject] = (),
                  components: Iterable[EnvironmentComponent] = ()):
-        # A flag that tells whether the start() method has been called
-        self._started = False
+        # When subclassing, make sure that the super().__init__() is at the end,
+        # so that _setup() is being called at the correct time
+
+        # A flag that tells whether the setup() method has been called
+        self._is_set_up = False
         self.sim_objects: set[SimObject] = set()
         self._to_be_destroyed: set[SimObject] = set()
 
@@ -367,13 +369,14 @@ class SimEnvironment(ComponentContainer):
             self.attach_sim_object(o)
 
         super().__init__(components)
+        self._setup()
 
     @property
-    def started(self):
+    def is_set_up(self):
         """
-        A flag that says whether the environment has started or not
+        A flag that says whether the environment has been set up or not
         """
-        return self._started
+        return self._is_set_up
 
     @property
     def to_be_destroyed_sim_objects(self) -> set[SimObject]:
@@ -386,9 +389,9 @@ class SimEnvironment(ComponentContainer):
         sim_object.attach_environment(self)
         self.sim_objects.add(sim_object)
 
-        if self._started:
+        if self._is_set_up:
             for component in sim_object.components:
-                component.start()
+                component.setup()
 
     def remove_sim_object(self, sim_object: SimObject):
         """
@@ -405,27 +408,27 @@ class SimEnvironment(ComponentContainer):
         component.attach_environment(self)
         super().attach_component(component)
 
-        if self._started:
-            component.start()
+        if self._is_set_up:
+            component.setup()
 
     def remove_component(self, component: EnvironmentComponent):
         component.remove_environment()
         super().remove_component(component)
 
-    def start(self):
+    def _setup(self):
         """
-        Calls start() on all environment components and sim object components.
+        Calls setup() on all environment components and sim object components.
 
         Gets necessary references for use in other methods
         """
         for env_component in self.components:
-            env_component.start()
+            env_component.setup()
 
         for sim_object in self.sim_objects:
             for component in sim_object.components:
-                component.start()
+                component.setup()
 
-        self._started = True
+        self._is_set_up = True
 
     def destroy_after_step(self, sim_object: SimObject):
         """
@@ -466,10 +469,10 @@ class Force(SimObjectComponent):
         self._rigidbody = None
         super().__init__()
 
-    def start(self):
+    def setup(self):
         self._rigidbody: RigidBody = self.sim_object.get_component(RigidBody)
         self._rigidbody.attach_force(self)
-        super().start()
+        super().setup()
 
 
 class CollisionListener(SimObjectComponent):
@@ -482,7 +485,7 @@ class CollisionListener(SimObjectComponent):
 
         super().__init__()
 
-    def start(self):
+    def setup(self):
         self._rigidbody = self.sim_object.get_component(RigidBody)
         self._rigidbody.attach_collision_listener(self)
 
@@ -563,8 +566,8 @@ class RigidBody(Manageable):
             default_shape.elasticity = 0.5
             self.attach_shape(default_shape)
 
-    def start(self):
-        super().start()
+    def setup(self):
+        super().setup()
 
         self._transform = self.sim_object.transform
         self._space: pymunk.Space = self.manager.space
@@ -651,7 +654,7 @@ class RigidBody(Manageable):
         shape.body = self._body
         self._shapes.add(shape)
 
-        if(self.started):
+        if(self.is_set_up):
             self._space.add(shape)
 
     def remove_shape(self, shape: pymunk.Shape):
@@ -661,7 +664,7 @@ class RigidBody(Manageable):
         if (not isinstance(shape, pymunk.Shape)):
             raise TypeError("shape should be an instance of pymunk.Shape")
 
-        if(self.started):
+        if(self.is_set_up):
             self._space.remove(shape)
 
         shape.body = None

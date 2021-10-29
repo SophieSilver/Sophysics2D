@@ -24,7 +24,6 @@ def main():
     ball1.get_component(RigidBody).body.velocity = pymunk.Vec2d(3, 4)
     env.attach_sim_object(border)
     env.attach_sim_object(ball2)
-    env.start()
     clock = pygame.time.Clock()
     steps = 1
 
