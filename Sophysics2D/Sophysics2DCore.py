@@ -5,8 +5,6 @@ The core structure of Sophysics2D
 # TODO remove update() method from Component, replace them with more descriptive names
 # the update method will be reintroduced when we add scripts
 # TODO reduce coupling by introducing an event system
-
-# TODO annotate stuff that couldn't be annotated previously because we didn't import __future__
 from __future__ import annotations
 import pygame
 import pymunk
@@ -257,12 +255,12 @@ class Transform(SimObjectComponent):
                  rotation: float = 0):
         if(position is None):
             position = pygame.Vector2()
-        self._position = position
-        self.rotation = rotation
+        self._position: pygame.Vector2 = position
+        self.rotation: float = rotation
         super().__init__()
 
     @property
-    def position(self):
+    def position(self) -> pygame.Vector2:
         return self._position
 
     @position.setter
@@ -276,8 +274,8 @@ class SimObject(ComponentContainer):
     A container for SimObject Components. Must have a Transform
     """
     def __init__(self, tag: str = "", components: Iterable[SimObjectComponent] = ()):
-        self._environment = None
-        self._tag = tag
+        self._environment: Optional[SimEnvironment] = None
+        self._tag: str = tag
         super().__init__(components)
 
         self._transform: Optional[Transform] = self.try_get_component(Transform)
@@ -309,7 +307,7 @@ class SimObject(ComponentContainer):
         self._environment = None
 
     @property
-    def tag(self):
+    def tag(self) -> str:
         return self._tag
 
     @tag.setter
@@ -320,7 +318,7 @@ class SimObject(ComponentContainer):
         self._tag = value
 
     @property
-    def transform(self):
+    def transform(self) -> Transform:
         return self._transform
 
     # overriding a method to connect the component to self
@@ -372,7 +370,7 @@ class SimEnvironment(ComponentContainer):
         self._setup()
 
     @property
-    def is_set_up(self):
+    def is_set_up(self) -> bool:
         """
         A flag that says whether the environment has been set up or not
         """
@@ -454,7 +452,7 @@ class SimEnvironment(ComponentContainer):
     @abstractmethod
     def render(self):
         """
-        Renders a snapshot of the simulation
+        Renders the current state of the simulation
         """
         pass
 
@@ -489,7 +487,7 @@ class CollisionListener(SimObjectComponent):
         self._rigidbody = self.sim_object.get_component(RigidBody)
         self._rigidbody.attach_collision_listener(self)
 
-    def begin(self, other_body, arbiter: pymunk.Arbiter) -> bool:
+    def begin(self, other_body: RigidBody, arbiter: pymunk.Arbiter) -> bool:
         """
         Two shapes just started touching for the first time this step.
 
@@ -503,7 +501,7 @@ class CollisionListener(SimObjectComponent):
         """
         pass
 
-    def pre_solve(self, other_body, arbiter: pymunk.Arbiter) -> bool:
+    def pre_solve(self, other_body: RigidBody, arbiter: pymunk.Arbiter) -> bool:
         """
         Two shapes are touching and their collision response has been processed.
 
@@ -517,7 +515,7 @@ class CollisionListener(SimObjectComponent):
         """
         pass
 
-    def post_solve(self, other_body, arbiter: pymunk.Arbiter):
+    def post_solve(self, other_body: RigidBody, arbiter: pymunk.Arbiter):
         """
         Two shapes are touching and their collision response has been processed.
 
@@ -526,7 +524,7 @@ class CollisionListener(SimObjectComponent):
         """
         pass
 
-    def separate(self, other_body, arbiter: pymunk.Arbiter):
+    def separate(self, other_body: RigidBody, arbiter: pymunk.Arbiter):
         """
         Two shapes have just stopped touching for the first time this step.
 
@@ -907,7 +905,7 @@ class Renderer(Manageable):
         pass
 
     @property
-    def layer(self):
+    def layer(self) -> int:
         return self._layer
 
     @layer.setter
@@ -995,7 +993,7 @@ class RenderManager(Manager):
                 self.__layer_modified[i] = False
 
     @property
-    def display(self):
+    def display(self) -> pygame.Surface:
         return self._display
 
     @display.setter
@@ -1006,7 +1004,7 @@ class RenderManager(Manager):
         self._display = value
 
     @property
-    def units_per_pixel(self):
+    def units_per_pixel(self) -> float:
         """
         Worldspace units per pixel on the screen
         """
@@ -1019,7 +1017,7 @@ class RenderManager(Manager):
         self._units_per_pixel = value
 
     @property
-    def pixels_per_unit(self):
+    def pixels_per_unit(self) -> float:
         """
         pixels on the screen per worldspace unit
         """
@@ -1031,7 +1029,7 @@ class RenderManager(Manager):
 
         self._units_per_pixel = 1 / value
 
-    def world_to_screen(self, world_coords: Union[pygame.Vector2, Tuple[number, number]] = (0, 0)):
+    def world_to_screen(self, world_coords: Union[pygame.Vector2, Tuple[number, number]]) -> tuple[float, float]:
         """
         Converts a worldspace position into a position on the screen in pixels
         """
@@ -1041,7 +1039,7 @@ class RenderManager(Manager):
         screen_y = - (world_y * self.pixels_per_unit) + surface_rect.centery
         return (screen_x, screen_y)
 
-    def screen_to_world(self, screen_coords: Union[pygame.Vector2, Tuple[number, number]] = (0, 0)):
+    def screen_to_world(self, screen_coords: Union[pygame.Vector2, Tuple[number, number]]) -> tuple[float, float]:
         """
         Converts from a position on the screen into a position in the world
         """

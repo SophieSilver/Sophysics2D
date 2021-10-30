@@ -11,13 +11,13 @@ class CircleRenderer(Renderer):
     def __init__(self, radius: Union[int, float] = 1, color = Color.WHITE, layer: int = 0):
         validate_positive_number(radius, "radius")
 
-        self.__world_radius = 0
-        self.radius = radius
+        self.__world_radius: float = 0
+        self.radius: float = radius
 
         super().__init__(color, layer)
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         """
         Radius of the circle in world coordinates.
         """
@@ -30,7 +30,7 @@ class CircleRenderer(Renderer):
         self.__world_radius = value
 
     @property
-    def pixel_radius(self):
+    def pixel_radius(self) -> float:
         """
         Radius of the circle in pixels on the screen
         """
@@ -62,8 +62,8 @@ class PolyRenderer(Renderer):
 
         Vertices are described using x and y position in WORLD SPACE!
         """
-        self._vertices = None
-        self._closed = None
+        self._vertices: Optional[list[pygame.Vector2]] = None
+        self._closed: bool = False
 
         self.closed = closed
         self.vertices = vertices
@@ -107,7 +107,7 @@ class PolyRenderer(Renderer):
         """
         The list of vertices of the polygon in screen coordinates
         """
-        # loops through the self.vertices list
+        # loops through the self.vertices list and translates them into world coords
         return [pygame.Vector2(*self.manager.world_to_screen(vertex)) for vertex in self.vertices]
 
     def render(self, surface: pygame.Surface):
@@ -135,7 +135,7 @@ class DefaultEnvironment(SimEnvironment):
 
     def render(self):
         """
-        Renders a snapshot of the simulation
+        Renders the current state of the simulation
         """
         self.render_manager.update()
 
