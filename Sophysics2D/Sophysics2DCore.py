@@ -2,17 +2,16 @@
 The core structure of Sophysics2D
 """
 # TODO refactor code
-# TODO remove update() method from Component, replace them with more descriptive names
 # the update method will be reintroduced when we add scripts
 # TODO reduce coupling by introducing an event system
 from __future__ import annotations
 import pygame
 import pymunk
 from helperFunctions import *
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 
-class Component:
+class Component(ABC):
     """
     The base class for Components
     """
@@ -36,12 +35,6 @@ class Component:
         """
         self._is_set_up = True
 
-    def update(self):
-        """
-        Gets called every timestep of the simulation
-        """
-        pass
-
     def on_destroy(self):
         """
         Gets called when the object to which the component is attached to is destroyed
@@ -52,7 +45,7 @@ class Component:
         pass
 
 
-class SimObjectComponent(Component):
+class SimObjectComponent(Component, ABC):
     """
     The base class for SimObject components
     """
@@ -83,7 +76,7 @@ class SimObjectComponent(Component):
         self._sim_object = None
 
 
-class EnvironmentComponent(Component):
+class EnvironmentComponent(Component, ABC):
     """
     The base class for environment components.
     """
@@ -115,7 +108,7 @@ class EnvironmentComponent(Component):
         self._environment = None
 
 
-class Manager(EnvironmentComponent):
+class Manager(EnvironmentComponent, ABC):
     """
     The base class for managers
 
@@ -146,12 +139,12 @@ class Manager(EnvironmentComponent):
     def remove_manageable(self, manageable: SimObjectComponent):
         self._manageables.remove(manageable)
 
-    def update(self):
+    def update_manageables(self):
         for m in self._manageables:
-            m.update()
+            m.update_manageables()
 
 
-class Manageable(SimObjectComponent):
+class Manageable(SimObjectComponent, ABC):
     """
     An object that's managed by a _manager
     """
@@ -178,7 +171,7 @@ class Manageable(SimObjectComponent):
         self._manager = None
 
 
-class ComponentContainer:
+class ComponentContainer(ABC):
     """
     The base class for Component containers such as SimObject and SimEnvironment.
     """
@@ -457,7 +450,7 @@ class SimEnvironment(ComponentContainer):
         pass
 
 
-class Force(SimObjectComponent):
+class Force(SimObjectComponent, ABC):
     """
     A base class for Force components.
 
@@ -471,6 +464,13 @@ class Force(SimObjectComponent):
         self._rigidbody: RigidBody = self.sim_object.get_component(RigidBody)
         self._rigidbody.attach_force(self)
         super().setup()
+
+    @abstractmethod
+    def exert(self):
+        """
+        Exerts force on the rigidbody
+        """
+        pass
 
 
 class CollisionListener(SimObjectComponent):
@@ -576,11 +576,12 @@ class RigidBody(Manageable):
         # (Both are iterables so we can unpack like that)
         self._body.position = pymunk.Vec2d(*self._transform.position)
 
+    # TODO change the way this works with an event system
     def update(self):
         self.__sync_body_with_sim_object()
 
         for force in self._forces:
-            force.update()
+            force.exert()
 
     def post_update(self):
         """
@@ -846,7 +847,7 @@ class RigidBodyManager(Manager):
         """
         return self._space
 
-    def update(self):
+    def update_manageables(self):
         for rb in self.manageables:
             rb.update()
 
@@ -888,15 +889,6 @@ class Renderer(Manageable):
 
         self.color = color
         super().__init__(RenderManager)
-
-    def update(self):
-        """
-        Renders the object on the display.
-
-        !IMPORTANT! it's better to use render() to render on a specific surface, the update method will always
-        default to rendering directly on the display
-        """
-        self.render(self.manager.display)
 
     def render(self, surface: pygame.Surface):
         """
@@ -953,7 +945,7 @@ class RenderManager(Manager):
 
         super().__init__(Renderer)
 
-    def update(self):
+    def update_manageables(self):
         """
         Render the scene
         """

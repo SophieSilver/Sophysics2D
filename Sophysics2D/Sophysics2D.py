@@ -130,14 +130,14 @@ class DefaultEnvironment(SimEnvironment):
         super()._setup()
 
     def advance(self):
-        self.rigidbody_manager.update()
+        self.rigidbody_manager.update_manageables()
         super().advance()
 
     def render(self):
         """
         Renders the current state of the simulation
         """
-        self.render_manager.update()
+        self.render_manager.update_manageables()
 
 
 class ConstantAcceleration(Force):
@@ -181,7 +181,7 @@ class ConstantAcceleration(Force):
         y = next(value_iterator)
         self._acceleration = pygame.Vector2(x, y)
 
-    def update(self):
+    def exert(self):
         # applies the force that causes a particular acceleration
         # From the Newton's second law
         # F = m * a
