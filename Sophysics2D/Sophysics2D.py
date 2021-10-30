@@ -42,32 +42,6 @@ class CircleRenderer(Renderer):
 
         self.__world_radius = value * self._manager.units_per_pixel
 
-    @property
-    def diameter(self):
-        """
-        Diameter of the circle in world coordinates
-        """
-        return self.__world_radius * 2
-
-    @diameter.setter
-    def diameter(self, value: number):
-        validate_positive_number(value, "diameter")
-
-        self.radius = value / 2
-
-    @property
-    def pixel_diameter(self):
-        """
-        Diameter of the circle in pixels on the screen
-        """
-        return self.pixel_radius * 2
-
-    @pixel_diameter.setter
-    def pixel_diameter(self, value: number):
-        validate_positive_number(value, "diameter")
-
-        self.pixel_radius = value / 2
-
     def render(self, surface: pygame.Surface):
         world_position = self.sim_object.transform.position
         screen_position = self._manager.world_to_screen(world_position)
