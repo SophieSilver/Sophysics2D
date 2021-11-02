@@ -5,10 +5,11 @@ The core structure of Sophysics2D
 # the update method will be reintroduced when we add scripts
 # TODO reduce coupling by introducing an event system
 from __future__ import annotations
+from abc import abstractmethod
 import pygame
 import pymunk
 from helperFunctions import *
-from abc import ABC, abstractmethod
+from Sophysics2DEventSystem import *
 
 
 class Component(ABC):
@@ -354,13 +355,25 @@ class SimEnvironment(ComponentContainer):
         # A flag that tells whether the setup() method has been called
         self._is_set_up = False
         self.sim_objects: set[SimObject] = set()
+
+        # a set of sim_objects
+        # that have to be destroyed at the end of the time step
         self._to_be_destroyed: set[SimObject] = set()
+
+        self.__event_system: EventSystem = EventSystem()
 
         for o in sim_objects:
             self.attach_sim_object(o)
 
         super().__init__(components)
         self._setup()
+
+    @property
+    def event_system(self):
+        """
+        The environment's event system
+        """
+        return self.__event_system
 
     @property
     def is_set_up(self) -> bool:
@@ -461,9 +474,14 @@ class Force(SimObjectComponent, ABC):
         super().__init__()
 
     def setup(self):
+        super().setup()
         self._rigidbody: RigidBody = self.sim_object.get_component(RigidBody)
         self._rigidbody.attach_force(self)
-        super().setup()
+        event_system = self.sim_object.environment.event_system
+        event_system.add_listener(RigidBodyExertForcesEvent, self.__handle_exert_force_event)
+
+    def __handle_exert_force_event(self, _: RigidBodyExertForcesEvent):
+        self.exert()
 
     @abstractmethod
     def exert(self):
@@ -471,6 +489,10 @@ class Force(SimObjectComponent, ABC):
         Exerts force on the rigidbody
         """
         pass
+
+    def on_destroy(self):
+        event_system = self.sim_object.environment.event_system
+        event_system.remove_listener(RigidBodyExertForcesEvent, self.__handle_exert_force_event)
 
 
 class CollisionListener(SimObjectComponent):
@@ -534,8 +556,11 @@ class CollisionListener(SimObjectComponent):
         """
         pass
 
+    def on_destroy(self):
+        self._rigidbody.remove_collision_listener(self)
 
-class RigidBody(Manageable):
+
+class RigidBody(SimObjectComponent):
     """
     Handles the movement of the SimObject according to physics.
 
@@ -543,7 +568,7 @@ class RigidBody(Manageable):
     """
     def __init__(self, shapes: Iterable[pymunk.Shape] = (),
                  body_type: int = pymunk.Body.DYNAMIC):
-        super().__init__(RigidBodyManager)
+        super().__init__()
 
         # initializing fields
         self._transform: Optional[Transform] = None
@@ -566,9 +591,10 @@ class RigidBody(Manageable):
 
     def setup(self):
         super().setup()
-
         self._transform = self.sim_object.transform
-        self._space: pymunk.Space = self.manager.space
+        environment = self.sim_object.environment
+        rb_manager: RigidBodyManager = environment.get_component(RigidBodyManager)
+        self._space = rb_manager.space
         self._space.add(self._body, *self.shapes)
 
         # syncing the pymunk body position and sim_object's position
@@ -576,20 +602,16 @@ class RigidBody(Manageable):
         # (Both are iterables so we can unpack like that)
         self._body.position = pymunk.Vec2d(*self._transform.position)
 
-    # TODO change the way this works with an event system
-    def update(self):
-        self.__sync_body_with_sim_object()
+        # subscribing to events
+        event_system = environment.event_system
+        event_system.add_listener(RigidBodySyncBodyWithSimObjectEvent, self.__handle_sync_with_sim_object_event)
+        event_system.add_listener(RigidBodySyncSimObjectWithBodyEvent, self.__handle_sync_with_body_event)
 
-        for force in self._forces:
-            force.exert()
-
-    def post_update(self):
-        """
-        Executes after all physics calculations were done for the current timestep
-
-        Updates the sim_object's position to match the pymunk's body position
-        """
+    def __handle_sync_with_body_event(self, _: RigidBodySyncSimObjectWithBodyEvent):
         self.__sync_sim_object_with_body()
+
+    def __handle_sync_with_sim_object_event(self, _: RigidBodySyncBodyWithSimObjectEvent):
+        self.__sync_body_with_sim_object()
 
     def __sync_sim_object_with_body(self):
         """
@@ -721,6 +743,48 @@ class RigidBody(Manageable):
 
         self._collision_listeners.remove(listener)
 
+    def collision_begin(self, other_body: RigidBody, arbiter: pymunk.Arbiter) -> bool:
+        """
+        Calls the begin callback method on all collision listeners
+
+        returns a boolean value that tells whether to further process the collision (which is the return
+        values of all called methods AND'ed together)
+        """
+        process_collision = True
+        for listener in self._collision_listeners:
+            result = listener.begin(other_body, arbiter)
+            process_collision = process_collision and (result if result is not None else True)
+
+        return process_collision
+
+    def collision_pre_solve(self, other_body: RigidBody, arbiter: pymunk.Arbiter) -> bool:
+        """
+        Calls the pre_solve callback method on all collision listeners
+
+        returns a boolean value that tells whether to further process the collision (which is the return
+        values of all called methods AND'ed together)
+        """
+        process_collision = True
+        for listener in self._collision_listeners:
+            result = listener.pre_solve(other_body, arbiter)
+            process_collision = process_collision and (result if result is not None else True)
+
+        return process_collision
+
+    def collision_post_solve(self, other_body: RigidBody, arbiter: pymunk.Arbiter):
+        """
+        Calls the post_solve callback method on all collision listeners
+        """
+        for listener in self._collision_listeners:
+            listener.post_solve(other_body, arbiter)
+
+    def collision_separate(self, other_body: RigidBody, arbiter: pymunk.Arbiter):
+        """
+        Calls the separate callback method on all collision listeners
+        """
+        for listener in self._collision_listeners:
+            listener.separate(other_body, arbiter)
+
     @property
     def collision_listeners(self) -> set[CollisionListener]:
         """
@@ -729,10 +793,11 @@ class RigidBody(Manageable):
         return self._collision_listeners
 
     def on_destroy(self):
-        for s in self._shapes:
-            self._space.remove(s)
+        event_system = self.sim_object.environment.event_system
+        event_system.add_listener(RigidBodySyncBodyWithSimObjectEvent, self.__handle_sync_with_sim_object_event)
+        event_system.add_listener(RigidBodySyncSimObjectWithBodyEvent, self.__handle_sync_with_body_event)
 
-        self._space.remove(self._body)
+        self._space.remove(*self.shapes, self._body)
 
 
 class SophysicsBody(pymunk.Body):
@@ -757,13 +822,14 @@ class SophysicsBody(pymunk.Body):
         return self._rigidbody
 
 
-class RigidBodyManager(Manager):
+class RigidBodyManager(EnvironmentComponent):
     """
     The manager for RigidBody components
     """
     def __init__(self, dt: float = 1 / 60):
-        super().__init__(RigidBody)		# giving the type of the manageable to the superclass initializer
+        super().__init__()
         self.dt: float = dt
+        self.__event_system: Optional[EventSystem] = None
         self._space: pymunk.Space = pymunk.Space()
         self.__initialize_collision_callback_functions()
 
@@ -779,66 +845,40 @@ class RigidBodyManager(Manager):
             body1: RigidBody = shapes[0].body.rigidbody
             body2: RigidBody = shapes[1].body.rigidbody
 
-            process_collision = True
-
-            # call the method on all collision listeners that are attached to the 2 colliding bodies
-            for listener in body1.collision_listeners:
-                result = listener.begin(body2, arbiter)
-                process_collision = process_collision and result if result is not None else process_collision
-
-            for listener in body2.collision_listeners:
-                result = listener.begin(body1, arbiter)
-                process_collision = process_collision and result if result is not None else process_collision
-
-            return process_collision
+            return body1.collision_begin(body2, arbiter) and body2.collision_begin(body1, arbiter)
 
         def pre_solve(arbiter: pymunk.Arbiter, *_) -> bool:
             shapes = arbiter.shapes
             body1: RigidBody = shapes[0].body.rigidbody
             body2: RigidBody = shapes[1].body.rigidbody
 
-            process_collision = True
-
-            # call the method on all collision listeners that are attached to the 2 colliding bodies
-            for listener in body1.collision_listeners:
-                result = listener.pre_solve(body2, arbiter)
-                process_collision = process_collision and result if result is not None else process_collision
-
-            for listener in body2.collision_listeners:
-                result = listener.pre_solve(body1, arbiter)
-                process_collision = process_collision and result if result is not None else process_collision
-
-            return process_collision
+            return body1.collision_pre_solve(body2, arbiter) and body2.collision_pre_solve(body1, arbiter)
 
         def post_solve(arbiter: pymunk.Arbiter, *_):
             shapes = arbiter.shapes
             body1: RigidBody = shapes[0].body.rigidbody
             body2: RigidBody = shapes[1].body.rigidbody
 
-            # call the method on all collision listeners that are attached to the 2 colliding bodies
-            for listener in body1.collision_listeners:
-                listener.post_solve(body2, arbiter)
-
-            for listener in body2.collision_listeners:
-                listener.post_solve(body1, arbiter)
+            body1.collision_post_solve(body2, arbiter)
+            body2.collision_post_solve(body1, arbiter)
 
         def separate(arbiter: pymunk.Arbiter, *_):
             shapes = arbiter.shapes
             body1: RigidBody = shapes[0].body.rigidbody
             body2: RigidBody = shapes[1].body.rigidbody
 
-            # call the method on all collision listeners that are attached to the 2 colliding bodies
-            for listener in body1.collision_listeners:
-                listener.separate(body2, arbiter)
-
-            for listener in body2.collision_listeners:
-                listener.separate(body1, arbiter)
+            body1.collision_separate(body2, arbiter)
+            body2.collision_separate(body1, arbiter)
 
         collision_handler = self._space.add_default_collision_handler()
         collision_handler.begin = begin
         collision_handler.pre_solve = pre_solve
         collision_handler.post_solve = post_solve
         collision_handler.separate = separate
+
+    def setup(self):
+        super().setup()
+        self.__event_system = self.environment.event_system
 
     @property
     def space(self):
@@ -847,14 +887,11 @@ class RigidBodyManager(Manager):
         """
         return self._space
 
-    def update_manageables(self):
-        for rb in self.manageables:
-            rb.update()
-
+    def advance_timestep(self):
+        self.__event_system.raise_event(RigidBodySyncBodyWithSimObjectEvent())
+        self.__event_system.raise_event(RigidBodyExertForcesEvent())
         self._space.step(self.dt)
-
-        for rb in self.manageables:
-            rb.post_update()
+        self.__event_system.raise_event(RigidBodySyncSimObjectWithBodyEvent())
 
 
 class Color:

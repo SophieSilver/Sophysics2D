@@ -10,3 +10,15 @@ class Event(ABC):
     """
     # This is an empty class, subclasses might have additional data
     pass
+
+
+class RigidBodySyncBodyWithSimObjectEvent(Event):
+    pass
+
+
+class RigidBodySyncSimObjectWithBodyEvent(Event):
+    pass
+
+
+class RigidBodyExertForcesEvent(Event):
+    pass

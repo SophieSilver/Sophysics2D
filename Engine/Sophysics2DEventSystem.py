@@ -3,7 +3,6 @@ The event system of Sophysics2D
 """
 from __future__ import annotations
 from events import *
-from weakref import WeakSet
 from typing import *
 
 
@@ -15,7 +14,7 @@ class EventSystem:
     An event system that is responsible for handling events by calling listeners of an event each time it's raised
     """
     def __init__(self):
-        self.__listeners: dict[type, WeakSet[event_listener_function]] = {}
+        self.__listeners: dict[type, set[event_listener_function]] = {}
 
     def add_listener(self, event_type: type, listener: Callable):
         """
@@ -25,7 +24,7 @@ class EventSystem:
             raise TypeError("the 'listener' argument must be callable")
 
         if event_type not in self.__listeners:
-            self.__listeners[event_type] = WeakSet()
+            self.__listeners[event_type] = set()
 
         self.__listeners[event_type].add(listener)
 

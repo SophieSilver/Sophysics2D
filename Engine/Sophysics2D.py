@@ -130,7 +130,7 @@ class DefaultEnvironment(SimEnvironment):
         super()._setup()
 
     def advance(self):
-        self.rigidbody_manager.update_manageables()
+        self.rigidbody_manager.advance_timestep()
         super().advance()
 
     def render(self):
