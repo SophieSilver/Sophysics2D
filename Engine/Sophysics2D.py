@@ -117,14 +117,14 @@ class PolyRenderer(Renderer):
 
 class DefaultEnvironment(SimEnvironment):
     def __init__(self, sim_objects: Iterable[SimObject] = (), components: Iterable[EnvironmentComponent] = ()):
-        self.rigidbody_manager: Optional[RigidBodyManager] = None
+        self.rigidbody_manager: Optional[PhysicsManager] = None
         self.render_manager: Optional[RenderManager] = None         # will be set later in setup()
         super().__init__(sim_objects, components)
 
     def _setup(self):
         # get the necessary references
         self.render_manager = self.get_component(RenderManager)
-        self.rigidbody_manager = self.get_component(RigidBodyManager)
+        self.rigidbody_manager = self.get_component(PhysicsManager)
 
         # will call setup() on all components and sim_objects
         super()._setup()

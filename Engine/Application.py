@@ -11,7 +11,7 @@ def main():
     consolas = pygame.font.SysFont("consolas", 16)
 
     rm = RenderManager(display, 1/80)
-    rbm = RigidBodyManager()
+    rbm = PhysicsManager()
     env = DefaultEnvironment(components=(rm, rbm))
 
     ball1_transform = Transform(pygame.Vector2(0, 0))

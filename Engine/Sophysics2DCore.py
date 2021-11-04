@@ -369,7 +369,7 @@ class SimEnvironment(ComponentContainer):
         self._setup()
 
     @property
-    def event_system(self):
+    def event_system(self) -> EventSystem:
         """
         The environment's event system
         """
@@ -476,7 +476,6 @@ class Force(SimObjectComponent, ABC):
     def setup(self):
         super().setup()
         self._rigidbody: RigidBody = self.sim_object.get_component(RigidBody)
-        self._rigidbody.attach_force(self)
         event_system = self.sim_object.environment.event_system
         event_system.add_listener(RigidBodyExertForcesEvent, self.__handle_exert_force_event)
 
@@ -573,7 +572,6 @@ class RigidBody(SimObjectComponent):
         # initializing fields
         self._transform: Optional[Transform] = None
         self._space: Optional[pymunk.Space] = None
-        self._forces: set[Force] = set()
         self._body: pymunk.Body = SophysicsBody(self, body_type=body_type)
         self._shapes: set[pymunk.Shape] = set()
         self._collision_listeners: set[CollisionListener] = set()
@@ -593,7 +591,7 @@ class RigidBody(SimObjectComponent):
         super().setup()
         self._transform = self.sim_object.transform
         environment = self.sim_object.environment
-        rb_manager: RigidBodyManager = environment.get_component(RigidBodyManager)
+        rb_manager: PhysicsManager = environment.get_component(PhysicsManager)
         self._space = rb_manager.space
         self._space.add(self._body, *self.shapes)
 
@@ -704,21 +702,6 @@ class RigidBody(SimObjectComponent):
 
         self._body.mass = value
 
-    def attach_force(self, force: Force):
-        """
-        Attaches a force component to the list of forces
-        """
-        if(not isinstance(force, Force)):
-            raise TypeError("force must be a type of Force")
-
-        self._forces.add(force)
-
-    def remove_force(self, force: Force):
-        """
-        Removes a force component from the list of forces
-        """
-        self._forces.remove(force)
-
     def apply_force(self, force: Sequence[number]):
         """
         Applies a force to the center of mass of the object's pymunk body
@@ -822,7 +805,7 @@ class SophysicsBody(pymunk.Body):
         return self._rigidbody
 
 
-class RigidBodyManager(EnvironmentComponent):
+class PhysicsManager(EnvironmentComponent):
     """
     The manager for RigidBody components
     """
@@ -888,6 +871,7 @@ class RigidBodyManager(EnvironmentComponent):
         return self._space
 
     def advance_timestep(self):
+        # put all pymunk bodies to the same positions as the transforms
         self.__event_system.raise_event(RigidBodySyncBodyWithSimObjectEvent())
         self.__event_system.raise_event(RigidBodyExertForcesEvent())
         self._space.step(self.dt)
