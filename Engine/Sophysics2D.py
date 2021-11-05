@@ -37,7 +37,14 @@ class CircleRenderer(Renderer):
         world_position = self.sim_object.transform.position
         screen_position = render_manager.world_to_screen(world_position)
 
-        pygame.draw.circle(surface, self.color, screen_position, self.get_pixel_radius(render_manager))
+        # pygame.draw.circle(surface, self.color, screen_position, self.get_pixel_radius(render_manager))
+
+        x = int(screen_position[0])
+        y = int(screen_position[1])
+        radius = int(self.get_pixel_radius(render_manager))
+        # the first method draws
+        pygame.gfxdraw.aacircle(surface, x, y, radius, self.color)
+        pygame.gfxdraw.filled_circle(surface, x, y, radius, self.color)
 
 
 class PolyRenderer(Renderer):
