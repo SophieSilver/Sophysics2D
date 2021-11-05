@@ -6,7 +6,8 @@ def main():
     pygame.init()
     pygame.font.init()
     # This is a dummy application to test the functionality of Sophysics2D
-    display = pygame.display.set_mode((1280, 720))
+    display = pygame.display.set_mode((1280, 720), vsync=1)
+    # texture = pygame.Surface((128, 72))
     pygame.display.set_caption("Sophysics 2D")
     consolas = pygame.font.SysFont("consolas", 16)
 
@@ -16,9 +17,9 @@ def main():
 
     ball1_transform = Transform(pygame.Vector2(0, 0))
     grav_acc = lambda: ConstantAcceleration((0, -9.8))
-    ball1 = get_circle_body("red ball", 1, 1, 1, (255, 0, 0), 1, (ball1_transform, grav_acc()))
-    ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=1, components=(grav_acc(),))
-    border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 0)
+    ball1 = get_circle_body("red ball", 1, 1, 1, (255, 0, 0), 0, (ball1_transform, grav_acc()))
+    ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=0, components=(grav_acc(),))
+    border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 1)
 
     env.attach_sim_object(ball1)
     ball1.get_component(RigidBody).body.velocity = pymunk.Vec2d(3, 4)
@@ -35,14 +36,8 @@ def main():
     while True:
         clock.tick(60)
         for event in pygame.event.get():
-            if(event.type == pygame.QUIT):
+            if event.type == pygame.QUIT:
                 sys.exit()
-
-        if steps % 307 == 1:
-            env.destroy_after_step(ball1)
-
-        if steps % 307 == 134:
-            env.attach_sim_object(ball1)
         env.advance()
         env.render()
         e1 = get_energy(rb1)

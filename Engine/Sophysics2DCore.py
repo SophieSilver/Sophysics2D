@@ -893,7 +893,7 @@ class Color:
     BLACK = (0, 0, 0)
 
 
-class Renderer(Manageable):
+class Renderer(SimObjectComponent, ABC):
     """
     A base class for renderers
 
@@ -903,15 +903,42 @@ class Renderer(Manageable):
         """
         :param layer: objects on lower layers will be drawn first and may be occluded by objects on higher levels.
         """
-        self.is_active = True
+        self.__is_active = True
 
         self._layer = None
         self.layer = layer
 
         self.color = color
-        super().__init__(RenderManager)
+        super().__init__()
 
-    def render(self, surface: pygame.Surface):
+    @property
+    def is_active(self) -> bool:
+        return self.__is_active
+
+    @is_active.setter
+    def is_active(self, value: bool):
+        if not isinstance(value, bool):
+            raise TypeError("'is_active' property should be a bool")
+
+        self.__is_active = value
+
+    def setup(self):
+        event_system = self.sim_object.environment.event_system
+        event_system.add_listener(RenderSceneEvent, self.__handle_render_event)
+
+        super().setup()
+
+    def __handle_render_event(self, event: RenderSceneEvent):
+        if not self.is_active:
+            return
+
+        render_manager = event.render_manager
+        surface = render_manager.get_layer_for_rendering(self._layer)
+
+        self.render(surface, render_manager)
+
+    @abstractmethod
+    def render(self, surface: pygame.Surface, render_manager: RenderManager):
         """
         Render the object on a specific surface
         """
@@ -928,8 +955,12 @@ class Renderer(Manageable):
 
         self._layer = value
 
+    def on_destroy(self):
+        event_system = self.sim_object.environment.event_system
+        event_system.remove_listener(RenderSceneEvent, self.__handle_render_event)
 
-class RenderManager(Manager):
+
+class RenderManager(EnvironmentComponent):
     """
     Manages all the renderers.
 
@@ -964,8 +995,9 @@ class RenderManager(Manager):
         # and the will not be cleared (since it is assumed that they're transparent)
         self.__layer_modified: List[bool] = [False] * n_layers
 
-        super().__init__(Renderer)
+        super().__init__()
 
+    # TODO change
     def update_manageables(self):
         """
         Render the scene
@@ -975,10 +1007,7 @@ class RenderManager(Manager):
         self.__clear_layer_surfaces()
 
         # render onto the layers
-        for renderer in self._manageables:
-            if(renderer.is_active):
-                renderer.render(self._layers[renderer.layer])
-                self.__layer_modified[renderer.layer] = True
+        self.environment.event_system.raise_event(RenderSceneEvent(self))
 
         # blit the layers onto the display
         for i, layer in enumerate(self._layers):
@@ -1004,6 +1033,13 @@ class RenderManager(Manager):
             if(self.__layer_modified[i]):
                 layer.fill(Color.TRANSPARENT)
                 self.__layer_modified[i] = False
+
+    def get_layer_for_rendering(self, index: int):
+        """
+        Get's the layer surface with the specified index, and marks that layer as modified
+        """
+        self.__layer_modified[index] = True
+        return self._layers[index]
 
     @property
     def display(self) -> pygame.Surface:

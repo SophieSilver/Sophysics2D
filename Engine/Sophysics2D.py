@@ -1,4 +1,4 @@
-import pygame.draw
+import pygame.gfxdraw
 
 from Sophysics2DCore import *
 
@@ -9,8 +9,6 @@ class CircleRenderer(Renderer):
     """
     # maybe add stuff like stroke width stroke and fill colors, etc, whatever, probably not this year
     def __init__(self, radius: Union[int, float] = 1, color = Color.WHITE, layer: int = 0):
-        validate_positive_number(radius, "radius")
-
         self.__world_radius: float = 0
         self.radius: float = radius
 
@@ -29,24 +27,17 @@ class CircleRenderer(Renderer):
 
         self.__world_radius = value
 
-    @property
-    def pixel_radius(self) -> float:
+    def get_pixel_radius(self, render_manager: RenderManager) -> float:
         """
         Radius of the circle in pixels on the screen
         """
-        return self.__world_radius * self._manager.pixels_per_unit
+        return self.__world_radius * render_manager.pixels_per_unit
 
-    @pixel_radius.setter
-    def pixel_radius(self, value: number):
-        validate_positive_number(value, "radius")
-
-        self.__world_radius = value * self._manager.units_per_pixel
-
-    def render(self, surface: pygame.Surface):
+    def render(self, surface: pygame.Surface, render_manager: RenderManager):
         world_position = self.sim_object.transform.position
-        screen_position = self._manager.world_to_screen(world_position)
+        screen_position = render_manager.world_to_screen(world_position)
 
-        pygame.draw.circle(surface, self.color, screen_position, self.pixel_radius)
+        pygame.draw.circle(surface, self.color, screen_position, self.get_pixel_radius(render_manager))
 
 
 class PolyRenderer(Renderer):
@@ -102,17 +93,18 @@ class PolyRenderer(Renderer):
     def closed(self, value: bool):
         self._closed = bool(value)
 
-    @property
-    def screen_vertices(self) -> list[pygame.Vector2]:
+    def get_screen_vertices(self, render_manager: RenderManager) -> list[pygame.Vector2]:
         """
         The list of vertices of the polygon in screen coordinates
         """
         # loops through the self.vertices list and translates them into world coords
-        return [pygame.Vector2(*self.manager.world_to_screen(vertex)) for vertex in self.vertices]
+        return [pygame.Vector2(*render_manager.world_to_screen(vertex)) for vertex in self.vertices]
 
-    def render(self, surface: pygame.Surface):
-        if(len(self.vertices) >= 2):
-            pygame.draw.lines(surface, self.color, self.closed, self.screen_vertices)
+    def render(self, surface: pygame.Surface, render_manager: RenderManager):
+        if not (len(self.vertices) >= 2):
+            return
+
+        pygame.draw.lines(surface, self.color, self.closed, self.get_screen_vertices(render_manager))
 
 
 class DefaultEnvironment(SimEnvironment):
