@@ -1,9 +1,6 @@
 """
 The core structure of Sophysics2D
 """
-# TODO refactor code
-# the update method will be reintroduced when we add scripts
-# TODO reduce coupling by introducing an event system
 from __future__ import annotations
 from abc import abstractmethod
 import pygame
@@ -107,69 +104,6 @@ class EnvironmentComponent(Component, ABC):
         removes the environment reference from the component
         """
         self._environment = None
-
-
-class Manager(EnvironmentComponent, ABC):
-    """
-    The base class for managers
-
-    Managers provide an efficient way for the environment to communicate with sim object components
-    """
-    def __init__(self, manageable_type: type = None):
-        # Type of the objects that the _manager manages
-        self._manageable_type: type = Manageable if manageable_type is None else manageable_type
-        self._manageables: set[manageable_type] = set()
-        super().__init__()
-
-    @property
-    def manageables(self) -> set:
-        """
-        Returns a copy of the manageables set
-        """
-        return self._manageables.copy()
-
-    def attach_manageable(self, manageable: SimObjectComponent):
-        """
-        Attaches a manageable object to the _manager.
-        """
-        if(not isinstance(manageable, self._manageable_type)):
-            raise TypeError(f"A manageable object must be an instance of '{self._manageable_type.__name__}'")
-
-        self._manageables.add(manageable)
-
-    def remove_manageable(self, manageable: SimObjectComponent):
-        self._manageables.remove(manageable)
-
-    def update_manageables(self):
-        for m in self._manageables:
-            m.update_manageables()
-
-
-class Manageable(SimObjectComponent, ABC):
-    """
-    An object that's managed by a _manager
-    """
-    def __init__(self, manager_type: type = Manager):
-        self._manager_type = manager_type
-        self._manager = None
-
-        super().__init__()
-
-    @property
-    def manager(self):
-        """
-        The manager of the component
-        """
-        return self._manager
-
-    def setup(self):
-        self._manager = self.sim_object.environment.get_component(self._manager_type)
-        self._manager.attach_manageable(self)
-        super().setup()
-
-    def on_destroy(self):
-        self._manager.remove_manageable(self)
-        self._manager = None
 
 
 class ComponentContainer(ABC):
@@ -997,8 +931,7 @@ class RenderManager(EnvironmentComponent):
 
         super().__init__()
 
-    # TODO change
-    def update_manageables(self):
+    def render_scene(self):
         """
         Render the scene
         """

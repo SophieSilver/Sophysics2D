@@ -42,7 +42,8 @@ class CircleRenderer(Renderer):
         x = int(screen_position[0])
         y = int(screen_position[1])
         radius = int(self.get_pixel_radius(render_manager))
-        # the first method draws
+        # the first method draws an unfilled anti-aliased circumference,
+        # the seconds draws the filled circle inside of it
         pygame.gfxdraw.aacircle(surface, x, y, radius, self.color)
         pygame.gfxdraw.filled_circle(surface, x, y, radius, self.color)
 
@@ -136,7 +137,7 @@ class DefaultEnvironment(SimEnvironment):
         """
         Renders the current state of the simulation
         """
-        self.render_manager.update_manageables()
+        self.render_manager.render_scene()
 
 
 class ConstantAcceleration(Force):
