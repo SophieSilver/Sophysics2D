@@ -7,11 +7,11 @@ def main():
     pygame.font.init()
     # This is a dummy application to test the functionality of Sophysics2D
     display = pygame.display.set_mode((1280, 720), vsync=1)
-    # texture = pygame.Surface((128, 72))
+    texture = pygame.Surface((1280, 720))
     pygame.display.set_caption("Sophysics 2D")
     consolas = pygame.font.SysFont("consolas", 16)
 
-    rm = RenderManager(display, 1/80)
+    rm = RenderManager(texture, 1/80)
     rbm = PhysicsManager()
     env = DefaultEnvironment(components=(rm, rbm))
 
@@ -19,26 +19,29 @@ def main():
     grav_acc = lambda: ConstantAcceleration((0, -9.8))
     ball1 = get_circle_body("red ball", 1, 1, 1, (255, 0, 0), 0, (ball1_transform, grav_acc()))
     ball2 = get_circle_body("green ball", 1, 1, radius=1, color=(0, 255, 0), layer=0, components=(grav_acc(),))
-    border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 1)
+    border = get_border_object("border", 4, -4, -7, 7, 1, Color.WHITE, 2)
 
     env.attach_sim_object(ball1)
     ball1.get_component(RigidBody).body.velocity = pymunk.Vec2d(3, 4)
     env.attach_sim_object(border)
     env.attach_sim_object(ball2)
     clock = pygame.time.Clock()
-    steps = 1
 
     del ball1_transform
 
     rb1 = ball1.get_component(RigidBody)
     rb2 = ball2.get_component(RigidBody)
 
+    steps = 0
+
     while True:
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+
         env.advance()
+        pygame.transform.scale(texture, (1280, 720), display)
         env.render()
         e1 = get_energy(rb1)
         e2 = get_energy(rb2)

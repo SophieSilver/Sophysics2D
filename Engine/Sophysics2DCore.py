@@ -37,8 +37,7 @@ class Component(ABC):
         """
         Gets called when the object to which the component is attached to is destroyed
 
-        Don't bother overriding it just to release references to other components, GC will do it for you.
-        Use it to cut all ties with the environment that the sim object is attached to.
+        Used to release all the references so that the GC can free the memory
         """
         pass
 
@@ -72,6 +71,9 @@ class SimObjectComponent(Component, ABC):
         removes the environment reference from the component
         """
         self._sim_object = None
+
+    def on_destroy(self):
+        self.remove_sim_object()
 
 
 class EnvironmentComponent(Component, ABC):
@@ -274,6 +276,7 @@ class SimObject(ComponentContainer):
         for c in self.components:
             c.on_destroy()
 
+        self.components.clear()
         self.environment.remove_sim_object(self)
 
 
@@ -426,6 +429,9 @@ class Force(SimObjectComponent, ABC):
     def on_destroy(self):
         event_system = self.sim_object.environment.event_system
         event_system.remove_listener(RigidBodyExertForcesEvent, self.__handle_exert_force_event)
+        self._rigidbody = None
+
+        super().on_destroy()
 
 
 class CollisionListener(SimObjectComponent):
@@ -491,6 +497,7 @@ class CollisionListener(SimObjectComponent):
 
     def on_destroy(self):
         self._rigidbody.remove_collision_listener(self)
+        super().on_destroy()
 
 
 class RigidBody(SimObjectComponent):
@@ -711,10 +718,11 @@ class RigidBody(SimObjectComponent):
 
     def on_destroy(self):
         event_system = self.sim_object.environment.event_system
-        event_system.add_listener(RigidBodySyncBodyWithSimObjectEvent, self.__handle_sync_with_sim_object_event)
-        event_system.add_listener(RigidBodySyncSimObjectWithBodyEvent, self.__handle_sync_with_body_event)
+        event_system.remove_listener(RigidBodySyncBodyWithSimObjectEvent, self.__handle_sync_with_sim_object_event)
+        event_system.remove_listener(RigidBodySyncSimObjectWithBodyEvent, self.__handle_sync_with_body_event)
 
         self._space.remove(*self.shapes, self._body)
+        super().on_destroy()
 
 
 class SophysicsBody(pymunk.Body):
@@ -892,6 +900,8 @@ class Renderer(SimObjectComponent, ABC):
     def on_destroy(self):
         event_system = self.sim_object.environment.event_system
         event_system.remove_listener(RenderSceneEvent, self.__handle_render_event)
+
+        super().on_destroy()
 
 
 class RenderManager(EnvironmentComponent):
