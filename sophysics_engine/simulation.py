@@ -168,13 +168,6 @@ class SimObject(ComponentContainer):
     def tag(self) -> str:
         return self._tag
 
-    @tag.setter
-    def tag(self, value: str):
-        if (not isinstance(value, str)):
-            raise TypeError("tag should be a string")
-
-        self._tag = value
-
     @property
     def transform(self) -> Transform:
         return self._transform
