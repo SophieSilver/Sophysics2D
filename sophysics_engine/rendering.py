@@ -39,7 +39,7 @@ class Camera(EnvironmentComponent):
     Provides methods for converting from World Coordinates into screenspace coordinates and vice versa
     """
     def __init__(self, display: pygame.Surface,
-                 position: Union[Tuple[number, number], List[number]],
+                 position: Union[Tuple[number, number], List[number]] = (0, 0),
                  units_per_pixel: float = 1 / 80,
                  background_color = Color.BLACK,
                  n_layers: int = 32):
