@@ -47,3 +47,9 @@ class EventSystem:
 
         for listener in self.__listeners[event_type]:
             listener(event)
+
+    def clear_listeners(self):
+        """
+        Removes all the event listeners
+        """
+        self.__listeners.clear()

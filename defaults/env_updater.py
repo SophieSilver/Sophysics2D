@@ -14,4 +14,5 @@ class DefaultUpdater(EnvironmentUpdater):
             for _ in range(self.__time_settings.steps_per_frame):
                 self._environment.advance()
 
+        self._environment.update()
         self._environment.render()

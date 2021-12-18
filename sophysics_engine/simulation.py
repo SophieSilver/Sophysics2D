@@ -120,11 +120,29 @@ class SimEnvironment(ComponentContainer):
         self.event_system.raise_event(AdvanceTimeStepEvent())
         self._destroy_marked_sim_objects()
 
+    def update(self):
+        """
+        Called after the physics update and before the environment is rendered
+        """
+        self.event_system.raise_event(EnvironmentUpdateEvent())
+
     def render(self):
         """
         Renders the current state of the simulation
         """
         self.event_system.raise_event(RenderEvent())
+
+    def destroy(self):
+        """
+        Destroys the environment and all its components and sim_objects
+        """
+        for sim_object in self.sim_objects.copy():
+            sim_object.destroy()
+
+        for component in self.components.copy():
+            component.destroy()
+
+        self.event_system.clear_listeners()
 
 
 class SimObject(ComponentContainer):
@@ -232,6 +250,9 @@ class EnvironmentComponent(Component, ABC):
         """
         self._environment = None
 
+    def _on_destroy(self):
+        self.environment.remove_component(self)
+
     def _after_destroy(self):
         self.remove_environment()
 
@@ -265,6 +286,9 @@ class SimObjectComponent(Component, ABC):
         removes the sim_object reference from the component
         """
         self._sim_object = None
+
+    def _on_destroy(self):
+        self.sim_object.remove_component(self)
 
     def _after_destroy(self):
         self.remove_sim_object()
@@ -302,4 +326,10 @@ class RenderEvent(Event):
 class AdvanceTimeStepEvent(Event):
     """
     An event that's raised when the environment advances 1 step forward.
+    """
+
+
+class EnvironmentUpdateEvent(Event):
+    """
+    Raised when the environment updates
     """
