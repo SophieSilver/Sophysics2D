@@ -130,7 +130,7 @@ class Camera(EnvironmentComponent):
         The vector that describes how much the camera is offset from the world origin (in pixels).
 
         The x direction is right
-        The y direction is up
+        The y direction is down
         """
         return self._position
 
@@ -178,7 +178,7 @@ class Camera(EnvironmentComponent):
         world_x, world_y = world_coords
         surface_rect = self.display.get_rect()
         screen_x = world_x * self.pixels_per_unit + surface_rect.centerx - self.position.x
-        screen_y = -(world_y * self.pixels_per_unit) + surface_rect.centery + self.position.y
+        screen_y = -(world_y * self.pixels_per_unit) + surface_rect.centery - self.position.y
         return (screen_x, screen_y)
 
     def screen_to_world(self, screen_coords: Union[pygame.Vector2, Tuple[number, number]]) -> Tuple[float, float]:
@@ -189,7 +189,7 @@ class Camera(EnvironmentComponent):
         surface_rect = self.display.get_rect()
         world_x = (screen_x - surface_rect.centerx + self.position.x) * self.units_per_pixel
         # this might cause world_y to be -0.0 in some cases, but it doesn't really matter.
-        world_y = -(screen_y - surface_rect.centery - self.position.y) * self.units_per_pixel
+        world_y = -(screen_y - surface_rect.centery + self.position.y) * self.units_per_pixel
 
         return (world_x, world_y)
 
