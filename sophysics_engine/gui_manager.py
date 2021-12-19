@@ -78,7 +78,7 @@ class GUIManager(EnvironmentComponent):
 
     def update_ui(self):
         # if the update is called for the first time we just use a default value of 1/60 of a second as time delta
-        time_delta = process_time() - self.__last_update_time if self.__last_update_time is not None else 1 / 60
+        time_delta = (process_time() - self.__last_update_time) if self.__last_update_time is not None else 1 / 60
 
         self.__ui_manager.update(time_delta)
 
