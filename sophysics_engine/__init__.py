@@ -11,4 +11,4 @@ from .physics import PhysicsManager, RigidBody, Force, CollisionListener
 from .env_updater import EnvironmentUpdater
 from .time_settings import TimeSettings
 from .pygame_event_processor import PygameEvent, PygameEventProcessor
-from .gui import GUIManager
+from .gui_manager import GUIManager
