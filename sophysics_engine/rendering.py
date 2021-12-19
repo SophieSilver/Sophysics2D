@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from .simulation import EnvironmentComponent, SimObjectComponent, RenderEvent
 from .event_system import EventSystem
 from .event import Event
-from typing import Optional, List, Union, Tuple, Sequence
+from typing import Optional, List, Union, Tuple
 from .helper_functions import validate_positive_number
 
 
@@ -119,7 +119,7 @@ class Camera(EnvironmentComponent):
 
     def get_layer_for_rendering(self, index: int):
         """
-        Get's the layer surface with the specified index and marks that layer as modified
+        Gets the layer surface with the specified index and marks that layer as modified
         """
         self.__layer_modified[index] = True
         return self._layers[index]
