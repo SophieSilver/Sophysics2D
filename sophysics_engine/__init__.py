@@ -4,7 +4,7 @@ from .event import Event
 from .event_system import EventSystem
 
 from .simulation import SimEnvironment, SimObject, EnvironmentComponent, \
-    SimObjectComponent, Transform, RenderEvent, AdvanceTimeStepEvent
+    SimObjectComponent, Transform, RenderEvent, AdvanceTimeStepEvent, EnvironmentUpdateEvent
 
 from .rendering import Renderer, Camera, CameraRenderEvent, Color
 from .physics import PhysicsManager, RigidBody, Force, CollisionListener
