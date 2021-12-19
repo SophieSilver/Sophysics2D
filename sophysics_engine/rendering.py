@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from .simulation import EnvironmentComponent, SimObjectComponent, RenderEvent
 from .event_system import EventSystem
 from .event import Event
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union, Tuple, Sequence
 from .helper_functions import validate_positive_number
 
 
@@ -133,6 +133,13 @@ class Camera(EnvironmentComponent):
         The y direction is down
         """
         return self._position
+
+    @position.setter
+    def position(self, value):
+        """
+        :param value: should be a valid argument for pygame.Vector2 constructor.
+        """
+        self._position = pygame.Vector2(value)
 
     @property
     def display(self) -> pygame.Surface:
