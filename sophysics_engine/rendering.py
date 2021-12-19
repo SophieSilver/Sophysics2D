@@ -141,6 +141,12 @@ class Camera(EnvironmentComponent):
         """
         self._position = pygame.Vector2(value)
 
+    def get_screen_center(self) -> pygame.Vector2:
+        """
+        Returns the screenspace coordinates of the screen center
+        """
+        return self.display.get_rect().center
+
     @property
     def display(self) -> pygame.Surface:
         return self._display
