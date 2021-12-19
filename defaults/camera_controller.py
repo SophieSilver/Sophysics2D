@@ -8,7 +8,7 @@ class CameraController(EnvironmentComponent):
     """
     Allows the user to control the camera using the mousewheel
     """
-    def __init__(self, camera: Camera, rect: pygame.Rect, hold_time: float = 0.0005,
+    def __init__(self, camera: Camera, rect: pygame.Rect, hold_time: float = 0,
                  zoom_strength: float = 0.05, min_camera_scale: float = 1 / 1000):
         """
         :param camera: the camera component that is controlled
