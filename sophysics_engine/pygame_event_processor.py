@@ -18,17 +18,17 @@ class PygameEvent(Event):
     @property
     def consumed(self) -> bool:
         """
-        Whether the event (such as a click) was consumed by a one of the listeners, which signals the other listeners
+        Whether the event (such as a click) was consumed by one of the listeners, which signals to the other listeners
         to ignore this event.
 
-        Useful when, for instance, you need an object to react when the user clicks it, and you don't want other
+        Useful when, for instance, you need an object to react when the user clicks on it, and you don't want other
         objects reacting to that click.
         """
         return self.__consumed
 
     def consume(self):
         """
-        Marks the event as consumed
+        Marks the event as consumed. Note that it's up to the component whether to ignore a consumed event.
         """
         self.__consumed = True
 
