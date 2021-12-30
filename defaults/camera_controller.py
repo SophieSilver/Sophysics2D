@@ -45,6 +45,8 @@ class CameraController(EnvironmentComponent):
             event.consume()
 
     def __handle_zoom(self, scroll: int):
+        if not self.__mouse_inside_the_rect():
+            return
         # to make zooming feel better, we'll zoom into the cursor instead of the center of the screen.
 
         # in order to achieve that, we will take a point in the worldspace that corresponds to the mouse position
