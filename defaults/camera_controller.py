@@ -93,12 +93,15 @@ class CameraController(EnvironmentComponent):
     def __update(self):
         if self.__hold_start_time is not None:
             current_holding_time = process_time() - self.__hold_start_time
+
             if current_holding_time >= self.__hold_threshold:
                 mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+
                 if self.__prev_hold_position is None:
                     delta_pos = pygame.Vector2(0, 0)
                 else:
                     delta_pos = mouse_pos - self.__prev_hold_position
+
                 self.__camera.position -= delta_pos
                 self.__prev_hold_position = mouse_pos
 

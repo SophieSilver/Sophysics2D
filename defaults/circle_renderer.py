@@ -13,8 +13,12 @@ class CircleRenderer(Renderer):
     Renderer for circles
     """
     # maybe add stuff like stroke width stroke and fill colors, etc, whatever, probably not this year
-    def __init__(self, radius: Union[int, float] = 1, color = Color.WHITE, layer: int = 0):
+    def __init__(self, radius: Union[int, float] = 1, min_pixel_radius: int = 0, color = Color.WHITE, layer: int = 0):
+        """
+        :param radius: object's radius in world coordinates
+        """
         self.__world_radius: float = 0
+        self.min_pixel_radius = min_pixel_radius
         self.radius: float = radius
 
         super().__init__(color, layer)
@@ -34,7 +38,7 @@ class CircleRenderer(Renderer):
         """
         Radius of the circle in pixels on the screen
         """
-        return self.__world_radius * camera.pixels_per_unit
+        return max(self.__world_radius * camera.pixels_per_unit, self.min_pixel_radius)
 
     def render(self, surface: pygame.Surface, render_manager: Camera):
         world_position = self.sim_object.transform.position
