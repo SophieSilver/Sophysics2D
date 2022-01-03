@@ -1,10 +1,9 @@
 from .simulation import EnvironmentComponent, EnvironmentUpdateEvent
 from .rendering import CameraRenderEvent, Camera
-from .event_system import Event, EventSystem
+from .event_system import EventSystem
 from .pygame_event_processor import PygameEvent
 from time import process_time
 from typing import Optional, Dict, Callable, Union
-import pygame
 import pygame_gui
 
 
@@ -27,9 +26,6 @@ class GUIManager(EnvironmentComponent):
 
         # a field to compute time delta for the update method
         self.__last_update_time: Optional[int] = None
-
-        # when adding ui elements, initialize the fields here with None
-        # and actually create them on setup_ui()
 
     @property
     def ui_manager(self) -> pygame_gui.UIManager:
@@ -64,16 +60,17 @@ class GUIManager(EnvironmentComponent):
         pygame_event = event_wrapper.pygame_event
         self.__ui_manager.process_events(pygame_event)
 
-        if pygame_event.type != pygame.USEREVENT:
+        # check if it's a gui event
+        if not hasattr(pygame_event, "ui_element"):
             return
 
-        event_type = pygame_event.user_type
+        event_type = pygame_event.type
         ui_element = pygame_event.ui_element
 
         if event_type not in self.__ui_event_listeners or ui_element not in self.__ui_event_listeners[event_type]:
             return
 
-        callback = self.__ui_event_listeners[pygame_event.user_type][pygame_event.ui_element]
+        callback = self.__ui_event_listeners[pygame_event.type][pygame_event.ui_element]
         callback()
 
     def update_ui(self):
@@ -92,4 +89,3 @@ class GUIManager(EnvironmentComponent):
         self.__event_system.remove_listener(CameraRenderEvent, self.__handle_render_event)
         self.__event_system.remove_listener(EnvironmentUpdateEvent, self.__handle_update_event)
         self.__event_system.remove_listener(PygameEvent, self.__handle_pygame_event)
-
