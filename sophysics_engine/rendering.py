@@ -255,7 +255,7 @@ class Renderer(SimObjectComponent, ABC):
         self.render(surface, camera)
 
     @abstractmethod
-    def render(self, surface: pygame.Surface, render_manager: Camera):
+    def render(self, surface: pygame.Surface, camera: Camera):
         """
         Render the object on a specific surface
         """
