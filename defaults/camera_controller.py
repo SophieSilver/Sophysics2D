@@ -107,4 +107,3 @@ class CameraController(EnvironmentComponent):
 
     def _on_destroy(self):
         self.environment.event_system.remove_listener(EnvironmentUpdateEvent, self.__handle_update_event)
-
