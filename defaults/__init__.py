@@ -7,3 +7,5 @@ from .border_factory import get_border_object
 from .constant_acceleration import ConstantAcceleration
 from .camera_controller import CameraController
 from .circle_clickable import CircleClickable
+from .vector_arrow_renderer import VectorArrowRenderer
+from .velocity_vector_renderer import VelocityVectorRenderer
