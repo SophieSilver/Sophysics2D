@@ -6,3 +6,4 @@ from .poly_renderer import PolyRenderer
 from .border_factory import get_border_object
 from .constant_acceleration import ConstantAcceleration
 from .camera_controller import CameraController
+from .circle_clickable import CircleClickable
