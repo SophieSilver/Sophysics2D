@@ -283,8 +283,8 @@ class CameraRenderEvent(Event):
 
     Has a reference to the camera.
     """
-    def __init__(self, render_manager: Camera):
-        self.__camera = render_manager
+    def __init__(self, camera: Camera):
+        self.__camera = camera
 
     @property
     def camera(self) -> Camera:
