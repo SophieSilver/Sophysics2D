@@ -2,13 +2,16 @@ from .simulation import SimObjectComponent, EnvironmentUpdateEvent
 
 
 class MonoBehavior(SimObjectComponent):
+    """
+    A base class for various scripts
+    """
     def setup(self):
         super().setup()
         self.sim_object.environment.event_system.add_listener(EnvironmentUpdateEvent, self.__handle_update_event)
         self._start()
 
     def __handle_update_event(self, _: EnvironmentUpdateEvent):
-        self.update()
+        self._update()
 
     def _start(self):
         """
@@ -16,7 +19,7 @@ class MonoBehavior(SimObjectComponent):
         """
         pass
 
-    def update(self):
+    def _update(self):
         """
         Called every frame
         """

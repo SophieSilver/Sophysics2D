@@ -1,0 +1,41 @@
+{
+    "appName": "Sophysics2D",
+    "appVersion": "0.0",
+    "displayCfg":{
+        "size": [1600, 900],
+        "flags": 0,
+        "depth": 0,
+        "display": 0,
+        "vsync": 1
+    },
+    "environmentCfg": {
+        "timeSettingsArgs": {
+            "dt": 0.0166667,
+            "steps_per_frame": 1,
+            "paused": false
+        },
+        "cameraArgs": {
+            "position": [0, 0],
+            "units_per_pixel": 0.0125,
+            "background_color": [0, 0, 0],
+            "n_layers": 8
+        },
+        "UIManagerArgs": {
+            "starting_language": "ru",
+            "translation_directory_paths": null
+        },
+        "GUIManagerComponentArgs": {
+            "layer": 6
+        },
+        "cameraControllerCfg": {
+            "rect": [0, 0, 1600, 900],
+            "hold_time": 0.0,
+            "zoom_strength": 0.05,
+            "min_camera_scale": 0.001
+        },
+        "timeControlPanelCfg": {
+            "rect": [0, 750, 1250, 200],
+            "starting_layer_height": 0
+        }
+    }
+}
