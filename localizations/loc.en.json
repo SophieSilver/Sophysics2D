@@ -1,0 +1,6 @@
+{
+    "en": {
+        "timestep_label": "Time step, s",
+        "timestep_tooltip": "Be careful when changing timestep, it might cause instabilities"
+    }
+}

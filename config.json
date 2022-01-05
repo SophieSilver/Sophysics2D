@@ -21,8 +21,10 @@
             "n_layers": 8
         },
         "UIManagerArgs": {
-            "starting_language": "ru",
-            "translation_directory_paths": null
+            "starting_language": "en",
+            "theme_path": null,
+            "enable_live_theme_updates": true,
+            "translation_directory_paths": ["localizations"]
         },
         "GUIManagerComponentArgs": {
             "layer": 6
@@ -35,7 +37,16 @@
         },
         "timeControlPanelCfg": {
             "rect": [0, 750, 1250, 200],
-            "starting_layer_height": 0
+            "starting_layer_height": 0,
+            "pauseButtonCfg": {
+                "rect": [600, 10, 50, 50]
+            },
+            "dtControlCfg": {
+                "labelRect": [565, 60, 120, 30],
+                "textboxRect": [565, 90, 120, 30],
+                "fasterButtonRect": [685, 60, 80, 60],
+                "slowerButtonRect": [485, 60, 80, 60]
+            }
         }
     }
 }
