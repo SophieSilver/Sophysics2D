@@ -252,7 +252,12 @@ class Renderer(SimObjectComponent, ABC):
         camera = event.camera
         surface = camera.get_layer_for_rendering(self._layer)
 
-        self.render(surface, camera)
+        try:
+            self.render(surface, camera)
+        # sometimes things can be far away off screen, that gfxdraw throws an OverflowError,
+        # we're just gonna let it pass, since, if it's happening, thing is off screen anyway
+        except OverflowError:
+            pass
 
     @abstractmethod
     def render(self, surface: pygame.Surface, camera: Camera):
