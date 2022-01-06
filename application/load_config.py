@@ -3,7 +3,7 @@ from typing import Dict
 
 
 def load_config(path) -> Dict:
-    with open(path) as config:
+    with open(path, "r", encoding="utf-8") as config:
         json_string = config.read()
 
     config_dict = json.loads(json_string)
