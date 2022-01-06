@@ -3,7 +3,7 @@ import pygame_gui
 
 from sophysics_engine import SimEnvironment, TimeSettings, PhysicsManager, \
     Camera, GUIManager, PygameEventProcessor
-from defaults import CameraController
+from defaults import CameraController, PauseOnSpacebar
 from .lower_panel import LowerPanel
 from typing import Dict
 
@@ -31,9 +31,11 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
 
     time_control_panel = LowerPanel(config["timeControlPanelCfg"])
 
+    pause_on_spacebar = PauseOnSpacebar()
+
     env = SimEnvironment((), (
         time_settings, physics_manager, camera, gui_manager_component,
-        event_processor, time_control_panel, camera_controller
+        event_processor, time_control_panel, camera_controller, pause_on_spacebar
     ))
 
     return env

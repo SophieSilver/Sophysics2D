@@ -11,3 +11,4 @@ from .circle_clickable import CircleClickable
 from .vector_arrow_renderer import VectorArrowRenderer
 from .velocity_vector_renderer import VelocityVectorRenderer
 from .global_clickable import GlobalClickable
+from .pause_on_spacebar import PauseOnSpacebar

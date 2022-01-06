@@ -1,6 +1,7 @@
 {
     "en": {
-        "timestep_label": "Time step",
-        "timestep_tooltip": "Warning, changing time step might cause instability"
+        "timestep_label": "time step",
+        "timestep_tooltip": "Warning, changing time step might cause instability",
+        "timestep_per_frame_label": "time steps per frame"
     }
 }
