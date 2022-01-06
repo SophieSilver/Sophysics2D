@@ -5,7 +5,7 @@ from typing import Dict
 import pygame_gui
 
 
-class TimeControlPanel(GUIPanel):
+class LowerPanel(GUIPanel):
     def __init__(self, config: Dict):
         self.__config = config
 
@@ -20,6 +20,29 @@ class TimeControlPanel(GUIPanel):
         self.__create_panel()
         self.__create_pause_button()
         self.__create_timestep_controls()
+        self.__create_language_menu()
+
+    def __create_language_menu(self):
+        local_config = self.__config["languageMenuCfg"]
+        self.__language_dropdown = pygame_gui.elements.UIDropDownMenu(
+            options_list=list(local_config["options"]),
+            starting_option=local_config["startingOption"],
+            relative_rect=pygame.Rect(local_config["rect"]),
+            manager=self._pygame_gui_manager,
+            container=self.__panel
+        )
+        # sync the locale between the gui manager and the menu
+        self.__on_language_change()
+        self._ui_manager.add_callback(
+            pygame_gui.UI_DROP_DOWN_MENU_CHANGED,
+            self.__language_dropdown,
+            self.__on_language_change
+        )
+
+    def __on_language_change(self):
+        local_config = self.__config["languageMenuCfg"]
+        selected_language = local_config["options"][self.__language_dropdown.selected_option]
+        self._pygame_gui_manager.set_locale(selected_language)
 
     def __create_timestep_controls(self):
         local_config = self.__config["dtControlCfg"]

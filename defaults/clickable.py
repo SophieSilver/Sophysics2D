@@ -7,6 +7,9 @@ import pygame
 
 
 class Clickable(MonoBehavior, ABC):
+    """
+    Note, that, in order for this component to work, the environment must have a global clickable component
+    """
     def __init__(self, rect: pygame.Rect, button: int = 1, hold_time: float = 0):
         self.__rect = rect
         self.__button = button

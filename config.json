@@ -46,6 +46,14 @@
                 "textboxRect": [565, 90, 120, 30],
                 "fasterButtonRect": [685, 60, 80, 60],
                 "slowerButtonRect": [485, 60, 80, 60]
+            },
+            "languageMenuCfg": {
+                "rect": [10, 10, 100, 30],
+                "options": {
+                    "Русский": "ru",
+                    "English": "en"
+                },
+                "startingOption": "English"
             }
         }
     }

@@ -4,7 +4,7 @@ import pygame_gui
 from sophysics_engine import SimEnvironment, TimeSettings, PhysicsManager, \
     Camera, GUIManager, PygameEventProcessor
 from defaults import CameraController
-from .time_control_panel import TimeControlPanel
+from .lower_panel import LowerPanel
 from typing import Dict
 
 
@@ -29,7 +29,7 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
         config["cameraControllerCfg"]["zoom_strength"],
         config["cameraControllerCfg"]["min_camera_scale"])
 
-    time_control_panel = TimeControlPanel(config["timeControlPanelCfg"])
+    time_control_panel = LowerPanel(config["timeControlPanelCfg"])
 
     env = SimEnvironment((), (
         time_settings, physics_manager, camera, gui_manager_component,
