@@ -1,4 +1,5 @@
-from sophysics_engine import Clickable, Camera
+from .clickable import Clickable
+from sophysics_engine import Camera
 import pygame
 
 
@@ -6,6 +7,7 @@ class CircleClickable(Clickable):
     def __init__(self, camera: Camera,
                  radius: float,
                  rect: pygame.Rect,
+                 button: int = 1,
                  min_pixel_radius: int = 0,
                  hold_time = 0):
         """
@@ -16,9 +18,9 @@ class CircleClickable(Clickable):
         self.radius = radius
         self.min_pixel_radius = min_pixel_radius
 
-        super().__init__(rect, hold_time)
+        super().__init__(rect, button, hold_time)
 
-    def mouse_on_object(self):
+    def _mouse_on_object(self):
         # doing squared distances since it's less computationally intensive than doing square roots
         screen_radius_squared = max(self.radius * self.__camera.pixels_per_unit, self.min_pixel_radius)**2
         screen_position = pygame.Vector2(self.__camera.world_to_screen(self.sim_object.transform.position))
