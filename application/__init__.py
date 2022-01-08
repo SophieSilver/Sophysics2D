@@ -4,3 +4,4 @@ from .load_config import load_config
 from .setup_display import get_display_from_config
 from .selection import GlobalSelection, BodyController
 from .select_renderer import SelectionRenderer
+from .velocity_controller import VelocityController
