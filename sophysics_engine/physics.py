@@ -3,6 +3,7 @@ A set of components that are used to simulate physics
 """
 from __future__ import annotations
 
+import pygame
 import pymunk
 
 from abc import ABC, abstractmethod
@@ -44,7 +45,7 @@ class Force(SimObjectComponent, ABC):
     Force component passes force to the rigidbody of the sim_object
     """
     def __init__(self):
-        self._rigidbody = None
+        self._rigidbody: Optional[RigidBody] = None
         super().__init__()
 
     def setup(self):
@@ -276,7 +277,7 @@ class RigidBody(SimObjectComponent):
 
         self._body.mass = value
 
-    def apply_force(self, force: Sequence[number]):
+    def apply_force(self, force: Union[Sequence[number], pygame.Vector2]):
         """
         Applies a force to the center of mass of the object's pymunk body
         """
