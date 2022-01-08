@@ -190,11 +190,14 @@ class LowerPanel(GUIPanel):
 
         try:
             new_dt = float(text)
-            assert new_dt >= 0.0
+
+            if new_dt < 0.0:
+                raise ValueError()
+
             self.__time_settings.dt = new_dt
 
         # !!!do not merge the 2 exceptions like "ValueError or AssertionError", it crashes the python interpreter
-        except (ValueError, AssertionError):
+        except ValueError:
             self.__update_timestep_textbox()
 
     def __pause_simulation(self):
