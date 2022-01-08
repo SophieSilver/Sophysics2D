@@ -237,8 +237,11 @@ class LowerPanel(GUIPanel):
         if self.__is_pause_button_text_correct():
             return
 
-        self.__on_timestep_changed()
-        self.__on_timestep_per_frame_changed()
+        # when we unpause, we update the text fields
+        if not self.__time_settings.paused:
+            self.__on_timestep_changed()
+            self.__on_timestep_per_frame_changed()
+
         self.__pause_button.set_text("▶" if self.__time_settings.paused else "▮▮")
 
     def __is_pause_button_text_correct(self) -> bool:
