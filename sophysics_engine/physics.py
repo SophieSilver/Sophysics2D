@@ -30,6 +30,13 @@ class RigidBodyExertForcesEvent(Event):
     pass
 
 
+class PostPhysicsUpdateEvent(Event):
+    """
+    An event that's raised when all physics calculations for the current timestep are done
+    """
+    pass
+
+
 class Force(SimObjectComponent, ABC):
     """
     A base class for Force components.
@@ -449,6 +456,7 @@ class PhysicsManager(EnvironmentComponent):
         self.__event_system.raise_event(RigidBodyExertForcesEvent())
         self._space.step(self.__time_settings.dt)
         self.__event_system.raise_event(RigidBodySyncSimObjectWithBodyEvent())
+        self.__event_system.raise_event(PostPhysicsUpdateEvent())
 
     def _on_destroy(self):
         self.__event_system.remove_listener(AdvanceTimeStepEvent, self.__handle_advance_timestep_event)
