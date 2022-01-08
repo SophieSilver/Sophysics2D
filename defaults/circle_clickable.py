@@ -14,7 +14,7 @@ class CircleClickable(Clickable):
         :param radius: radius of the object in world units
         :param min_pixel_radius: minimal radius of the object in screen units
         """
-        self.__camera = camera
+        self._camera = camera
         self.radius = radius
         self.min_pixel_radius = min_pixel_radius
 
@@ -22,8 +22,8 @@ class CircleClickable(Clickable):
 
     def _mouse_on_object(self):
         # doing squared distances since it's less computationally intensive than doing square roots
-        screen_radius_squared = max(self.radius * self.__camera.pixels_per_unit, self.min_pixel_radius)**2
-        screen_position = pygame.Vector2(self.__camera.world_to_screen(self.sim_object.transform.position))
+        screen_radius_squared = max(self.radius * self._camera.pixels_per_unit, self.min_pixel_radius) ** 2
+        screen_position = pygame.Vector2(self._camera.world_to_screen(self.sim_object.transform.position))
         mouse_position = pygame.Vector2(pygame.mouse.get_pos())
 
         # distance between the mouse and the object
