@@ -62,5 +62,26 @@
                 "increaseButtonRect": [800, 60, 50, 30]
             }
         }
+    },
+    "celestialBodyCfg": {
+        "controller": {
+            "rect": [0, 0, 1600, 900],
+            "button": 1,
+            "hold_time": 0.05
+        },
+        "selection_renderer": {
+            "width": 3,
+            "color": [255, 255, 255],
+            "layer": 3
+        },
+        "velocity_arrow": {
+            "scale_factor": 0.3,
+            "base_radius": 3,
+            "arrow_width": 2,
+            "arrow_head_length": 12,
+            "arrow_head_width": 12,
+            "color": [0, 255, 0],
+            "layer": 4
+        }
     }
 }
