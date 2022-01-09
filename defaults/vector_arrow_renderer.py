@@ -52,32 +52,24 @@ class VectorArrowRenderer(Renderer, ABC):
         )
 
         arrow_direction = screen_vector.normalize()
+
+        head_end_pos = end_pos
+        # move the arrow head forward if the arrow is too short
+        if (start_pos - head_end_pos).length_squared() < self.arrow_head_length * self.arrow_head_length:
+            head_end_pos = start_pos + self.arrow_head_length * arrow_direction
+
         # to get the normal we just swap x and y and also invert the y
         # (you can prove that it's the normal by simplifying sin(a + 90) and cos(a + 90))
         normal = pygame.Vector2(-arrow_direction.y, arrow_direction.x)
 
         # get the other vertices of the head of the arrow
-        vertex1 = (end_pos - arrow_direction * self.arrow_head_length) + normal * self.arrow_head_width / 2
-        vertex2 = (end_pos - arrow_direction * self.arrow_head_length) - normal * self.arrow_head_width / 2
+        vertex1 = (head_end_pos - arrow_direction * self.arrow_head_length) + normal * self.arrow_head_width / 2
+        vertex2 = (head_end_pos - arrow_direction * self.arrow_head_length) - normal * self.arrow_head_width / 2
 
-        # draw everything
-        pygame.gfxdraw.aatrigon(
+        # draw the arrow head
+        pygame.draw.polygon(
             surface,
-            int(end_pos.x),
-            int(end_pos.y),
-            int(vertex1.x),
-            int(vertex1.y),
-            int(vertex2.x),
-            int(vertex2.y),
-            self.color
+            self.color,
+            (head_end_pos, vertex1, vertex2)
         )
-        pygame.gfxdraw.filled_trigon(
-            surface,
-            int(end_pos.x),
-            int(end_pos.y),
-            int(vertex1.x),
-            int(vertex1.y),
-            int(vertex2.x),
-            int(vertex2.y),
-            self.color
-        )
+

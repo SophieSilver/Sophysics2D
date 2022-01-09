@@ -44,11 +44,4 @@ class CircleRenderer(Renderer):
         world_position = self.sim_object.transform.position
         screen_position = camera.world_to_screen(world_position)
 
-        # pygame.draw.circle(surface, self.color, screen_position, self.get_pixel_radius(camera))
-
-        x, y = map(int, screen_position)
-        radius = int(self.get_pixel_radius(camera))
-        # the first method draws an unfilled anti-aliased circumference,
-        # the seconds draws the filled circle inside of it
-        pygame.gfxdraw.aacircle(surface, x, y, radius, self.color)
-        pygame.gfxdraw.filled_circle(surface, x, y, radius, self.color)
+        pygame.draw.circle(surface, self.color, screen_position, self.get_pixel_radius(camera))
