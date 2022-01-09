@@ -35,6 +35,20 @@
             "zoom_strength": 0.05,
             "min_camera_scale": 0.001
         },
+        "attractionCfg": {
+            "attraction_coefficient": 6.67430e-11
+        },
+        "globalSelectionCfg": {
+            "rect": [0, 0, 1600, 900],
+            "button": 1,
+            "hold_time": 0
+        },
+        "velocityControllerCfg": {
+            "rect": [0, 0, 1600, 900],
+            "scale_factor": 10,
+            "button": 3,
+            "hold_time": 0
+        },
         "timeControlPanelCfg": {
             "rect": [0, 750, 1250, 150],
             "starting_layer_height": 0,
