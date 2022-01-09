@@ -254,9 +254,10 @@ class Renderer(SimObjectComponent, ABC):
 
         try:
             self.render(surface, camera)
-        # sometimes things can be far away off screen, that gfxdraw throws an OverflowError,
-        # we're just gonna let it pass, since, if it's happening, thing is off screen anyway
-        except OverflowError:
+        except (OverflowError, ValueError):
+            # sometimes things can be far away off screen, that gfxdraw throws an OverflowError,
+            # we're just gonna let it pass, since, if it's happening, thing is off screen anyway
+            # similar thing sometimes happens, when the object's coordinates are NaN, but it throws ValueError
             pass
 
     @abstractmethod
