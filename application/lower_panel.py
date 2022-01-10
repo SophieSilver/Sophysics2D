@@ -1,6 +1,6 @@
 import pygame
 
-from sophysics_engine import GUIPanel, TimeSettings
+from sophysics_engine import GUIPanel, TimeSettings, PauseEvent, UnpauseEvent
 from typing import Dict
 import pygame_gui
 
@@ -12,10 +12,22 @@ class LowerPanel(GUIPanel):
         super().__init__()
 
     @property
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         return self.__panel.is_enabled
 
+    @is_enabled.setter
+    def is_enabled(self, value: bool):
+        if value:
+            self.__panel.enable()
+            self.__panel.show()
+        else:
+            self.__panel.disable()
+            self.__panel.hide()
+
     def _setup_ui(self):
+        self.environment.event_system.add_listener(PauseEvent, self.__handle_pause_event)
+        self.environment.event_system.add_listener(UnpauseEvent, self.__handle_unpause_event)
+
         self.__time_settings: TimeSettings = self.environment.get_component(TimeSettings)
         self.__create_panel()
         self.__create_pause_button()
@@ -218,7 +230,7 @@ class LowerPanel(GUIPanel):
 
         self.__pause_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(button_config["rect"]),
-            text="font test",
+            text="▶" if self.__time_settings.paused else "▮▮",
             manager=self._pygame_gui_manager,
             container=self.__panel,
             object_id="#pause_button"
@@ -233,20 +245,17 @@ class LowerPanel(GUIPanel):
     def __pause_button_click(self):
         self.__time_settings.paused = not self.__time_settings.paused
 
-    def __update_pause_button(self):
-        if self.__is_pause_button_text_correct():
-            return
+    def __handle_pause_event(self, _: PauseEvent):
+        self.__pause_button.set_text("▶")
 
-        # when we unpause, we update the text fields
-        if not self.__time_settings.paused:
-            self.__on_timestep_changed()
-            self.__on_timestep_per_frame_changed()
+    def __handle_unpause_event(self, _: UnpauseEvent):
+        self.__pause_button.set_text("▮▮")
 
-        self.__pause_button.set_text("▶" if self.__time_settings.paused else "▮▮")
+        self.__on_timestep_changed()
+        self.__on_timestep_per_frame_changed()
 
-    def __is_pause_button_text_correct(self) -> bool:
-        return (self.__pause_button.text == "▶" and self.__time_settings.paused) or \
-               (self.__pause_button.text == "▮▮" and not self.__time_settings.paused)
+    def _on_destroy(self):
+        self.environment.event_system.remove_listener(PauseEvent, self.__handle_pause_event)
+        self.environment.event_system.remove_listener(UnpauseEvent, self.__handle_unpause_event)
 
-    def _update_ui(self):
-        self.__update_pause_button()
+        super()._on_destroy()

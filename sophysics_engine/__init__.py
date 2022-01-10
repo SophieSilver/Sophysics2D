@@ -9,7 +9,7 @@ from .simulation import SimEnvironment, SimObject, EnvironmentComponent, \
 from .rendering import Renderer, Camera, CameraRenderEvent, Color
 from .physics import PhysicsManager, RigidBody, Force, CollisionListener
 from .env_updater import EnvironmentUpdater
-from .time_settings import TimeSettings
+from .time_settings import TimeSettings, PauseEvent, UnpauseEvent
 from .pygame_event_processor import PygameEvent, PygameEventProcessor
 from .gui_manager import GUIManager
 from .monobehavior import MonoBehavior
