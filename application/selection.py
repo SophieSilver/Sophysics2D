@@ -22,6 +22,10 @@ class SelectionUpdateEvent(Event):
         return self.__selected_body
 
 
+class SelectedBodyPositionUpdateEvent(Event):
+    pass
+
+
 class GlobalSelection(GlobalClickable):
     """
     A component that keeps track of the object selected by the user
@@ -112,6 +116,8 @@ class BodyController(CircleClickable):
 
     def _on_hold(self):
         self.screen_position = pygame.Vector2(pygame.mouse.get_pos()) - self.__mouse_offset_from_body
+
+        self.sim_object.environment.event_system.raise_event(SelectedBodyPositionUpdateEvent())
 
     def _on_hold_end(self):
         self.__mouse_offset_from_body = None

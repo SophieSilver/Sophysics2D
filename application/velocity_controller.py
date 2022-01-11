@@ -1,8 +1,12 @@
 from .selection import GlobalSelection, BodyController
 from defaults import GlobalClickable
-from sophysics_engine import Camera, TimeSettings
+from sophysics_engine import Camera, TimeSettings, Event
 from typing import Optional
 import pygame
+
+
+class SelectedBodyVelocityUpdateEvent(Event):
+    pass
 
 
 class VelocityController(GlobalClickable):
@@ -65,3 +69,5 @@ class VelocityController(GlobalClickable):
         rigidbody = self.__get_selected_body().rigidbody
 
         rigidbody.velocity = new_velocity
+
+        self.environment.event_system.raise_event(SelectedBodyVelocityUpdateEvent())
