@@ -169,6 +169,10 @@ class Camera(EnvironmentComponent):
     def units_per_pixel(self, value: number):
         validate_positive_number(value, "units_per_pixel")
 
+        # validate_positive_number doesn't check for that
+        if value == 0:
+            raise ValueError("units_per_pixel cannot be 0")
+
         self._units_per_pixel = value
 
     @property
