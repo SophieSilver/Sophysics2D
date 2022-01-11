@@ -151,7 +151,7 @@ class SimObject(ComponentContainer):
     """
     def __init__(self, tag: str = "", components: Iterable[SimObjectComponent] = ()):
         self._environment: Optional[SimEnvironment] = None
-        self._tag: str = tag
+        self.__tag: str = tag
         super().__init__(components)
 
         self._transform: Optional[Transform] = self.try_get_component(Transform)
@@ -184,7 +184,11 @@ class SimObject(ComponentContainer):
 
     @property
     def tag(self) -> str:
-        return self._tag
+        return self.__tag
+
+    @tag.setter
+    def tag(self, value: str):
+        self.__tag = value
 
     @property
     def transform(self) -> Transform:
