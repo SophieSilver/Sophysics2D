@@ -302,6 +302,8 @@ class Transform(SimObjectComponent):
     """
     Holds information about position and rotation of the object.
     """
+    # I know this isn't actually a transformation matrix, I'm too dumb for that stuff
+    # It also doesn't have scale lol
     def __init__(self, position: pygame.Vector2 = None,
                  rotation: float = 0):
         if(position is None):
