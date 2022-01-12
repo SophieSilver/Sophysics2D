@@ -4,7 +4,7 @@ A special object that you can attach different components (behaviors) to
 from __future__ import annotations
 from abc import ABC
 from .component import Component
-from typing import Iterable, Set, Any
+from typing import Iterable, Set, Any, List
 
 
 class ComponentContainer(ABC):
@@ -48,7 +48,7 @@ class ComponentContainer(ABC):
 
         raise ValueError(f"component {comp_type} not found")
 
-    def get_components(self, comp_type: type) -> Any:
+    def get_components(self, comp_type: type) -> List[Any]:
         """
         Returns a list of all components of a specified type.
 
