@@ -71,6 +71,7 @@ class TrailRenderer(Renderer):
 
     def _on_destroy(self):
         self.sim_object.environment.event_system.remove_listener(TrailResetEvent, self.__handle_reset_event)
-        self.sim_object.environment.event_system.remove_listener(PostPhysicsUpdateEvent, self.__handle_post_physics_event)
+        self.sim_object.environment.event_system.remove_listener(PostPhysicsUpdateEvent,
+                                                                 self.__handle_post_physics_event)
 
         super()._on_destroy()
