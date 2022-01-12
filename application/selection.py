@@ -146,3 +146,6 @@ class BodyController(CircleClickable):
 
     def _clickable_end(self):
         self.sim_object.environment.event_system.remove_listener(SelectionUpdateEvent, self.__handle_selection_update)
+        # if the object is selected, deselect it
+        if self.is_selected:
+            self.__global_selection.deselect()
