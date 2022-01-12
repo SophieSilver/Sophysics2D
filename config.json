@@ -1,6 +1,7 @@
 {
     "appName": "Sophysics2D",
     "appVersion": "0.0",
+    "fps": 60,
     "displayCfg":{
         "size": [1600, 900],
         "flags": 0,
@@ -11,7 +12,7 @@
     "environmentCfg": {
         "timeSettingsArgs": {
             "dt": 60,
-            "steps_per_frame": 1,
+            "steps_per_frame": 300,
             "paused": false
         },
         "cameraArgs": {
@@ -30,7 +31,7 @@
             "layer": 6
         },
         "cameraControllerCfg": {
-            "rect": [0, 0, 1600, 900],
+            "rect": [0, 0, 1250, 750],
             "hold_time": 0.0,
             "zoom_strength": 0.05,
             "min_camera_scale": 100
@@ -39,12 +40,12 @@
             "attraction_coefficient": 6.67430e-11
         },
         "globalSelectionCfg": {
-            "rect": [0, 0, 1600, 900],
+            "rect": [0, 0, 1250, 750],
             "button": 1,
             "hold_time": 0
         },
         "velocityControllerCfg": {
-            "rect": [0, 0, 1600, 900],
+            "rect": [0, 0, 1250, 750],
             "scale_factor": 20000,
             "button": 3,
             "hold_time": 0
@@ -75,13 +76,35 @@
                 "decreaseButtonRect": [670, 60, 50, 30],
                 "increaseButtonRect": [800, 60, 50, 30]
             }
+        },
+        "upperPanelCfg": {
+            "rect": [1250, 0, 350, 57],
+            "starting_layer_height": 0,
+            "buttons": {
+                "open_rect": [10, 10, 160, 30],
+                "save_rect": [175, 10, 160, 30]
+            }
+        },
+        "sidePanelCfg": {
+            "rect": [1250, 57, 350, 843],
+            "starting_layer_height": 0,
+            "create_button_rect": [80, 10, 190, 30],
+            "info_panel": {
+                "name_label_rect": [10, 60, 70, 30],
+                "name_textbox_rect": [90, 60, 120, 30],
+                "mass_label_rect": [10, 100, 70, 30],
+                "mass_textbox_rect": [90, 100, 120, 30]
+            },
+            "creation_panel": {
+                "close_button_rect": [230, 770, 100, 30]
+            }
         }
     },
     "celestialBodyCfg": {
         "controller": {
             "rect": [0, 0, 1600, 900],
             "button": 1,
-            "hold_time": 0.05
+            "hold_time": 0.1
         },
         "selection_renderer": {
             "width": 3,
@@ -96,6 +119,12 @@
             "arrow_head_width": 9,
             "color": [0, 255, 0],
             "layer": 4
+        },
+        "trail": {
+            "alpha": 100,
+            "thickness": 2,
+            "max_points": 1000,
+            "layer": 0
         }
     }
 }

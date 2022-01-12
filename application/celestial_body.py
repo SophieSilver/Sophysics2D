@@ -5,6 +5,7 @@ from sophysics_engine import Transform, RigidBody, Camera, SimObject
 from defaults import Attraction, CircleRenderer, VelocityVectorRenderer
 from .select_renderer import SelectionRenderer
 from .selection import BodyController
+from .trail_renderer import TrailRenderer
 
 
 # the data types are such, so that we can fill all the parameters from a json file
@@ -24,7 +25,7 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
     circle_renderer = CircleRenderer(
         radius=radius,
         min_pixel_radius=min_screen_radius,
-        color=color,
+        color=pygame.Color(color),
         layer=draw_layer
     )
 
@@ -57,11 +58,23 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
         hold_time=controller_config["hold_time"]
     )
 
+    trail_config = config["trail"]
+    trail_color = pygame.Color(color)
+    trail_color.a = trail_config["alpha"]
+
+    trail_renderer = TrailRenderer(
+        point_distance=radius,
+        max_points=trail_config["max_points"],
+        thickness=trail_config["thickness"],
+        color=trail_color,
+        layer=trail_config["layer"]
+    )
+
     sim_object = SimObject(
         tag=name,
         components=(
             transform, rigid_body, grav_force, circle_renderer, selection_renderer,
-            velocity_renderer, body_controller
+            velocity_renderer, body_controller, trail_renderer
         )
     )
 
