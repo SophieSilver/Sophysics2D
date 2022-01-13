@@ -61,3 +61,7 @@ class TextBox(UIElement):
                 self.__textbox,
                 finish_callback
             )
+
+    @property
+    def element(self) -> pygame_gui.elements.UITextEntryLine:
+        return self.__textbox
