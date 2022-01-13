@@ -9,25 +9,26 @@ from sophysics_engine import GUIManager
 
 
 class UIElement(ABC):
-    def __init__(self, gui_manager: GUIManager, update_callback: Optional[Callable], update_every_frame: bool = True,
-                 update_on_pause: bool = False, update_on_unpause: bool = True,):
+    def __init__(self, gui_manager: GUIManager, step_callback: Optional[Callable] = None,
+                 pause_callback: Optional[Callable] = None, unpause_callback: [Callable] = None):
         self._gui_manager = gui_manager
-        self.update_every_frame = update_every_frame
-        self.update_on_pause = update_on_pause
-        self.update_on_unpause = update_on_unpause
-        self.__update_callback = update_callback
 
-    def on_frame_update(self):
-        if self.update_every_frame and self.__update_callback is not None:
-            self.__update_callback()
+        self.__step_callback = step_callback
+        self.__pause_callback = pause_callback
+        self.__unpause_callback = unpause_callback
+
+    def on_step(self):
+        if self.__step_callback is not None:
+            self.__step_callback()
 
     def on_pause(self):
-        if self.update_on_pause and self.__update_callback is not None:
-            self.__update_callback()
+        if self.__pause_callback is not None:
+            self.__pause_callback()
 
     def on_unpause(self):
-        if self.update_on_unpause and self.__update_callback is not None:
-            self.__update_callback()
+        if self.__unpause_callback is not None:
+            self.__unpause_callback()
+
 
     def destroy(self):
         self._gui_manager = None
@@ -36,19 +37,22 @@ class UIElement(ABC):
 class TextBox(UIElement):
     def __init__(self, rect: pygame.Rect, gui_manager: GUIManager,
                  container: pygame_gui.core.IContainerLikeInterface,
-                 allowed_characters: Optional[Union[str, List[str]]] ,update_callback: Optional[Callable],
-                 change_callback: Optional[Callable], finish_callback: Optional[Callable],
-                 update_every_frame: bool = True, update_on_pause: bool = False,
-                 update_on_unpause: bool = True):
+                 allowed_characters: Optional[Union[str, List[str]]],
+                 change_callback: Optional[Callable] = None,
+                 finish_callback: Optional[Callable] = None,
+                 step_callback: Optional[Callable] = None,
+                 pause_callback: Optional[Callable] = None,
+                 unpause_callback: Optional[Callable] = None
+                 ):
         # that's a thicc argument list lol
-        super().__init__(gui_manager, update_callback, update_every_frame, update_on_pause, update_on_unpause)
+        super().__init__(gui_manager, step_callback, pause_callback, unpause_callback)
 
         self.__textbox = pygame_gui.elements.UITextEntryLine(
             relative_rect=rect,
             manager=gui_manager.ui_manager,
             container=container,
         )
-        self.__textbox.set_allowed_characters(allowed_characters)
+        self.__textbox.allowed_characters = allowed_characters
         if change_callback is not None:
             self._gui_manager.add_callback(
                 pygame_gui.UI_TEXT_ENTRY_CHANGED,
