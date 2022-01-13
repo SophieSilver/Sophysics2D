@@ -58,7 +58,11 @@ class GUIManager(EnvironmentComponent):
 
     def __handle_pygame_event(self, event_wrapper: PygameEvent):
         pygame_event = event_wrapper.pygame_event
-        self.__ui_manager.process_events(pygame_event)
+        try:
+            self.__ui_manager.process_events(pygame_event)
+        except IndexError:
+            # sometimes happens when you try to type into a constantly updating text field
+            pass
 
         # check if it's a gui event
         if not hasattr(pygame_event, "ui_element"):
