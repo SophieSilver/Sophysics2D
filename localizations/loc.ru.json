@@ -2,6 +2,15 @@
     "ru": {
         "timestep_label": "Шаг симуляции",
         "timestep_tooltip": "Внимание, изменение шага симуляции может вызвать нестабильность",
-        "timestep_per_frame_label": "шагов симуляции за кадр"
+        "timestep_per_frame_label": "шагов симуляции за кадр",
+
+        "open_file_button": "открыть файл",
+        "save_file_button": "сохранить",
+        "create": "создать новый объект",
+        "close": "закрыть",
+        "name": "название:",
+        "mass": "масса:",
+        "radius": "радиус:",
+        "position": "позиция:"
     }
 }

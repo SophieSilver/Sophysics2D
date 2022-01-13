@@ -200,7 +200,6 @@ class LowerPanel(GUIPanel):
 
             self.__time_settings.dt = new_dt
 
-        # !!!do not merge the 2 exceptions like "ValueError or AssertionError", it crashes the python interpreter
         except ValueError:
             self.__update_timestep_textbox()
 

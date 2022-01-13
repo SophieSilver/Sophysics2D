@@ -2,6 +2,16 @@
     "en": {
         "timestep_label": "time step",
         "timestep_tooltip": "Warning, changing time step might cause instability",
-        "timestep_per_frame_label": "time steps per frame"
+        "timestep_per_frame_label": "time steps per frame",
+
+        "open_file_button": "open file",
+        "save_file_button": "save file",
+        "create": "create new object",
+        "close": "close",
+        "name": "name:",
+        "mass": "mass:",
+        "radius": "radius:",
+        "position": "position:",
+        "velocity": "velocity:"
     }
 }

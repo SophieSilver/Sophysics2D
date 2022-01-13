@@ -7,4 +7,5 @@ from .select_renderer import SelectionRenderer
 from .velocity_controller import VelocityController
 from .celestial_body import get_celestial_body
 from .ui_elements import UIElement, TextBox
-
+from .upper_panel import UpperPanel
+from .side_panel import SidePanel

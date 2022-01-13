@@ -3,5 +3,15 @@
         "misc": {
             "expand_direction": "up"
         }
+    },
+    "selection_list": {
+        "misc": {
+            "list_item_height": "30"
+        }
+    },
+    "@info_labels": {
+        "misc": {
+            "text_horiz_alignment": "left"
+        }
     }
 }

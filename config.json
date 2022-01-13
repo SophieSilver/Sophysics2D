@@ -3,7 +3,7 @@
     "appVersion": "0.0",
     "fps": 60,
     "displayCfg":{
-        "size": [1600, 900],
+        "size": [1280, 720],
         "flags": 0,
         "depth": 0,
         "display": 0,
@@ -11,8 +11,8 @@
     },
     "environmentCfg": {
         "timeSettingsArgs": {
-            "dt": 60,
-            "steps_per_frame": 300,
+            "dt": 15,
+            "steps_per_frame": 4,
             "paused": false
         },
         "cameraArgs": {
@@ -92,8 +92,14 @@
             "info_panel": {
                 "name_label_rect": [10, 60, 70, 30],
                 "name_textbox_rect": [90, 60, 120, 30],
+
                 "mass_label_rect": [10, 100, 70, 30],
-                "mass_textbox_rect": [90, 100, 120, 30]
+                "mass_textbox_rect": [90, 100, 120, 30],
+
+                "radius_label_rect": [10, 140, 70, 30],
+                "radius_textbox_rect": [90, 140, 120, 30],
+
+                "position_label_rect": [10, 180, 70, 30]
             },
             "creation_panel": {
                 "close_button_rect": [230, 770, 100, 30]
@@ -113,7 +119,7 @@
         },
         "velocity_arrow": {
             "scale_factor": 20000,
-            "base_radius": 3,
+            "base_radius": 2,
             "arrow_width": 2,
             "arrow_head_length": 10,
             "arrow_head_width": 9,
@@ -123,7 +129,7 @@
         "trail": {
             "alpha": 100,
             "thickness": 2,
-            "max_points": 1000,
+            "max_points": 2000,
             "layer": 0
         }
     }
