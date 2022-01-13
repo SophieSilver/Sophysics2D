@@ -6,7 +6,7 @@ import pygame
 
 from sophysics_engine import Event, TimeSettings, RigidBody
 from defaults import CircleClickable, GlobalClickable, VectorArrowRenderer, CircleRenderer
-from typing import Optional
+from typing import Optional, List
 
 from .select_renderer import SelectionRenderer
 
@@ -63,7 +63,7 @@ class BodyController(CircleClickable):
         self.__global_selection: GlobalSelection = self.sim_object.environment.get_component(GlobalSelection)
         self.__selection_renderer: SelectionRenderer = self.sim_object.get_component(SelectionRenderer)
         self.__vector_renderer: VectorArrowRenderer = self.sim_object.get_component(VectorArrowRenderer)
-        self.__renderer: CircleRenderer = self.sim_object.get_component(CircleRenderer)
+        self.__renderers: List[CircleRenderer] = self.sim_object.get_components(CircleRenderer)
         self.__time_settings: TimeSettings = self.sim_object.environment.get_component(TimeSettings)
 
         self.__mouse_offset_from_body: Optional[pygame.Vector2] = None
@@ -82,8 +82,8 @@ class BodyController(CircleClickable):
         return self.__rigidbody
 
     @property
-    def renderer(self) -> CircleRenderer:
-        return self.__renderer
+    def renderers(self) -> List[CircleRenderer]:
+        return self.__renderers
 
     @property
     def is_selected(self) -> bool:
