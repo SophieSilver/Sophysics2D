@@ -1,13 +1,15 @@
 import pygame
 
 from sophysics_engine import GUIPanel, TimeSettings, PauseEvent, UnpauseEvent
-from typing import Dict
+from .ui_elements import TextBox, UIElement
+from typing import Dict, List
 import pygame_gui
 
 
 class LowerPanel(GUIPanel):
     def __init__(self, config: Dict):
         self.__config = config
+        self.__elements: List[UIElement] = []
 
         super().__init__()
 
@@ -43,24 +45,19 @@ class LowerPanel(GUIPanel):
             manager=self._pygame_gui_manager,
             container=self.__panel
         )
-
-        self.__timestep_per_frame_text_box = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect(local_config["textBoxRect"]),
-            manager=self._pygame_gui_manager,
-            container=self.__panel
+        textbox = TextBox(
+            rect=pygame.Rect(local_config["textBoxRect"]),
+            gui_manager=self._ui_manager,
+            container=self.__panel,
+            allowed_characters="0123456789",
+            change_callback=self.__pause_simulation,
+            finish_callback=self.__on_timestep_per_frame_changed,
+            unpause_callback=self.__on_timestep_per_frame_changed
         )
-        self.__timestep_per_frame_text_box.allowed_characters = "0123456789"
-        self._ui_manager.add_callback(
-            pygame_gui.UI_TEXT_ENTRY_CHANGED,
-            self.__timestep_per_frame_text_box,
-            self.__pause_simulation
-        )
-        self._ui_manager.add_callback(
-            pygame_gui.UI_TEXT_ENTRY_FINISHED,
-            self.__timestep_per_frame_text_box,
-            self.__on_timestep_per_frame_changed
-        )
+        self.__elements.append(textbox)
+        self.__timestep_per_frame_textbox = textbox.element
         self.__update_time_steps_per_frame_text_box()
+
         # buttons
         self.__decrease_steps_per_frame_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(local_config["decreaseButtonRect"]),
@@ -96,7 +93,7 @@ class LowerPanel(GUIPanel):
         self.__update_time_steps_per_frame_text_box()
 
     def __on_timestep_per_frame_changed(self):
-        text = self.__timestep_per_frame_text_box.text
+        text = self.__timestep_per_frame_textbox.text
 
         try:
             new_steps_per_frame = int(text)
@@ -107,7 +104,7 @@ class LowerPanel(GUIPanel):
             self.__update_time_steps_per_frame_text_box()
 
     def __update_time_steps_per_frame_text_box(self):
-        self.__timestep_per_frame_text_box.set_text(str(self.__time_settings.steps_per_frame))
+        self.__timestep_per_frame_textbox.set_text(str(self.__time_settings.steps_per_frame))
 
     def __create_language_menu(self):
         local_config = self.__config["languageMenuCfg"]
@@ -144,24 +141,19 @@ class LowerPanel(GUIPanel):
             manager=self._pygame_gui_manager,
             container=self.__panel
         )
-
-        self.__timestep_text_box = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect(local_config["textboxRect"]),
-            manager=self._pygame_gui_manager,
-            container=self.__panel
+        textbox = TextBox(
+            rect=pygame.Rect(local_config["textboxRect"]),
+            gui_manager=self._ui_manager,
+            container=self.__panel,
+            allowed_characters=".-+0123456789Ee",
+            change_callback=self.__pause_simulation,
+            finish_callback=self.__on_timestep_changed,
+            unpause_callback=self.__on_timestep_changed
         )
-        self.__timestep_text_box.allowed_characters = ".-+0123456789Ee"
-        self._ui_manager.add_callback(
-            pygame_gui.UI_TEXT_ENTRY_CHANGED,
-            self.__timestep_text_box,
-            self.__pause_simulation
-        )
-        self._ui_manager.add_callback(
-            pygame_gui.UI_TEXT_ENTRY_FINISHED,
-            self.__timestep_text_box,
-            self.__on_timestep_changed
-        )
+        self.__timestep_textbox = textbox.element
+        self.__elements.append(textbox)
         self.__update_timestep_textbox()
+
         # the buttons
         self.__fast_forward_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(local_config["fasterButtonRect"]),
@@ -198,7 +190,7 @@ class LowerPanel(GUIPanel):
         self.__update_timestep_textbox()
 
     def __on_timestep_changed(self):
-        text = self.__timestep_text_box.text
+        text = self.__timestep_textbox.text
 
         try:
             new_dt = float(text)
@@ -216,7 +208,7 @@ class LowerPanel(GUIPanel):
         self.__time_settings.paused = True
 
     def __update_timestep_textbox(self):
-        self.__timestep_text_box.set_text(str(self.__time_settings.dt))
+        self.__timestep_textbox.set_text(str(self.__time_settings.dt))
 
     def __create_panel(self):
         self.__panel = pygame_gui.elements.UIPanel(
@@ -248,11 +240,19 @@ class LowerPanel(GUIPanel):
     def __handle_pause_event(self, _: PauseEvent):
         self.__pause_button.set_text("▶")
 
+        for element in self.__elements:
+            element.on_pause()
+
     def __handle_unpause_event(self, _: UnpauseEvent):
         self.__pause_button.set_text("▮▮")
 
-        self.__on_timestep_changed()
-        self.__on_timestep_per_frame_changed()
+        for element in self.__elements:
+            element.on_unpause()
+
+    def _update_ui(self):
+        if not self.__time_settings.paused:
+            for element in self.__elements:
+                element.on_step()
 
     def _on_destroy(self):
         self.environment.event_system.remove_listener(PauseEvent, self.__handle_pause_event)
