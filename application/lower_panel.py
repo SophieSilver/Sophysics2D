@@ -4,6 +4,7 @@ from sophysics_engine import GUIPanel, TimeSettings, PauseEvent, UnpauseEvent
 from .ui_elements import TextBox, UIElement
 from typing import Dict, List
 import pygame_gui
+import math
 
 
 class LowerPanel(GUIPanel):
@@ -182,11 +183,21 @@ class LowerPanel(GUIPanel):
         )
 
     def __decrease_timestep(self):
-        self.__time_settings.dt /= 2
+        new_dt = self.__time_settings.dt / 2
+
+        if not math.isfinite(new_dt):
+            return
+
+        self.__time_settings.dt = new_dt
         self.__update_timestep_textbox()
 
     def __increase_timestep(self):
-        self.__time_settings.dt *= 2
+        new_dt = self.__time_settings.dt * 2
+
+        if not math.isfinite(new_dt):
+            return
+
+        self.__time_settings.dt = new_dt
         self.__update_timestep_textbox()
 
     def __on_timestep_changed(self):
@@ -195,7 +206,7 @@ class LowerPanel(GUIPanel):
         try:
             new_dt = float(text)
 
-            if new_dt < 0.0:
+            if new_dt < 0.0 or not math.isfinite(new_dt):
                 raise ValueError()
 
             self.__time_settings.dt = new_dt

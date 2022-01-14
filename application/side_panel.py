@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 import pymunk
+import math
 
 from sophysics_engine import GUIPanel, TimeSettings, UnpauseEvent
 from .selection import BodyController, SelectionUpdateEvent, SelectedBodyPositionUpdateEvent
@@ -306,12 +307,16 @@ class SidePanel(GUIPanel):
     def __on_velocity_coords_confirmed(self):
         if self.__selected_body is None:
             return
+
         text_x = self.__velocity_x_textbox.text
         text_y = self.__velocity_y_textbox.text
         rigidbody = self.__selected_body.rigidbody
         try:
             value_x = float(text_x)
             value_y = float(text_y)
+
+            if not (math.isfinite(value_x) and math.isfinite(value_y)):
+                raise ValueError()
 
             initial_vector = tuple(rigidbody.velocity)
             new_vector = (value_x, value_y)
@@ -336,6 +341,10 @@ class SidePanel(GUIPanel):
         try:
             initial_vector = pygame.Vector2(rigidbody.velocity)
             scalar = float(text)
+
+            if not math.isfinite(scalar):
+                raise ValueError()
+
             direction = initial_vector.normalize()
 
             new_vector = direction * scalar
@@ -359,11 +368,18 @@ class SidePanel(GUIPanel):
         self.__velocity_y_textbox.set_text(str(velocity.y))
 
     def __on_position_textbox_confirmed(self):
+        if self.__selected_body is None:
+            return
+
         text_x = self.__position_x_textbox.text
         text_y = self.__position_y_textbox.text
         try:
             value_x = float(text_x)
             value_y = float(text_y)
+
+            if not (math.isfinite(value_x) and math.isfinite(value_y)):
+                raise ValueError()
+
             self.__selected_body.sim_object.transform.position = (value_x, value_y)
 
         except ValueError:
@@ -388,8 +404,8 @@ class SidePanel(GUIPanel):
 
         try:
             value = float(text)
-            if value <= 0:
-                raise ValueError
+            if value <= 0 or not math.isfinite(value):
+                raise ValueError()
 
             self.__selected_body.radius = value
             circle: pymunk.Circle = self.__selected_body.rigidbody.shapes.copy().pop()  # type: ignore
@@ -408,8 +424,8 @@ class SidePanel(GUIPanel):
 
         try:
             value = float(text)
-            if value <= 0:
-                raise ValueError
+            if value <= 0 or not math.isfinite(value):
+                raise ValueError()
 
             self.__selected_body.rigidbody.mass = value
 
@@ -419,6 +435,8 @@ class SidePanel(GUIPanel):
             circle.mass = value
         except ValueError:
             pass
+
+        self.__update_mass_textbox()
 
     def __update_mass_textbox(self):
         if self.__selected_body is None:
