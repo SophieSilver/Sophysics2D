@@ -13,8 +13,9 @@
         "radius": "radius:",
         "position": "position:",
         "velocity": "velocity:",
-        "draw_trail": "показывать траекторию",
+        "draw_trail": "show trail",
         "yes": "yes",
-        "no": "no"
+        "no": "no",
+        "use_as_origin": "use as origin"
     }
 }

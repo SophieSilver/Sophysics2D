@@ -6,7 +6,7 @@ import pymunk
 
 class MergeOnCollision(CollisionListener):
     def begin(self, other_body: RigidBody, arbiter: pymunk.Arbiter) -> bool:
-        # if this body is lighter, then schedule itself for deletion
+        # if this body is lighter, than schedule itself for deletion
         # it checks if the other body is scheduled for deletion
         # because if they have the same mass, then the one that's deleted
         # is the one that called this method first
@@ -14,6 +14,8 @@ class MergeOnCollision(CollisionListener):
                 other_body.sim_object not in self.sim_object.environment.to_be_destroyed_sim_objects:
             self.sim_object.environment.destroy_after_step(self.sim_object)
             return False
+
+        print(self.sim_object.tag)
 
         mass1, mass2 = self._rigidbody.mass, other_body.mass
         pos1, pos2 = self.sim_object.transform.position, other_body.sim_object.transform.position

@@ -7,6 +7,8 @@ from sophysics_engine import GUIPanel, TimeSettings, UnpauseEvent
 from .selection import BodyController, SelectionUpdateEvent, SelectedBodyPositionUpdateEvent
 from .velocity_controller import SelectedBodyVelocityUpdateEvent
 from .ui_elements import UIElement, TextBox, SwitchButtons
+from .reference_frame import ReferenceFrameManager
+from .trail_renderer import TrailResetEvent
 from typing import Dict, Optional, List
 
 
@@ -33,6 +35,7 @@ class SidePanel(GUIPanel):
 
     def _setup_ui(self):
         self.__time_settings: TimeSettings = self.environment.get_component(TimeSettings)
+        self.__reference_frame_manager: ReferenceFrameManager = self.environment.get_component(ReferenceFrameManager)
 
         # create ui elements
         self.__create_panel()
@@ -307,7 +310,11 @@ class SidePanel(GUIPanel):
             relative_rect=pygame.Rect(local_config["draw_trails_label"]),
             text="loc.draw_trail",
             manager=self._pygame_gui_manager,
-            container=self.__info_panel
+            container=self.__info_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#draw_trail_label"
+            )
         )
         self.__draw_trail_switch = SwitchButtons(
             rect1=pygame.Rect(local_config["enable_trails_rect"]),
@@ -320,7 +327,48 @@ class SidePanel(GUIPanel):
         )
         self.__elements.append(self.__draw_trail_switch)
 
-        # TODO use as origin
+        # use as origin
+        self.__origin_switch_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["origin_label_rect"]),
+            text="loc.use_as_origin",
+            manager=self._pygame_gui_manager,
+            container=self.__info_panel,
+            object_id = pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#origin_label"
+            )
+        )
+        self.__origin_switch = SwitchButtons(
+            rect1=pygame.Rect(local_config["enable_origin_rect"]),
+            rect2=pygame.Rect(local_config["disable_origin_rect"]),
+            texts=("loc.yes", "loc.no"),
+            gui_manager=self._ui_manager,
+            container=self.__info_panel,
+            state_change_callback=self.__on_origin_change,
+            refresh_callback=self.__refresh_origin_switch
+        )
+        self.__elements.append(self.__origin_switch)
+
+    def __on_origin_change(self):
+        if self.__selected_body is None:
+            return
+
+        is_origin = self.__origin_switch.is_enabled
+
+        if is_origin:
+            self.__reference_frame_manager.origin_body = self.__selected_body.rigidbody
+        else:
+            self.__reference_frame_manager.origin_body = None
+
+        self.environment.event_system.raise_event(TrailResetEvent())
+
+    def __refresh_origin_switch(self):
+        if self.__selected_body is None:
+            return
+
+        selected_is_origin = self.__selected_body.rigidbody is self.__reference_frame_manager.origin_body
+
+        self.__origin_switch.is_enabled = selected_is_origin
 
     def __on_draw_trail_change(self):
         if self.__selected_body is None:

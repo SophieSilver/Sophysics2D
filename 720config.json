@@ -113,8 +113,12 @@
                 "velocity_y_textbox_rect": [80, 390, 180, 30],
 
                 "draw_trails_label": [10, 430, 168, 30],
-                "enable_trails_rect": [10, 470, 50, 30],
-                "disable_trails_rect": [60, 470, 50, 30]
+                "enable_trails_rect": [10, 460, 50, 30],
+                "disable_trails_rect": [60, 460, 50, 30],
+
+                "origin_label_rect": [10, 510, 240, 30],
+                "enable_origin_rect": [10, 540, 50, 30],
+                "disable_origin_rect": [60, 540, 50, 30]
             },
             "creation_panel": {
                 "close_button_rect": [165, 613, 100, 30]
