@@ -216,7 +216,7 @@ class SimObject(ComponentContainer):
         Calling this yourself method is not recommended, instead use environment.destroy_after_step() to
         ensure no errors with referencing destroyed objects
         """
-        for c in self.components:
+        for c in self.components.copy():
             c.destroy()
 
         self.components.clear()
