@@ -38,6 +38,9 @@ class TrailRenderer(Renderer):
         self.reset_trail()
 
     def __handle_post_physics_event(self, _: PostPhysicsUpdateEvent):
+        if not self.is_active:
+            return
+
         # if there are no points, we just add one
         if len(self.__points) == 0:
             self.__points.append(tuple(self.sim_object.transform.position))
