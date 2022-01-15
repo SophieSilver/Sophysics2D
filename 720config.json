@@ -118,7 +118,9 @@
 
                 "origin_label_rect": [10, 510, 240, 30],
                 "enable_origin_rect": [10, 540, 50, 30],
-                "disable_origin_rect": [60, 540, 50, 30]
+                "disable_origin_rect": [60, 540, 50, 30],
+
+                "delete_button_rect": [160, 613, 100, 30]
             },
             "creation_panel": {
                 "close_button_rect": [165, 613, 100, 30]

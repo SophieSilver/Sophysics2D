@@ -16,6 +16,7 @@
         "draw_trail": "show trail",
         "yes": "yes",
         "no": "no",
-        "use_as_origin": "use as origin"
+        "use_as_origin": "use as origin",
+        "delete": "delete"
     }
 }

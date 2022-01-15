@@ -8,7 +8,6 @@ from .selection import BodyController, SelectionUpdateEvent, SelectedBodyPositio
 from .velocity_controller import SelectedBodyVelocityUpdateEvent
 from .ui_elements import UIElement, TextBox, SwitchButtons
 from .reference_frame import ReferenceFrameManager
-from .trail_renderer import TrailResetEvent
 from typing import Dict, Optional, List
 
 
@@ -58,8 +57,6 @@ class SidePanel(GUIPanel):
     def __on_unpause(self, _: UnpauseEvent):
         for element in self.__elements:
             element.on_unpause()
-
-        # TODO change this
 
     def __handle_velocity_update_event(self, _: SelectedBodyVelocityUpdateEvent):
         self.__update_velocity_textboxes()
@@ -349,6 +346,28 @@ class SidePanel(GUIPanel):
         )
         self.__elements.append(self.__origin_switch)
 
+        # delete button
+        self.__delete_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(local_config["delete_button_rect"]),
+            text="loc.delete",
+            manager=self._pygame_gui_manager,
+            container=self.__info_panel
+        )
+        self._ui_manager.add_callback(
+            pygame_gui.UI_BUTTON_PRESSED,
+            self.__delete_button,
+            self.__on_delete_button_pressed
+        )
+
+    def __on_delete_button_pressed(self):
+        if self.__selected_body is None:
+            return
+
+        if self.__selected_body.rigidbody is self.__reference_frame_manager.origin_body:
+            self.__reference_frame_manager.origin_body = None
+
+        self.__selected_body.sim_object.destroy()
+
     def __on_origin_change(self):
         if self.__selected_body is None:
             return
@@ -359,8 +378,6 @@ class SidePanel(GUIPanel):
             self.__reference_frame_manager.origin_body = self.__selected_body.rigidbody
         else:
             self.__reference_frame_manager.origin_body = None
-
-        self.environment.event_system.raise_event(TrailResetEvent())
 
     def __refresh_origin_switch(self):
         if self.__selected_body is None:

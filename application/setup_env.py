@@ -7,7 +7,7 @@ from defaults import CameraController, PauseOnSpacebar, AttractionManager
 from .lower_panel import LowerPanel
 from .selection import GlobalSelection
 from .velocity_controller import VelocityController
-from .reference_frame import ReferenceFrameManager
+from .reference_frame import ReferenceFrameManager, ReferenceFrameCameraAdjuster
 from typing import Dict
 
 
@@ -55,12 +55,15 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
     time_control_panel = LowerPanel(config["timeControlPanelCfg"])
 
     reference_frame_manager = ReferenceFrameManager()
+    camera_adjuster = ReferenceFrameCameraAdjuster(camera)
+
     pause_on_spacebar = PauseOnSpacebar()
 
     env = SimEnvironment((), (
         time_settings, physics_manager, camera, gui_manager_component,
         event_processor, time_control_panel, camera_controller, pause_on_spacebar,
-        attraction_manager, global_selection, vel_controller, reference_frame_manager
+        attraction_manager, global_selection, vel_controller, reference_frame_manager,
+        camera_adjuster
     ))
 
     return env
