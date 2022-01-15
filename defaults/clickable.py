@@ -122,5 +122,5 @@ class Clickable(MonoBehavior, ABC):
         pass
 
     def _end(self):
-        self.sim_object.environment.event_system.remove_listener(PygameEvent, self.__handle_click_event)
+        self.sim_object.environment.event_system.remove_listener(ClickEvent, self.__handle_click_event)
         self._clickable_end()
