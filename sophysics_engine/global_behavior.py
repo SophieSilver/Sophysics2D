@@ -1,5 +1,5 @@
 from .simulation import EnvironmentComponent, EnvironmentUpdateEvent
-from physics import PostPhysicsUpdateEvent
+from .physics import PostPhysicsUpdateEvent
 
 
 class GlobalBehavior(EnvironmentComponent):
