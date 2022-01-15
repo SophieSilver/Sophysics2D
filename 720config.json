@@ -51,7 +51,7 @@
             "hold_time": 0
         },
         "timeControlPanelCfg": {
-            "rect": [0, 580, 1000, 140],
+            "rect": [0, 580, 1005, 140],
             "starting_layer_height": 0,
             "pauseButtonCfg": {
                 "rect": [335, 10, 50, 50]
@@ -86,7 +86,7 @@
             }
         },
         "sidePanelCfg": {
-            "rect": [1000, 57, 280, 663],
+            "rect": [1000, 53, 280, 668],
             "starting_layer_height": 0,
             "create_button_rect": [45, 10, 190, 30],
             "info_panel": {
@@ -100,10 +100,10 @@
                 "radius_textbox_rect": [80, 140, 180, 30],
 
                 "position_label_rect": [10, 180, 72, 30],
-                "position_x_label_rect": [65, 220, 20, 30],
-                "position_y_label_rect": [65, 260, 20, 30],
-                "position_x_textbox_rect": [80, 220, 180, 30],
-                "position_y_textbox_rect": [80, 260, 180, 30],
+                "position_x_label_rect": [65, 210, 20, 30],
+                "position_y_label_rect": [65, 250, 20, 30],
+                "position_x_textbox_rect": [80, 210, 180, 30],
+                "position_y_textbox_rect": [80, 250, 180, 30],
 
                 "velocity_label_rect": [10, 310, 72, 30],
                 "velocity_textbox_rect": [80, 310, 180, 30],
@@ -120,10 +120,10 @@
                 "enable_origin_rect": [10, 540, 50, 30],
                 "disable_origin_rect": [60, 540, 50, 30],
 
-                "delete_button_rect": [160, 613, 100, 30]
+                "delete_button_rect": [160, 618, 100, 30]
             },
             "creation_panel": {
-                "close_button_rect": [165, 613, 100, 30]
+                "close_button_rect": [160, 618, 100, 30]
             }
         }
     },
