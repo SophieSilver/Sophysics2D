@@ -403,14 +403,21 @@ class PhysicsManager(EnvironmentComponent):
             body1: RigidBody = shapes[0].body.rigidbody
             body2: RigidBody = shapes[1].body.rigidbody
 
-            return body1.collision_begin(body2, arbiter) and body2.collision_begin(body1, arbiter)
+            # we do this because we need both methods called
+            begin1 = body1.collision_begin(body2, arbiter)
+            begin2 = body2.collision_begin(body1, arbiter)
+
+            return begin1 and begin2
 
         def pre_solve(arbiter: pymunk.Arbiter, *_) -> bool:
             shapes = arbiter.shapes
             body1: RigidBody = shapes[0].body.rigidbody
             body2: RigidBody = shapes[1].body.rigidbody
 
-            return body1.collision_pre_solve(body2, arbiter) and body2.collision_pre_solve(body1, arbiter)
+            pre_solve1 = body1.collision_pre_solve(body2, arbiter)
+            pre_solve2 = body2.collision_pre_solve(body1, arbiter)
+
+            return pre_solve1 and pre_solve2
 
         def post_solve(arbiter: pymunk.Arbiter, *_):
             shapes = arbiter.shapes
