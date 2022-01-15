@@ -9,6 +9,7 @@ from defaults import CircleClickable, GlobalClickable, VectorArrowRenderer, Circ
 from typing import Optional, List
 
 from .select_renderer import SelectionRenderer
+from .trail_renderer import TrailRenderer
 
 
 class SelectionUpdateEvent(Event):
@@ -65,6 +66,7 @@ class BodyController(CircleClickable):
         self.__vector_renderer: VectorArrowRenderer = self.sim_object.get_component(VectorArrowRenderer)
         self.__renderers: List[CircleRenderer] = self.sim_object.get_components(CircleRenderer)
         self.__time_settings: TimeSettings = self.sim_object.environment.get_component(TimeSettings)
+        self.__trail_renderer: TrailRenderer = self.sim_object.get_component(TrailRenderer)
 
         self.__mouse_offset_from_body: Optional[pygame.Vector2] = None
 
@@ -84,6 +86,10 @@ class BodyController(CircleClickable):
     @property
     def renderers(self) -> List[CircleRenderer]:
         return self.__renderers
+
+    @property
+    def trail_renderer(self) -> TrailRenderer:
+        return self.__trail_renderer
 
     @property
     def is_selected(self) -> bool:

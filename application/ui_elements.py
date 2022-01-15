@@ -3,7 +3,7 @@ A wrapper for pygame_gui.elements designed to work with Sophysics2D framework
 """
 import pygame_gui
 import pygame
-from typing import Callable, Optional, List, Union
+from typing import Callable, Optional, List, Union, Tuple
 from abc import ABC
 from sophysics_engine import GUIManager
 
@@ -37,6 +37,72 @@ class UIElement(ABC):
 
     def destroy(self):
         self._gui_manager = None
+
+
+class SwitchButtons(UIElement):
+    def __init__(self, rect1: pygame.Rect, rect2: pygame.Rect, texts: Tuple[str, str],
+                 gui_manager: GUIManager,
+                 container: pygame_gui.core.IContainerLikeInterface,
+                 is_enabled: bool = True,
+                 state_change_callback: Optional[Callable] = None,
+                 step_callback: Optional[Callable] = None,
+                 pause_callback: Optional[Callable] = None,
+                 unpause_callback: Optional[Callable] = None,
+                 refresh_callback: Optional[Callable] = None):
+        super().__init__(gui_manager, step_callback, pause_callback, unpause_callback, refresh_callback)
+        self.__is_enabled: bool = is_enabled
+        self.__state_change_callback = state_change_callback
+
+        self.__enable_button = pygame_gui.elements.UIButton(
+            relative_rect=rect1,
+            text=texts[0],
+            manager=gui_manager.ui_manager,
+            container=container
+        )
+        gui_manager.add_callback(
+            pygame_gui.UI_BUTTON_START_PRESS,
+            self.__enable_button,
+            self.__on_enable_button_click
+        )
+
+        self.__disable_button = pygame_gui.elements.UIButton(
+            relative_rect=rect2,
+            text=texts[1],
+            manager=gui_manager.ui_manager,
+            container=container
+        )
+        gui_manager.add_callback(
+            pygame_gui.UI_BUTTON_START_PRESS,
+            self.__disable_button,
+            self.__on_disable_button_click
+        )
+        # to update the buttons
+        self.is_enabled = is_enabled
+
+    @property
+    def is_enabled(self) -> bool:
+        return self.__is_enabled
+
+    @is_enabled.setter
+    def is_enabled(self, value: bool):
+        self.__is_enabled = value
+
+        if self.__is_enabled:
+            self.__enable_button.disable()
+            self.__disable_button.enable()
+        else:
+            self.__enable_button.enable()
+            self.__disable_button.disable()
+
+    def __on_enable_button_click(self):
+        self.is_enabled = True
+        if self.__state_change_callback is not None:
+            self.__state_change_callback()
+
+    def __on_disable_button_click(self):
+        self.is_enabled = False
+        if self.__state_change_callback is not None:
+            self.__state_change_callback()
 
 
 class TextBox(UIElement):

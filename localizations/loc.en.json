@@ -12,6 +12,9 @@
         "mass": "mass:",
         "radius": "radius:",
         "position": "position:",
-        "velocity": "velocity:"
+        "velocity": "velocity:",
+        "draw_trail": "показывать траекторию",
+        "yes": "yes",
+        "no": "no"
     }
 }

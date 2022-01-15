@@ -6,7 +6,7 @@ import math
 from sophysics_engine import GUIPanel, TimeSettings, UnpauseEvent
 from .selection import BodyController, SelectionUpdateEvent, SelectedBodyPositionUpdateEvent
 from .velocity_controller import SelectedBodyVelocityUpdateEvent
-from .ui_elements import UIElement, TextBox
+from .ui_elements import UIElement, TextBox, SwitchButtons
 from typing import Dict, Optional, List
 
 
@@ -301,8 +301,41 @@ class SidePanel(GUIPanel):
         )
         self.__elements.append(velocity_y_textbox_wrapper),
         self.__velocity_y_textbox = velocity_y_textbox_wrapper.element
-        # TODO draw trail
+
+        # draw trail
+        self.__draw_trails_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["draw_trails_label"]),
+            text="loc.draw_trail",
+            manager=self._pygame_gui_manager,
+            container=self.__info_panel
+        )
+        self.__draw_trail_switch = SwitchButtons(
+            rect1=pygame.Rect(local_config["enable_trails_rect"]),
+            rect2=pygame.Rect(local_config["disable_trails_rect"]),
+            texts=("loc.yes", "loc.no"),
+            gui_manager=self._ui_manager,
+            container=self.__info_panel,
+            state_change_callback=self.__on_draw_trail_change,
+            refresh_callback=self.__refresh_draw_trail_buttons
+        )
+        self.__elements.append(self.__draw_trail_switch)
+
         # TODO use as origin
+
+    def __on_draw_trail_change(self):
+        if self.__selected_body is None:
+            return
+
+        is_enabled = self.__draw_trail_switch.is_enabled
+
+        self.__selected_body.trail_renderer.reset_trail()
+        self.__selected_body.trail_renderer.is_active = is_enabled
+
+    def __refresh_draw_trail_buttons(self):
+        if self.__selected_body is None:
+            return
+
+        self.__draw_trail_switch.is_enabled = self.__selected_body.trail_renderer.is_active
 
     def __on_velocity_coords_confirmed(self):
         if self.__selected_body is None:
@@ -531,8 +564,6 @@ class SidePanel(GUIPanel):
 
         self.__disable_creation_panel()
 
-        # update elements
-        # TODO redo this
         for element in self.__elements:
             element.refresh()
 
