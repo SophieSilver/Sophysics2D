@@ -43,8 +43,6 @@ class ReferenceFrameManager(GlobalBehavior):
         self.__body_changed = True
 
     def _physics_update(self):
-        print(self.__origin_body)
-
         if self.__body_changed:
             self.environment.event_system.raise_event(ReferenceFrameOriginChanged(self.origin_body))
 
