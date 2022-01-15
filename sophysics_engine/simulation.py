@@ -292,9 +292,10 @@ class SimObjectComponent(Component, ABC):
         self._sim_object = None
 
     def _on_destroy(self):
-        self.sim_object.remove_component(self)
+        pass
 
     def _after_destroy(self):
+        self.sim_object.remove_component(self)
         self.remove_sim_object()
 
 
