@@ -6,6 +6,7 @@ from defaults import Attraction, CircleRenderer, VelocityVectorRenderer
 from .select_renderer import SelectionRenderer
 from .selection import BodyController
 from .trail_renderer import TrailRenderer
+from .merge_on_collision import MergeOnCollision
 
 
 # the data types are such, so that we can fill all the parameters from a json file
@@ -70,11 +71,13 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
         layer=trail_config["layer"]
     )
 
+    merge_on_collision = MergeOnCollision()
+
     sim_object = SimObject(
         tag=name,
         components=(
             transform, rigid_body, grav_force, circle_renderer, selection_renderer,
-            velocity_renderer, body_controller, trail_renderer
+            velocity_renderer, body_controller, trail_renderer, merge_on_collision
         )
     )
 

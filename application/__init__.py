@@ -9,3 +9,5 @@ from .celestial_body import get_celestial_body
 from .ui_elements import UIElement, TextBox
 from .upper_panel import UpperPanel
 from .side_panel import SidePanel
+from .trail_renderer import TrailRenderer
+from .merge_on_collision import MergeOnCollision
