@@ -64,7 +64,7 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
     trail_color.a = trail_config["alpha"]
 
     trail_renderer = TrailRenderer(
-        point_distance=radius,
+        point_distance=max(radius, 100_000),
         max_points=trail_config["max_points"],
         thickness=trail_config["thickness"],
         color=trail_color,
