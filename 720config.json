@@ -13,7 +13,7 @@
         "timeSettingsArgs": {
             "dt": 15,
             "steps_per_frame": 4,
-            "paused": false
+            "paused": true
         },
         "cameraArgs": {
             "position": [0, 0],
@@ -28,7 +28,7 @@
             "translation_directory_paths": ["localizations"]
         },
         "GUIManagerComponentArgs": {
-            "layer": 6
+            "layer": 7
         },
         "cameraControllerCfg": {
             "rect": [0, 0, 1000, 580],
@@ -123,6 +123,25 @@
                 "delete_button_rect": [160, 618, 100, 30]
             },
             "creation_panel": {
+                "color_picker": {
+                    "label_rect": [10, 10, 100, 20],
+                    "image_rect": [10, 30, 100, 100],
+                    "circle_radius": 47,
+                    "initial_color": [30, 50, 255],
+
+                    "r_label_rect": [115, 30, 20, 30],
+                    "r_slider_rect": [130, 30, 95, 30],
+                    "r_textbox_rect": [225, 30, 40, 30],
+
+                    "g_label_rect": [115, 65, 20, 30],
+                    "g_slider_rect": [130, 65, 95, 30],
+                    "g_textbox_rect": [225, 65, 40, 30],
+
+                    "b_label_rect": [115, 100, 20, 30],
+                    "b_slider_rect": [130, 100, 95, 30],
+                    "b_textbox_rect": [225, 100, 40, 30]
+                },
+
                 "close_button_rect": [160, 618, 100, 30]
             }
         }
@@ -136,7 +155,7 @@
         "selection_renderer": {
             "width": 3,
             "color": [255, 255, 255],
-            "layer": 3
+            "layer": 4
         },
         "velocity_arrow": {
             "scale_factor": 20000,
@@ -145,7 +164,7 @@
             "arrow_head_length": 10,
             "arrow_head_width": 9,
             "color": [0, 255, 0],
-            "layer": 4
+            "layer": 5
         },
         "trail": {
             "alpha": 100,

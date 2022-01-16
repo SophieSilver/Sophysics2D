@@ -8,12 +8,18 @@ from .selection import BodyController, SelectionUpdateEvent, SelectedBodyPositio
 from .velocity_controller import SelectedBodyVelocityUpdateEvent
 from .ui_elements import UIElement, TextBox, SwitchButtons
 from .reference_frame import ReferenceFrameManager
+from .body_creator import BodyCreator
 from typing import Dict, Optional, List
+
+# I hate this fucking code so much, it's so fucking shitty
+# if I had more time, I'd fucking nuke it and do it the right way
+# but here we are, and here means in hell
 
 
 class SidePanel(GUIPanel):
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, body_creator: BodyCreator):
         self.__config = config
+        self.__body_creator = body_creator
         self.__elements: List[UIElement] = []
         self.__selected_body: Optional[BodyController] = None
 
@@ -54,6 +60,7 @@ class SidePanel(GUIPanel):
         self.environment.event_system.add_listener(SelectedBodyVelocityUpdateEvent,
                                                    self.__handle_velocity_update_event)
 
+    # event listeners
     def __on_unpause(self, _: UnpauseEvent):
         for element in self.__elements:
             element.on_unpause()
@@ -81,6 +88,7 @@ class SidePanel(GUIPanel):
         if self.__selected_body is not None:
             self.__enable_info_panel()
 
+    # creation panel
     def __fill_creation_panel(self):
         local_config = self.__config["creation_panel"]
         self.__close_create_button = pygame_gui.elements.UIButton(
@@ -94,8 +102,200 @@ class SidePanel(GUIPanel):
             self.__close_create_button,
             self.__on_create_panel_close
         )
-        # TODO
 
+        # color
+        self.__create_color_picker(local_config["color_picker"])
+
+        # TODO name
+        # TODO mass
+        # TODO radius
+        # TODO min screen radius
+        # TODO is attractor
+
+    # color picker
+    def __create_color_picker(self, config: Dict):
+        self.__color_picker_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(config["label_rect"]),
+            text="loc.color",
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#color_label"
+            )
+        )
+        # creating a color display surface
+        self.__color_surface = pygame.Surface(tuple(config["image_rect"][2:]), pygame.SRCALPHA)
+        self.__body_color = pygame.Color(config["initial_color"])
+        self.__color_circle_radius = config["circle_radius"]
+
+        self.__color_image = pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(config["image_rect"]),
+            image_surface=self.__color_surface,
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel
+        )
+
+        # red
+        self.__r_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(config["r_label_rect"]),
+            text="loc.r",
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#color_r"
+            )
+        )
+        # slider
+        self.__r_slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect(config["r_slider_rect"]),
+            start_value=0,
+            value_range=(0, 255),
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel
+        )
+        self._ui_manager.add_callback(
+            pygame_gui.UI_HORIZONTAL_SLIDER_MOVED,
+            self.__r_slider,
+            self.__on_sliders_changed
+        )
+        # textbox
+        r_textbox_wrapper = TextBox(
+            rect=pygame.Rect(config["r_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            allowed_characters="0123456789",
+            finish_callback=self.__on_color_textboxes_confirmed
+        )
+        self.__elements.append(r_textbox_wrapper)
+        self.__r_textbox = r_textbox_wrapper.element
+
+        # green
+        self.__r_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(config["g_label_rect"]),
+            text="loc.g",
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#color_g"
+            )
+        )
+        # slider
+        self.__g_slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect(config["g_slider_rect"]),
+            start_value=0,
+            value_range=(0, 255),
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel
+        )
+        self._ui_manager.add_callback(
+            pygame_gui.UI_HORIZONTAL_SLIDER_MOVED,
+            self.__g_slider,
+            self.__on_sliders_changed
+        )
+        # textbox
+        g_textbox_wrapper = TextBox(
+            rect=pygame.Rect(config["g_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            allowed_characters="0123456789",
+            finish_callback=self.__on_color_textboxes_confirmed
+        )
+        self.__elements.append(g_textbox_wrapper)
+        self.__g_textbox = g_textbox_wrapper.element
+
+        # blue
+        self.__b_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(config["b_label_rect"]),
+            text="loc.b",
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#color_b"
+            )
+        )
+        # slider
+        self.__b_slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect(config["b_slider_rect"]),
+            start_value=0,
+            value_range=(0, 255),
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel
+        )
+        self._ui_manager.add_callback(
+            pygame_gui.UI_HORIZONTAL_SLIDER_MOVED,
+            self.__b_slider,
+            self.__on_sliders_changed
+        )
+        # textbox
+        b_textbox_wrapper = TextBox(
+            rect=pygame.Rect(config["b_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            allowed_characters="0123456789",
+            finish_callback=self.__on_color_textboxes_confirmed
+        )
+        self.__elements.append(b_textbox_wrapper)
+        self.__b_textbox = b_textbox_wrapper.element
+
+        self.__refresh_color_picker()
+
+    def __on_color_textboxes_confirmed(self):
+        r_text = self.__r_textbox.text
+        g_text = self.__g_textbox.text
+        b_text = self.__b_textbox.text
+
+        try:
+            r_value = min(int(r_text), 255)
+            self.__body_color.r = r_value
+
+            g_value = min(int(g_text), 255)
+            self.__body_color.g = g_value
+
+            b_value = min(int(b_text), 255)
+            self.__body_color.b = b_value
+        except ValueError:
+            pass
+
+        self.__refresh_color_picker()
+
+    def __on_sliders_changed(self):
+        print("here")
+        r_value = int(self.__r_slider.current_value)
+        g_value = int(self.__g_slider.current_value)
+        b_value = int(self.__b_slider.current_value)
+
+        self.__body_color.r = r_value
+        self.__body_color.g = g_value
+        self.__body_color.b = b_value
+
+        self.__refresh_color_picker()
+
+    def __refresh_color_picker(self):
+        # redraw the surface
+        circle_pos = tuple(map(lambda x: x // 2, self.__color_surface.get_size()))
+        pygame.draw.circle(self.__color_surface, self.__body_color, circle_pos, self.__color_circle_radius),
+        # outline
+        pygame.draw.circle(self.__color_surface, (255, 255, 255), circle_pos, self.__color_circle_radius, 2)
+        self.__color_image.set_image(self.__color_surface)
+        # update things
+        # R
+        self.__r_slider.set_current_value(self.__body_color.r)
+        self.__r_textbox.set_text(str(self.__body_color.r))
+        # G
+        self.__g_slider.set_current_value(self.__body_color.g)
+        self.__g_textbox.set_text(str(self.__body_color.g))
+        # B
+        self.__b_slider.set_current_value(self.__body_color.b)
+        self.__b_textbox.set_text(str(self.__body_color.b))
+
+        self.__body_creator.body_parameters["color"] = self.__body_color
+        self.__body_creator.refresh_parameters()
+
+    # info panel
     def __fill_info_panel(self):
         local_config = self.__config["info_panel"]
 
@@ -551,6 +751,7 @@ class SidePanel(GUIPanel):
 
         self.__radius_textbox.set_text(str(self.__selected_body.radius))
 
+    # pause
     def __pause_simulation(self):
         self.__time_settings.paused = True
 
@@ -621,6 +822,7 @@ class SidePanel(GUIPanel):
             self.__enable_creation_panel
         )
 
+    # enable / disable containers
     def __enable_info_panel(self):
         self.__info_panel.enable()
         self.__info_panel.show()
@@ -641,6 +843,8 @@ class SidePanel(GUIPanel):
         self.__creation_panel.show()
         self.__creation_panel.visible = 0
 
+        self.__body_creator.is_enabled = True
+
         self.__create_button.disable()
         self.__create_button.hide()
 
@@ -650,9 +854,12 @@ class SidePanel(GUIPanel):
         self.__creation_panel.disable()
         self.__creation_panel.hide()
 
+        self.__body_creator.is_enabled = False
+
         self.__create_button.enable()
         self.__create_button.show()
 
+    # create panel
     def __create_panel(self):
         self.__panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(self.__config["rect"]),

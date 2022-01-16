@@ -6,6 +6,7 @@
 
         "open_file_button": "open file",
         "save_file_button": "save file",
+
         "create": "create new object",
         "close": "close",
         "name": "name:",
@@ -17,6 +18,11 @@
         "yes": "yes",
         "no": "no",
         "use_as_origin": "use as origin",
-        "delete": "delete"
+        "delete": "delete",
+
+        "color": "color:",
+        "r": "R:",
+        "g": "G:",
+        "b": "B:"
     }
 }

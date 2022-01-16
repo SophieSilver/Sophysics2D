@@ -13,5 +13,11 @@
         "misc": {
             "text_horiz_alignment": "left"
         }
+    },
+    "horizontal_slider": {
+        "misc": {
+            "enable_arrow_buttons": "0",
+            "sliding_button_width": "10"
+        }
     }
 }
