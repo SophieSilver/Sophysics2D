@@ -22,13 +22,12 @@ class MergeOnCollision(CollisionListener):
         new_mass = mass1 + mass2
 
         new_vel = (mass1 * vel1 + mass2 * vel2) / new_mass
-        new_pos = (mass1 * pos1 + mass2 * pos2) / new_mass
+        new_pos = pymunk.Vec2d(*((mass1 * pos1 + mass2 * pos2) / new_mass))
 
         self._rigidbody.mass = new_mass
         self._rigidbody.shapes.copy().pop().mass = new_mass     # also need to change the mass on the shape
 
         self._rigidbody.velocity = new_vel
-
-        self.sim_object.transform.position = new_pos
+        self._rigidbody.body.position = new_pos
 
         return False
