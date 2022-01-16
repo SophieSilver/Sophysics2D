@@ -34,7 +34,7 @@
             "rect": [0, 0, 1000, 580],
             "hold_time": 0.0,
             "zoom_strength": 0.05,
-            "min_camera_scale": 100
+            "min_camera_scale": 1
         },
         "attractionCfg": {
             "attraction_coefficient": 6.67430e-11
@@ -143,6 +143,21 @@
                     "b_slider_rect": [130, 100, 95, 30],
                     "b_textbox_rect": [225, 100, 40, 30]
                 },
+                "name_label_rect": [10, 140, 70, 30],
+                "name_textbox_rect": [80, 140, 185, 30],
+
+                "mass_label_rect": [10, 180, 70, 30],
+                "mass_textbox_rect": [80, 180, 185, 30],
+
+                "radius_label_rect": [10, 220, 70, 30],
+                "radius_textbox_rect": [80, 220, 185, 30],
+
+                "min_pixel_radius_label_rect": [10, 260, 160, 30],
+                "min_pixel_radius_textbox_rect": [170, 260, 95, 30],
+
+                "is_attractor_label_rect": [10, 300, 180, 30],
+                "is_attractor_on_rect": [10, 330, 50, 30],
+                "is_attractor_off_rect": [60, 330, 50, 30],
 
                 "close_button_rect": [160, 618, 100, 30]
             }

@@ -106,11 +106,174 @@ class SidePanel(GUIPanel):
         # color
         self.__create_color_picker(local_config["color_picker"])
 
-        # TODO name
-        # TODO mass
-        # TODO radius
-        # TODO min screen radius
-        # TODO is attractor
+        # name
+        self.__creation_name_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["name_label_rect"]),
+            text="loc.name",
+            manager=self._pygame_gui_manager,
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#creation_name_label"
+            )
+        )
+        name_textbox_wrapper = TextBox(
+            rect=pygame.Rect(local_config["name_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            change_callback=self.__on_creation_name_textbox_changed,
+        )
+        self.__elements.append(name_textbox_wrapper)
+        self.__creation_name_textbox = name_textbox_wrapper.element
+        self.__creation_name_textbox.set_text(self.__body_creator.body_parameters["name"])
+
+        # mass
+        self.__creation_mass_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["mass_label_rect"]),
+            manager=self._pygame_gui_manager,
+            text="loc.mass",
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#creation_mass_label"
+            )
+        )
+        mass_textbox_wrapper = TextBox(
+            rect=pygame.Rect(local_config["mass_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            allowed_characters=".-+0123456789Ee",
+            finish_callback=self.__on_creation_mass_textbox_changed,
+            refresh_callback=self.__refresh_creation_mass_textbox,
+            pause_callback=self.__on_creation_mass_textbox_changed,
+            unpause_callback=self.__on_creation_mass_textbox_changed
+        )
+        self.__elements.append(mass_textbox_wrapper)
+        self.__creation_mass_textbox = mass_textbox_wrapper.element
+
+        # radius
+        self.__creation_radius_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["radius_label_rect"]),
+            manager=self._pygame_gui_manager,
+            text="loc.radius",
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#creation_radius_label"
+            )
+        )
+        radius_textbox_wrapper = TextBox(
+            rect=pygame.Rect(local_config["radius_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            allowed_characters=".-+0123456789Ee",
+            finish_callback=self.__on_creation_radius_textbox_changed,
+            refresh_callback=self.__refresh_creation_radius_textbox,
+            pause_callback=self.__on_creation_radius_textbox_changed,
+            unpause_callback=self.__on_creation_radius_textbox_changed
+        )
+        self.__elements.append(radius_textbox_wrapper)
+        self.__creation_radius_textbox = radius_textbox_wrapper.element
+
+        # min screen radius
+        self.__min_pixel_radius_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["min_pixel_radius_label_rect"]),
+            manager=self._pygame_gui_manager,
+            text="loc.min_pixel_radius",
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#creation_min_pixel_radius_label"
+            )
+        )
+        min_pixel_radius_textbox_wrapper = TextBox(
+            rect=pygame.Rect(local_config["min_pixel_radius_textbox_rect"]),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            allowed_characters="0123456789",
+            finish_callback=self.__on_min_pixel_radius_textbox_changed,
+            refresh_callback=self.__refresh_min_pixel_radius_textbox,
+            pause_callback=self.__on_min_pixel_radius_textbox_changed,
+            unpause_callback=self.__on_min_pixel_radius_textbox_changed
+        )
+        self.__elements.append(min_pixel_radius_textbox_wrapper)
+        self.__min_pixel_radius_textbox = min_pixel_radius_textbox_wrapper.element
+
+        # is attractor
+        self.__is_attractor_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(local_config["is_attractor_label_rect"]),
+            manager=self._pygame_gui_manager,
+            text="loc.is_attractor",
+            container=self.__creation_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="@info_labels",
+                object_id="#is_attractor_label"
+            )
+        )
+        self.__is_attractor_switch = SwitchButtons(
+            rect1=pygame.Rect(local_config["is_attractor_on_rect"]),
+            rect2=pygame.Rect(local_config["is_attractor_off_rect"]),
+            texts=("loc.yes", "loc.no"),
+            gui_manager=self._ui_manager,
+            container=self.__creation_panel,
+            is_enabled=True,
+            refresh_callback=self.__refresh_is_attractor_switch,
+            state_change_callback=self.__on_is_attractor_state_change
+        )
+        self.__elements.append(self.__is_attractor_switch)
+
+    def __on_is_attractor_state_change(self):
+        self.__body_creator.body_parameters["is_attractor"] = self.__is_attractor_switch.is_enabled
+
+    def __refresh_is_attractor_switch(self):
+        self.__is_attractor_switch.is_enabled = self.__body_creator.body_parameters["is_attractor"]
+
+    def __on_min_pixel_radius_textbox_changed(self):
+        text = self.__min_pixel_radius_textbox.text
+        try:
+            value = int(text)
+            self.__body_creator.body_parameters["min_screen_radius"] = value
+            self.__body_creator.refresh_parameters()
+        except ValueError:
+            self.__refresh_min_pixel_radius_textbox()
+
+    def __refresh_min_pixel_radius_textbox(self):
+        self.__min_pixel_radius_textbox.set_text(str(self.__body_creator.body_parameters["min_screen_radius"]))
+
+    def __on_creation_radius_textbox_changed(self):
+        text = self.__creation_radius_textbox.text
+        try:
+            value = float(text)
+
+            if value <= 0 or not math.isfinite(value):
+                raise ValueError()
+
+            self.__body_creator.body_parameters["radius"] = value
+            self.__body_creator.refresh_parameters()
+        except ValueError:
+            self.__refresh_creation_radius_textbox()
+
+    def __refresh_creation_radius_textbox(self):
+        self.__creation_radius_textbox.set_text(str(self.__body_creator.body_parameters["radius"]))
+
+    def __on_creation_mass_textbox_changed(self):
+        text = self.__creation_mass_textbox.text
+        try:
+            value = float(text)
+
+            if value <= 0 or not math.isfinite(value):
+                raise ValueError()
+
+            self.__body_creator.body_parameters["mass"] = value
+        except ValueError:
+            self.__refresh_creation_mass_textbox()
+
+    def __refresh_creation_mass_textbox(self):
+        self.__creation_mass_textbox.set_text(str(self.__body_creator.body_parameters["mass"]))
+
+    def __on_creation_name_textbox_changed(self):
+        text = self.__creation_name_textbox.text
+        self.__body_creator.body_parameters["name"] = text
 
     # color picker
     def __create_color_picker(self, config: Dict):
@@ -263,7 +426,6 @@ class SidePanel(GUIPanel):
         self.__refresh_color_picker()
 
     def __on_sliders_changed(self):
-        print("here")
         r_value = int(self.__r_slider.current_value)
         g_value = int(self.__g_slider.current_value)
         b_value = int(self.__b_slider.current_value)
@@ -397,9 +559,9 @@ class SidePanel(GUIPanel):
             gui_manager=self._ui_manager,
             container=self.__info_panel,
             allowed_characters=".-+0123456789Ee",
-            change_callback=self.__pause_simulation,
-            finish_callback=None,
-            unpause_callback=None,
+            finish_callback=self.__on_position_textbox_confirmed,
+            step_callback=self.__update_position_textboxes,
+            unpause_callback=self.__on_position_textbox_confirmed,
             refresh_callback=self.__update_position_textboxes
         )
         self.__elements.append(position_x_textbox_wrapper)
@@ -530,7 +692,7 @@ class SidePanel(GUIPanel):
             text="loc.use_as_origin",
             manager=self._pygame_gui_manager,
             container=self.__info_panel,
-            object_id = pygame_gui.core.ObjectID(
+            object_id=pygame_gui.core.ObjectID(
                 class_id="@info_labels",
                 object_id="#origin_label"
             )
@@ -633,7 +795,7 @@ class SidePanel(GUIPanel):
         if self.__selected_body is None:
             return
 
-        text = float(self.__velocity_textbox.text)
+        text = self.__velocity_textbox.text
         rigidbody = self.__selected_body.rigidbody
 
         try:
@@ -784,13 +946,6 @@ class SidePanel(GUIPanel):
             container=self.__panel
         )
         self.__info_panel.visible = 0
-        # TODO remove this, it's for debug
-        self.label = pygame_gui.elements.UILabel(
-            pygame.Rect(0, 600, 200, 60),
-            "info panel",
-            manager=self._pygame_gui_manager,
-            container=self.__info_panel
-        )
 
         # a panel for creating new objects
         self.__creation_panel = pygame_gui.elements.UIPanel(
@@ -800,13 +955,6 @@ class SidePanel(GUIPanel):
             container=self.__panel
         )
         self.__creation_panel.visible = 0
-        # TODO remove this, it's for debug
-        self.label = pygame_gui.elements.UILabel(
-            pygame.Rect(0, 600, 200, 60),
-            "creation panel",
-            manager=self._pygame_gui_manager,
-            container=self.__creation_panel
-        )
 
         # this thing kinda exists separately from the 2 panels, but idk where to put it
         # it switches to the create panel, so I'll plop it here
@@ -849,6 +997,9 @@ class SidePanel(GUIPanel):
         self.__create_button.hide()
 
         self.__disable_info_panel()
+
+        for element in self.__elements:
+            element.refresh()
 
     def __disable_creation_panel(self):
         self.__creation_panel.disable()
