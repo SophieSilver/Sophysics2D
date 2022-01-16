@@ -45,7 +45,7 @@ class EventSystem:
         if event_type not in self.__listeners:
             return
 
-        for listener in self.__listeners[event_type]:
+        for listener in self.__listeners[event_type].copy():
             listener(event)
 
     def clear_listeners(self):
