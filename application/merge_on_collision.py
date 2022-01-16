@@ -15,8 +15,6 @@ class MergeOnCollision(CollisionListener):
             self.sim_object.environment.destroy_after_step(self.sim_object)
             return False
 
-        print(self.sim_object.tag)
-
         mass1, mass2 = self._rigidbody.mass, other_body.mass
         pos1, pos2 = self.sim_object.transform.position, other_body.sim_object.transform.position
         vel1, vel2 = map(pygame.Vector2, (self._rigidbody.velocity, other_body.velocity))

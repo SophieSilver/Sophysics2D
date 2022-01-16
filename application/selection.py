@@ -138,7 +138,6 @@ class BodyController(CircleClickable):
         """
         The method that's called when the body gets selected
         """
-        # print("selected")
         self.__selection_renderer.is_active = True
         self.__vector_renderer.is_active = True
 
@@ -146,7 +145,6 @@ class BodyController(CircleClickable):
         """
         The method that's called when the body is deselected
         """
-        # print("deselected")
         self.__selection_renderer.is_active = False
         self.__vector_renderer.is_active = False
 
