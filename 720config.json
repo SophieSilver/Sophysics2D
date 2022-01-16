@@ -39,8 +39,10 @@
         "attractionCfg": {
             "attraction_coefficient": 6.67430e-11
         },
+        "clickableManagerCfg": {
+            "rect": [0, 0, 1000, 580]
+        },
         "globalSelectionCfg": {
-            "rect": [0, 0, 1000, 580],
             "button": 1,
             "hold_time": 0
         },
@@ -148,12 +150,11 @@
     },
     "celestialBodyCfg": {
         "controller": {
-            "rect": [0, 0, 1000, 580],
             "button": 1,
             "hold_time": 0.1
         },
         "selection_renderer": {
-            "width": 3,
+            "width": 2,
             "color": [255, 255, 255],
             "layer": 4
         },

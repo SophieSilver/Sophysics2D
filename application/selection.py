@@ -31,10 +31,10 @@ class GlobalSelection(GlobalClickable):
     """
     A component that keeps track of the object selected by the user
     """
-    def __init__(self, rect: pygame.Rect, button: int = 1, hold_time: float = 0):
+    def __init__(self, button: int = 1, hold_time: float = 0):
         self.__selected_body: Optional[BodyController] = None
 
-        super().__init__(rect, button, hold_time)
+        super().__init__(button, hold_time)
 
     @property
     def selected_body(self) -> BodyController:

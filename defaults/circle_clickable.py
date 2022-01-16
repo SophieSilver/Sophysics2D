@@ -6,7 +6,6 @@ import pygame
 class CircleClickable(Clickable):
     def __init__(self, camera: Camera,
                  radius: float,
-                 rect: pygame.Rect,
                  button: int = 1,
                  min_pixel_radius: int = 0,
                  hold_time = 0):
@@ -18,7 +17,7 @@ class CircleClickable(Clickable):
         self.radius = radius
         self.min_pixel_radius = min_pixel_radius
 
-        super().__init__(rect, button, hold_time)
+        super().__init__(button, hold_time)
 
     def _mouse_on_object(self):
         # doing squared distances since it's less computationally intensive than doing square roots

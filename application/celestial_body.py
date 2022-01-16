@@ -54,7 +54,6 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
     body_controller = BodyController(
         camera=camera,
         radius=radius,
-        rect=pygame.Rect(controller_config["rect"]),
         button=controller_config["button"],
         min_pixel_radius=min_screen_radius,
         hold_time=controller_config["hold_time"]

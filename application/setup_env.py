@@ -3,7 +3,7 @@ import pygame_gui
 
 from sophysics_engine import SimEnvironment, TimeSettings, PhysicsManager, \
     Camera, GUIManager, PygameEventProcessor
-from defaults import CameraController, PauseOnSpacebar, AttractionManager
+from defaults import CameraController, PauseOnSpacebar, AttractionManager, ClickableManager
 from .lower_panel import LowerPanel
 from .selection import GlobalSelection
 from .velocity_controller import VelocityController
@@ -35,10 +35,12 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
     )
 
     attraction_manager = AttractionManager(config["attractionCfg"]["attraction_coefficient"])
-    
+
+    clickable_manager_config = config["clickableManagerCfg"]
+    clickable_manager = ClickableManager(pygame.Rect(clickable_manager_config["rect"]))
+
     selection_config = config["globalSelectionCfg"]
     global_selection = GlobalSelection(
-        rect=pygame.Rect(selection_config["rect"]),
         button=selection_config["button"],
         hold_time=selection_config["hold_time"]
     )
@@ -46,7 +48,6 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
     vel_controller_config = config["velocityControllerCfg"]
     vel_controller = VelocityController(
         camera=camera,
-        rect=pygame.Rect(vel_controller_config["rect"]),
         scale_factor=vel_controller_config["scale_factor"],
         button=vel_controller_config["button"],
         hold_time=vel_controller_config["hold_time"]
@@ -63,7 +64,7 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
         time_settings, physics_manager, camera, gui_manager_component,
         event_processor, time_control_panel, camera_controller, pause_on_spacebar,
         attraction_manager, global_selection, vel_controller, reference_frame_manager,
-        camera_adjuster
+        camera_adjuster, clickable_manager
     ))
 
     return env

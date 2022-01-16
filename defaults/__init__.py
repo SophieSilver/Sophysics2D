@@ -13,3 +13,4 @@ from .velocity_vector_renderer import VelocityVectorRenderer
 from .global_clickable import GlobalClickable
 from .pause_on_spacebar import PauseOnSpacebar
 from .attraction import AttractionManager, Attraction
+from .global_clickable import ClickableManager

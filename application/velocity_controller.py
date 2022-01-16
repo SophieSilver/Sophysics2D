@@ -15,7 +15,7 @@ class VelocityController(GlobalClickable):
     Supposed to be used together with a velocity arrow renderer
     The relative position between the mouse and the center of the object determines the objects velocity
     """
-    def __init__(self, camera: Camera, rect: pygame.Rect, scale_factor: float = 1.0,
+    def __init__(self, camera: Camera, scale_factor: float = 1.0,
                  button: int = 1, hold_time: float = 0):
         self.__camera = camera
         self.scale_factor = scale_factor
@@ -23,7 +23,7 @@ class VelocityController(GlobalClickable):
         self.__global_selection: Optional[GlobalSelection] = None
         self.__time_settings: Optional[TimeSettings] = None
 
-        super().__init__(rect, button, hold_time)
+        super().__init__(button, hold_time)
 
     def _clickable_start(self):
         self.__time_settings = self.environment.get_component(TimeSettings)

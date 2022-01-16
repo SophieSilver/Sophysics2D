@@ -37,9 +37,35 @@ class ClickEvent(Event):
         self.__consumed = True
 
 
-class GlobalClickable(GlobalBehavior):
-    def __init__(self, rect: pygame.Rect, button: int = 1, hold_time: float = 0):
+class ClickableManager(GlobalBehavior):
+    def __init__(self, rect: pygame.Rect):
         self.__rect = rect
+
+        super().__init__()
+
+    def _start(self):
+        self.environment.event_system.add_listener(PygameEvent, self.__handle_pygame_event)
+
+    def _mouse_inside_the_rect(self) -> bool:
+        mouse_pos = pygame.mouse.get_pos()
+        return self.__rect.collidepoint(mouse_pos)
+
+    def __handle_pygame_event(self, event: PygameEvent):
+        if not self._mouse_inside_the_rect():
+            return
+
+        pygame_event = event.pygame_event
+        if not (pygame_event.type == pygame.MOUSEBUTTONUP or pygame_event.type == pygame.MOUSEBUTTONDOWN):
+            return
+        click_event = ClickEvent(pygame_event)
+        self.environment.event_system.raise_event(click_event)
+
+    def _end(self):
+        self.environment.event_system.remove_listener(PygameEvent, self.__handle_pygame_event)
+
+
+class GlobalClickable(GlobalBehavior):
+    def __init__(self, button: int = 1, hold_time: float = 0):
         self.__button = button
         self.__hold_time = hold_time
 
@@ -49,13 +75,13 @@ class GlobalClickable(GlobalBehavior):
         super().__init__()
 
     def _start(self):
-        self.environment.event_system.add_listener(PygameEvent, self.__handle_pygame_event)
+        self.environment.event_system.add_listener(ClickEvent, self.__handle_click_event)
         self._clickable_start()
 
     def _clickable_start(self):
         pass
 
-    def __handle_pygame_event(self, event: PygameEvent):
+    def __handle_click_event(self, event: ClickEvent):
         if event.consumed:
             return
 
@@ -63,11 +89,7 @@ class GlobalClickable(GlobalBehavior):
         if not (pygame_event.type == pygame.MOUSEBUTTONUP or pygame_event.type == pygame.MOUSEBUTTONDOWN):
             return
 
-        click_event = ClickEvent(pygame_event)
-        self.environment.event_system.raise_event(click_event)
-        # we reraise the event as a different type and then looks if something consumed it and if it has
-        # we don't process the click further
-        if click_event.consumed:
+        if pygame_event.button != self.__button:
             return
 
         if pygame_event.type == pygame.MOUSEBUTTONDOWN:
@@ -75,21 +97,11 @@ class GlobalClickable(GlobalBehavior):
         else:
             self.__handle_mouse_up_event(event)
 
-    def __handle_mouse_down_event(self, event: PygameEvent):
-        if not self._mouse_inside_the_rect():
-            return
-
-        pygame_event = event.pygame_event
-
-        if pygame_event.button != self.__button:
-            return
-
+    def __handle_mouse_down_event(self, event: ClickEvent):
         self._on_click()
         self.__hold_start_time = process_time()
 
-        event.consume()
-
-    def __handle_mouse_up_event(self, _: PygameEvent):
+    def __handle_mouse_up_event(self, _: ClickEvent):
         self.__hold_start_time = None
 
         if self.__was_holding:
@@ -116,13 +128,6 @@ class GlobalClickable(GlobalBehavior):
 
     def _clickable_update(self):
         pass
-
-    def _mouse_inside_the_rect(self) -> bool:
-        """
-        checks if the mouse cursor is inside the self.__rect
-        """
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        return self.__rect.collidepoint(mouse_x, mouse_y)
 
     def _on_click(self):
         """
@@ -151,5 +156,5 @@ class GlobalClickable(GlobalBehavior):
         pass
 
     def _end(self):
-        self.environment.event_system.remove_listener(PygameEvent, self.__handle_pygame_event)
+        self.environment.event_system.remove_listener(ClickEvent, self.__handle_click_event)
         self._clickable_end()

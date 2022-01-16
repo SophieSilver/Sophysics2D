@@ -1,5 +1,5 @@
 from .global_clickable import ClickEvent
-from sophysics_engine import PygameEvent, MonoBehavior
+from sophysics_engine import MonoBehavior
 from time import process_time
 from typing import Optional
 from abc import ABC, abstractmethod
@@ -10,8 +10,7 @@ class Clickable(MonoBehavior, ABC):
     """
     Note, that, in order for this component to work, the environment must have a global clickable component
     """
-    def __init__(self, rect: pygame.Rect, button: int = 1, hold_time: float = 0):
-        self.__rect = rect
+    def __init__(self, button: int = 1, hold_time: float = 0):
         self.__button = button
         self.__hold_time = hold_time
 
@@ -40,6 +39,9 @@ class Clickable(MonoBehavior, ABC):
 
         pygame_event = event.pygame_event
 
+        if pygame_event.button != self.__button:
+            return
+
         # there are only 2 possible types of click events
         if pygame_event.type == pygame.MOUSEBUTTONDOWN:
             self.__handle_mouse_down_event(event)
@@ -47,12 +49,7 @@ class Clickable(MonoBehavior, ABC):
             self.__handle_mouse_up_event(event)
 
     def __handle_mouse_down_event(self, event: ClickEvent):
-        if not (self._mouse_inside_the_rect() and self._mouse_on_object()):
-            return
-
-        pygame_event = event.pygame_event
-
-        if pygame_event.button != self.__button:
+        if not self._mouse_on_object():
             return
 
         self._on_click()
@@ -87,13 +84,6 @@ class Clickable(MonoBehavior, ABC):
 
     def _clickable_update(self):
         pass
-
-    def _mouse_inside_the_rect(self) -> bool:
-        """
-        checks if the mouse cursor is inside the self.__rect
-        """
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        return self.__rect.collidepoint(mouse_x, mouse_y)
 
     def _on_click(self):
         """

@@ -18,10 +18,12 @@ class BodyCreator(Clickable):
         self.__alpha = 0
         self.alpha = alpha
 
+        self.__rect = rect
+
         self.__camera = camera
         self.__renderer: Optional[CircleRenderer] = None
 
-        super().__init__(rect, button, hold_time)
+        super().__init__(button, hold_time)
 
     @property
     def is_enabled(self) -> bool:
@@ -84,6 +86,10 @@ class BodyCreator(Clickable):
         # don't want to fire on_click methods and consume events when not enabled
         return self.__is_enabled
 
+    def _mouse_inside_the_rect(self) -> bool:
+        mouse_pos = pygame.mouse.get_pos()
+        return self.__rect.collidepoint(mouse_pos)
+
     def _on_click(self):
         body = get_celestial_body(
             config=self.__body_config,
@@ -96,4 +102,3 @@ class BodyCreator(Clickable):
 
     def _clickable_end(self):
         self.__renderer = None
-
