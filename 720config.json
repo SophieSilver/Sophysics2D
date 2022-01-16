@@ -39,6 +39,24 @@
         "attractionCfg": {
             "attraction_coefficient": 6.67430e-11
         },
+        "bodyCreatorCfg": {
+            "rect": [0, 0, 1000, 580],
+            "alpha": 128,
+            "button": 1,
+            "hold_time": 0.0,
+
+            "layer": 6,
+
+            "default_body": {
+                "name": "Mostly Harmless",
+                "mass": 5.972e+24,
+                "radius": 6371e+3,
+                "is_attractor": true,
+                "min_screen_radius": 15,
+                "color": [30, 50, 255],
+                "draw_layer": 1
+            }
+        },
         "clickableManagerCfg": {
             "rect": [0, 0, 1000, 580]
         },
@@ -161,32 +179,33 @@
 
                 "close_button_rect": [160, 618, 100, 30]
             }
+        },
+
+        "celestialBodyCfg": {
+            "controller": {
+                "button": 1,
+                "hold_time": 0.1
+            },
+            "selection_renderer": {
+                "width": 2,
+                "color": [255, 255, 255],
+                "layer": 4
+            },
+            "velocity_arrow": {
+                "scale_factor": 20000,
+                "base_radius": 2,
+                "arrow_width": 2,
+                "arrow_head_length": 10,
+                "arrow_head_width": 9,
+                "color": [0, 255, 0],
+                "layer": 5
+            },
+            "trail": {
+                "alpha": 100,
+                "thickness": 2,
+                "max_points": 2000,
+                "layer": 0
         }
-    },
-    "celestialBodyCfg": {
-        "controller": {
-            "button": 1,
-            "hold_time": 0.1
-        },
-        "selection_renderer": {
-            "width": 2,
-            "color": [255, 255, 255],
-            "layer": 4
-        },
-        "velocity_arrow": {
-            "scale_factor": 20000,
-            "base_radius": 2,
-            "arrow_width": 2,
-            "arrow_head_length": 10,
-            "arrow_head_width": 9,
-            "color": [0, 255, 0],
-            "layer": 5
-        },
-        "trail": {
-            "alpha": 100,
-            "thickness": 2,
-            "max_points": 2000,
-            "layer": 0
-        }
+    }
     }
 }

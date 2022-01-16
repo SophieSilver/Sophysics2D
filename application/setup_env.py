@@ -2,12 +2,15 @@ import pygame
 import pygame_gui
 
 from sophysics_engine import SimEnvironment, TimeSettings, PhysicsManager, \
-    Camera, GUIManager, PygameEventProcessor
-from defaults import CameraController, PauseOnSpacebar, AttractionManager, ClickableManager
+    Camera, GUIManager, PygameEventProcessor, SimObject
+from defaults import CameraController, PauseOnSpacebar, AttractionManager, ClickableManager, CircleRenderer
 from .lower_panel import LowerPanel
 from .selection import GlobalSelection
 from .velocity_controller import VelocityController
 from .reference_frame import ReferenceFrameManager, ReferenceFrameCameraAdjuster
+from .upper_panel import UpperPanel
+from .side_panel import SidePanel
+from .body_creator import BodyCreator
 from typing import Dict
 
 
@@ -58,13 +61,34 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
     reference_frame_manager = ReferenceFrameManager()
     camera_adjuster = ReferenceFrameCameraAdjuster(camera)
 
+    upper_panel = UpperPanel(config["upperPanelCfg"])
+
+    body_creator_config = config["bodyCreatorCfg"]
+    body_creator_component = BodyCreator(
+        rect=pygame.Rect(body_creator_config["rect"]),
+        camera=camera,
+        body_config=config["celestialBodyCfg"],
+        body_parameters=body_creator_config["default_body"],
+        is_enabled=True,    # this doesn't matter
+        alpha=body_creator_config["alpha"],
+        button=body_creator_config["button"],
+        hold_time=body_creator_config["hold_time"],
+    )
+    body_creator_renderer = CircleRenderer(layer=body_creator_config["layer"])
+    body_creator_object = SimObject("body creator", (body_creator_component,  body_creator_renderer))
+
     pause_on_spacebar = PauseOnSpacebar()
 
     env = SimEnvironment((), (
         time_settings, physics_manager, camera, gui_manager_component,
         event_processor, time_control_panel, camera_controller, pause_on_spacebar,
         attraction_manager, global_selection, vel_controller, reference_frame_manager,
-        camera_adjuster, clickable_manager
+        camera_adjuster, clickable_manager, upper_panel
     ))
+
+    env.attach_sim_object(body_creator_object)
+
+    side_panel = SidePanel(config["sidePanelCfg"], body_creator_component)
+    env.attach_component(side_panel)
 
     return env
