@@ -201,7 +201,7 @@
                 "layer": 5
             },
             "trail": {
-                "alpha": 100,
+                "alpha": 90,
                 "thickness": 2,
                 "max_points": 2000,
                 "layer": 0

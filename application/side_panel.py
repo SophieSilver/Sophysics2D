@@ -143,10 +143,11 @@ class SidePanel(GUIPanel):
             gui_manager=self._ui_manager,
             container=self.__creation_panel,
             allowed_characters=".-+0123456789Ee",
-            finish_callback=self.__on_creation_mass_textbox_changed,
+            change_callback=self.__on_creation_mass_textbox_changed,
+            finish_callback=self.__refresh_creation_mass_textbox,
             refresh_callback=self.__refresh_creation_mass_textbox,
-            pause_callback=self.__on_creation_mass_textbox_changed,
-            unpause_callback=self.__on_creation_mass_textbox_changed
+            pause_callback=self.__refresh_creation_mass_textbox,
+            unpause_callback=self.__refresh_creation_mass_textbox
         )
         self.__elements.append(mass_textbox_wrapper)
         self.__creation_mass_textbox = mass_textbox_wrapper.element
@@ -167,10 +168,11 @@ class SidePanel(GUIPanel):
             gui_manager=self._ui_manager,
             container=self.__creation_panel,
             allowed_characters=".-+0123456789Ee",
-            finish_callback=self.__on_creation_radius_textbox_changed,
+            change_callback=self.__on_creation_radius_textbox_changed,
+            finish_callback=self.__refresh_creation_radius_textbox,
             refresh_callback=self.__refresh_creation_radius_textbox,
-            pause_callback=self.__on_creation_radius_textbox_changed,
-            unpause_callback=self.__on_creation_radius_textbox_changed
+            pause_callback=self.__refresh_creation_radius_textbox,
+            unpause_callback=self.__refresh_creation_radius_textbox
         )
         self.__elements.append(radius_textbox_wrapper)
         self.__creation_radius_textbox = radius_textbox_wrapper.element
@@ -191,10 +193,11 @@ class SidePanel(GUIPanel):
             gui_manager=self._ui_manager,
             container=self.__creation_panel,
             allowed_characters="0123456789",
-            finish_callback=self.__on_min_pixel_radius_textbox_changed,
+            change_callback=self.__on_min_pixel_radius_textbox_changed,
+            finish_callback=self.__refresh_min_pixel_radius_textbox,
             refresh_callback=self.__refresh_min_pixel_radius_textbox,
-            pause_callback=self.__on_min_pixel_radius_textbox_changed,
-            unpause_callback=self.__on_min_pixel_radius_textbox_changed
+            pause_callback=self.__refresh_min_pixel_radius_textbox,
+            unpause_callback=self.__refresh_min_pixel_radius_textbox
         )
         self.__elements.append(min_pixel_radius_textbox_wrapper)
         self.__min_pixel_radius_textbox = min_pixel_radius_textbox_wrapper.element
@@ -235,7 +238,7 @@ class SidePanel(GUIPanel):
             self.__body_creator.body_parameters["min_screen_radius"] = value
             self.__body_creator.refresh_parameters()
         except ValueError:
-            self.__refresh_min_pixel_radius_textbox()
+            pass
 
     def __refresh_min_pixel_radius_textbox(self):
         self.__min_pixel_radius_textbox.set_text(str(self.__body_creator.body_parameters["min_screen_radius"]))
@@ -251,7 +254,7 @@ class SidePanel(GUIPanel):
             self.__body_creator.body_parameters["radius"] = value
             self.__body_creator.refresh_parameters()
         except ValueError:
-            self.__refresh_creation_radius_textbox()
+            pass
 
     def __refresh_creation_radius_textbox(self):
         self.__creation_radius_textbox.set_text(str(self.__body_creator.body_parameters["radius"]))
@@ -266,7 +269,7 @@ class SidePanel(GUIPanel):
 
             self.__body_creator.body_parameters["mass"] = value
         except ValueError:
-            self.__refresh_creation_mass_textbox()
+            pass
 
     def __refresh_creation_mass_textbox(self):
         self.__creation_mass_textbox.set_text(str(self.__body_creator.body_parameters["mass"]))
