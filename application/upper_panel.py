@@ -2,7 +2,9 @@ import pygame
 import pygame_gui
 
 from sophysics_engine import GUIPanel
+from .simulation_loader import SimulationLoadEvent
 from typing import Dict
+import tkinter.filedialog
 
 
 class UpperPanel(GUIPanel):
@@ -37,7 +39,12 @@ class UpperPanel(GUIPanel):
             manager=self._pygame_gui_manager,
             container=self.__panel
         )
-        # TODO add listener
+        self._ui_manager.add_callback(
+            event_type=pygame_gui.UI_BUTTON_PRESSED,
+            element=self.__open_button,
+            callback=self.__on_open_file_button_click
+        )
+
 
         self.__save_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(button_config["save_rect"]),
@@ -46,6 +53,13 @@ class UpperPanel(GUIPanel):
             container=self.__panel
         )
         # TODO add listener
+
+    def __on_open_file_button_click(self):
+        # hide the tkinter root window
+        tkinter.Tk().withdraw()
+        file = tkinter.filedialog.askopenfilename(filetypes=[("JSON", "*.json")], initialdir="saves")
+
+        self.environment.event_system.raise_event(SimulationLoadEvent(file))
 
     def __create_panel(self):
         self.__panel = pygame_gui.elements.UIPanel(

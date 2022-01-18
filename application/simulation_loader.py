@@ -56,6 +56,8 @@ class SimulationLoader(EnvironmentComponent):
             self.__create_warning_window("loc.error", f"Could not load the file. {repr(e)}")
 
     def __load_from_dict(self, simulation_dict: Dict):
+        self.__clear_current_simulation()
+
         origin_id: Optional[int] = simulation_dict.get("origin_id", None)
         time_settings_config: Optional[Dict] = simulation_dict.get("time_settings", None)
         camera_settings: Optional[Dict] = simulation_dict.get("camera_settings", None)
