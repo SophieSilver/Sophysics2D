@@ -25,6 +25,17 @@
         "b": "С:",
 
         "min_pixel_radius": "мин. видимый радиус:",
-        "is_attractor": "генерирует гравитацию:"
+        "is_attractor": "генерирует гравитацию:",
+
+        "wrong_dt": "Внимание: неправильный формат для параметра time_settings.dt !",
+        "wrong_steps_per_frame": "Внимание: неправильный формат для параметра time_settings.steps_per_frame !",
+        "wrong_paused": "Внимание: неправильный формат для параметра time_settings.paused !",
+
+        "wrong_units_per_pixel": "Внимание: неправильный формат для параметра camera_settings.units_per_pixel",
+        "wrong_position": "Внимание: неправильный формат для параметра camera_settings.position",
+
+        "warning": "Внимание",
+        "error": "Ошибка",
+        "ok": "OK"
     }
 }
