@@ -15,3 +15,4 @@ from .reference_frame import ReferenceFrameManager, ReferenceFrame, ReferenceFra
     ReferenceFrameCalculateOffsetEvent, ReferenceFrameOriginChanged, ReferenceFrameCameraAdjuster
 from .body_creator import BodyCreator
 from .simulation_loader import SimulationLoader, SimulationLoadEvent
+from .save_simulation import save_simulation_to_json

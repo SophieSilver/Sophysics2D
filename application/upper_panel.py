@@ -1,8 +1,9 @@
 import pygame
 import pygame_gui
 
-from sophysics_engine import GUIPanel
+from sophysics_engine import GUIPanel, Camera
 from .simulation_loader import SimulationLoadEvent
+from .save_simulation import save_simulation_to_json
 from typing import Dict
 import tkinter.filedialog
 
@@ -45,21 +46,38 @@ class UpperPanel(GUIPanel):
             callback=self.__on_open_file_button_click
         )
 
-
         self.__save_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(button_config["save_rect"]),
             text="loc.save_file_button",
             manager=self._pygame_gui_manager,
             container=self.__panel
         )
-        # TODO add listener
+        self._ui_manager.add_callback(
+            event_type=pygame_gui.UI_BUTTON_PRESSED,
+            element=self.__save_button,
+            callback=self.__on_save_file_button_click
+        )
+
+    def __on_save_file_button_click(self):
+        # hide the tkinter root window
+        tkinter.Tk().withdraw()
+
+        filepath = tkinter.filedialog.asksaveasfilename(confirmoverwrite=True,
+                                                        defaultextension=".json",
+                                                        filetypes=[("JSON", "*.json")])
+
+        save_simulation_to_json(filepath, self.environment, self.environment.get_component(Camera))
 
     def __on_open_file_button_click(self):
         # hide the tkinter root window
         tkinter.Tk().withdraw()
-        file = tkinter.filedialog.askopenfilename(filetypes=[("JSON", "*.json")], initialdir="saves")
+        filepath = tkinter.filedialog.askopenfilename(filetypes=[("JSON", "*.json")], initialdir="saves")
 
-        self.environment.event_system.raise_event(SimulationLoadEvent(file))
+        # if the user pressed cancel
+        if filepath == "":
+            return
+
+        self.environment.event_system.raise_event(SimulationLoadEvent(filepath))
 
     def __create_panel(self):
         self.__panel = pygame_gui.elements.UIPanel(
