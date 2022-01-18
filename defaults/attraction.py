@@ -36,6 +36,10 @@ class Attraction(Force):
 
         super().__init__()
 
+    @property
+    def is_attractor(self) -> bool:
+        return self.__is_attractor
+
     def setup(self):
         super().setup()
         self.__attraction_manager: AttractionManager = self.sim_object.environment.get_component(AttractionManager)
