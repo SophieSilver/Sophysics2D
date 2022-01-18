@@ -19,6 +19,10 @@ class SimulationLoadEvent(Event):
         return self.__path
 
 
+class SimulationParametersChangedEvent(Event):
+    pass
+
+
 class SimulationLoader(EnvironmentComponent):
     """
     Loads the simulation from a JSON file
@@ -51,6 +55,8 @@ class SimulationLoader(EnvironmentComponent):
 
             sim_dict = json.loads(json_string)
             self.__load_from_dict(sim_dict)
+
+            self.environment.event_system.raise_event(SimulationParametersChangedEvent())
 
         except (ValueError, TypeError, KeyError) as e:
             self.__create_warning_window("loc.error", f"Could not load the file. {repr(e)}")

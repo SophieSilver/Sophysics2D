@@ -2,6 +2,7 @@ import pygame
 
 from sophysics_engine import GUIPanel, TimeSettings, PauseEvent, UnpauseEvent
 from .ui_elements import TextBox, UIElement
+from .simulation_loader import SimulationParametersChangedEvent
 from typing import Dict, List
 import pygame_gui
 import math
@@ -30,6 +31,8 @@ class LowerPanel(GUIPanel):
     def _setup_ui(self):
         self.environment.event_system.add_listener(PauseEvent, self.__handle_pause_event)
         self.environment.event_system.add_listener(UnpauseEvent, self.__handle_unpause_event)
+        self.environment.event_system.add_listener(SimulationParametersChangedEvent,
+                                                   self.__handle_parameters_change_event)
 
         self.__time_settings: TimeSettings = self.environment.get_component(TimeSettings)
         self.__create_panel()
@@ -37,6 +40,10 @@ class LowerPanel(GUIPanel):
         self.__create_timestep_controls()
         self.__create_language_menu()
         self.__create_timestep_per_frame_controls()
+
+    def __handle_parameters_change_event(self, _: SimulationParametersChangedEvent):
+        self.__update_timestep_textbox()
+        self.__update_time_steps_per_frame_text_box()
 
     def __create_timestep_per_frame_controls(self):
         local_config = self.__config["timestepPerFrameCfg"]
@@ -267,5 +274,7 @@ class LowerPanel(GUIPanel):
     def _on_destroy(self):
         self.environment.event_system.remove_listener(PauseEvent, self.__handle_pause_event)
         self.environment.event_system.remove_listener(UnpauseEvent, self.__handle_unpause_event)
+        self.environment.event_system.remove_listener(SimulationParametersChangedEvent,
+                                                      self.__handle_parameters_change_event)
 
         super()._on_destroy()
