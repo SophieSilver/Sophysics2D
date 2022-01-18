@@ -52,7 +52,7 @@ class SimulationLoader(EnvironmentComponent):
             sim_dict = json.loads(json_string)
             self.__load_from_dict(sim_dict)
 
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError, KeyError) as e:
             self.__create_warning_window("loc.error", f"Could not load the file. {repr(e)}")
 
     def __load_from_dict(self, simulation_dict: Dict):
