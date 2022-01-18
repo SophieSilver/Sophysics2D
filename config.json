@@ -3,7 +3,7 @@
     "appVersion": "0.0",
     "fps": 60,
     "displayCfg":{
-        "size": [1280, 720],
+        "size": [1600, 900],
         "flags": 0,
         "depth": 0,
         "display": 0,
@@ -31,27 +31,47 @@
             "layer": 6
         },
         "cameraControllerCfg": {
-            "rect": [0, 0, 1250, 750],
+            "rect": [0, 0, 1325, 750],
             "hold_time": 0.0,
             "zoom_strength": 0.05,
-            "min_camera_scale": 100
+            "min_camera_scale": 1
         },
         "attractionCfg": {
             "attraction_coefficient": 6.67430e-11
         },
+        "bodyCreatorCfg": {
+            "rect": [0, 0, 1325, 750],
+            "alpha": 128,
+            "button": 1,
+            "hold_time": 0.0,
+
+            "layer": 6,
+
+            "default_body": {
+                "name": "Mostly Harmless",
+                "mass": 5.972e+24,
+                "radius": 6371e+3,
+                "is_attractor": true,
+                "min_screen_radius": 15,
+                "color": [30, 50, 255],
+                "draw_layer": 1
+            }
+        },
+        "clickableManagerCfg": {
+            "rect": [0, 0, 1325, 750]
+        },
         "globalSelectionCfg": {
-            "rect": [0, 0, 1250, 750],
             "button": 1,
             "hold_time": 0
         },
         "velocityControllerCfg": {
-            "rect": [0, 0, 1250, 750],
+            "rect": [0, 0, 1325, 750],
             "scale_factor": 20000,
             "button": 3,
             "hold_time": 0
         },
         "timeControlPanelCfg": {
-            "rect": [0, 750, 1250, 150],
+            "rect": [0, 750, 1325, 150],
             "starting_layer_height": 0,
             "pauseButtonCfg": {
                 "rect": [415, 10, 50, 50]
@@ -78,59 +98,113 @@
             }
         },
         "upperPanelCfg": {
-            "rect": [1250, 0, 350, 57],
+            "rect": [1320, 0, 280, 57],
             "starting_layer_height": 0,
             "buttons": {
-                "open_rect": [10, 10, 160, 30],
-                "save_rect": [175, 10, 160, 30]
+                "open_rect": [10, 10, 125, 30],
+                "save_rect": [140, 10, 125, 30]
             }
         },
         "sidePanelCfg": {
-            "rect": [1250, 57, 350, 843],
+            "rect": [1320, 53, 280, 847],
             "starting_layer_height": 0,
-            "create_button_rect": [80, 10, 190, 30],
+            "create_button_rect": [45, 10, 190, 30],
             "info_panel": {
                 "name_label_rect": [10, 60, 70, 30],
-                "name_textbox_rect": [90, 60, 120, 30],
+                "name_textbox_rect": [80, 60, 180, 30],
 
                 "mass_label_rect": [10, 100, 70, 30],
-                "mass_textbox_rect": [90, 100, 120, 30],
+                "mass_textbox_rect": [80, 100, 180, 30],
 
                 "radius_label_rect": [10, 140, 70, 30],
-                "radius_textbox_rect": [90, 140, 120, 30],
+                "radius_textbox_rect": [80, 140, 180, 30],
 
-                "position_label_rect": [10, 180, 70, 30]
+                "position_label_rect": [10, 180, 72, 30],
+                "position_x_label_rect": [65, 210, 20, 30],
+                "position_y_label_rect": [65, 250, 20, 30],
+                "position_x_textbox_rect": [80, 210, 180, 30],
+                "position_y_textbox_rect": [80, 250, 180, 30],
+
+                "velocity_label_rect": [10, 310, 72, 30],
+                "velocity_textbox_rect": [80, 310, 180, 30],
+                "velocity_x_label_rect": [65, 350, 20, 30],
+                "velocity_y_label_rect": [65, 390, 20, 30],
+                "velocity_x_textbox_rect": [80, 350, 180, 30],
+                "velocity_y_textbox_rect": [80, 390, 180, 30],
+
+                "draw_trails_label": [10, 430, 168, 30],
+                "enable_trails_rect": [10, 460, 50, 30],
+                "disable_trails_rect": [60, 460, 50, 30],
+
+                "origin_label_rect": [10, 510, 240, 30],
+                "enable_origin_rect": [10, 540, 50, 30],
+                "disable_origin_rect": [60, 540, 50, 30],
+
+                "delete_button_rect": [160, 618, 100, 30]
             },
             "creation_panel": {
-                "close_button_rect": [230, 770, 100, 30]
+                "color_picker": {
+                    "label_rect": [10, 10, 100, 20],
+                    "image_rect": [10, 30, 100, 100],
+                    "circle_radius": 47,
+                    "initial_color": [30, 50, 255],
+
+                    "r_label_rect": [115, 30, 20, 30],
+                    "r_slider_rect": [130, 30, 95, 30],
+                    "r_textbox_rect": [225, 30, 40, 30],
+
+                    "g_label_rect": [115, 65, 20, 30],
+                    "g_slider_rect": [130, 65, 95, 30],
+                    "g_textbox_rect": [225, 65, 40, 30],
+
+                    "b_label_rect": [115, 100, 20, 30],
+                    "b_slider_rect": [130, 100, 95, 30],
+                    "b_textbox_rect": [225, 100, 40, 30]
+                },
+                "name_label_rect": [10, 140, 70, 30],
+                "name_textbox_rect": [80, 140, 185, 30],
+
+                "mass_label_rect": [10, 180, 70, 30],
+                "mass_textbox_rect": [80, 180, 185, 30],
+
+                "radius_label_rect": [10, 220, 70, 30],
+                "radius_textbox_rect": [80, 220, 185, 30],
+
+                "min_pixel_radius_label_rect": [10, 260, 160, 30],
+                "min_pixel_radius_textbox_rect": [170, 260, 95, 30],
+
+                "is_attractor_label_rect": [10, 300, 180, 30],
+                "is_attractor_on_rect": [10, 330, 50, 30],
+                "is_attractor_off_rect": [60, 330, 50, 30],
+
+                "close_button_rect": [160, 618, 100, 30]
             }
-        }
-    },
-    "celestialBodyCfg": {
-        "controller": {
-            "rect": [0, 0, 1600, 900],
-            "button": 1,
-            "hold_time": 0.1
         },
-        "selection_renderer": {
-            "width": 3,
-            "color": [255, 255, 255],
-            "layer": 3
-        },
-        "velocity_arrow": {
-            "scale_factor": 20000,
-            "base_radius": 2,
-            "arrow_width": 2,
-            "arrow_head_length": 10,
-            "arrow_head_width": 9,
-            "color": [0, 255, 0],
-            "layer": 4
-        },
-        "trail": {
-            "alpha": 100,
-            "thickness": 2,
-            "max_points": 2000,
-            "layer": 0
+        "celestialBodyCfg": {
+            "controller": {
+                "button": 1,
+                "hold_time": 0.1
+            },
+            "selection_renderer": {
+                "width": 2,
+                "color": [255, 255, 255],
+                "layer": 4
+            },
+            "velocity_arrow": {
+                "scale_factor": 20000,
+                "base_radius": 2,
+                "arrow_width": 2,
+                "arrow_head_length": 10,
+                "arrow_head_width": 9,
+                "color": [0, 255, 0],
+                "layer": 5
+            },
+            "trail": {
+                "alpha": 90,
+                "thickness": 2,
+                "max_points": 2000,
+                "layer": 0
+            }
         }
     }
 }
