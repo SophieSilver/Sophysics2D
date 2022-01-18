@@ -14,3 +14,4 @@ from .merge_on_collision import MergeOnCollision
 from .reference_frame import ReferenceFrameManager, ReferenceFrame, ReferenceFrameUpdateValuesEvent, \
     ReferenceFrameCalculateOffsetEvent, ReferenceFrameOriginChanged, ReferenceFrameCameraAdjuster
 from .body_creator import BodyCreator
+from .simulation_loader import SimulationLoader, SimulationLoadEvent

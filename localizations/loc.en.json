@@ -26,6 +26,17 @@
         "b": "B:",
 
         "min_pixel_radius": "min. visible radius:",
-        "is_attractor": "generates gravity:"
+        "is_attractor": "generates gravity:",
+
+        "wrong_dt": "Warning: wrong format for time_settings.dt parameter!",
+        "wrong_steps_per_frame": "Warning: wrong format for time_settings.steps_per_frame parameter!",
+        "wrong_paused": "Warning: wrong format for time_settings.paused parameter!",
+
+        "wrong_units_per_pixel": "Warning: wrong format for camera_settings.units_per_pixel",
+        "wrong_position": "Warning: wrong format for camera_settings.position",
+
+        "warning": "Warning",
+        "error": "Error",
+        "ok": "ok"
     }
 }

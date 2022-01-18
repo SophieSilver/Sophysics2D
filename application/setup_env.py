@@ -11,6 +11,7 @@ from .reference_frame import ReferenceFrameManager, ReferenceFrameCameraAdjuster
 from .upper_panel import UpperPanel
 from .side_panel import SidePanel
 from .body_creator import BodyCreator
+from .simulation_loader import SimulationLoader
 from typing import Dict
 
 
@@ -77,13 +78,15 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
     body_creator_renderer = CircleRenderer(layer=body_creator_config["layer"])
     body_creator_object = SimObject("body creator", (body_creator_component,  body_creator_renderer))
 
+    sim_loader = SimulationLoader(config["celestialBodyCfg"], camera)
+
     pause_on_spacebar = PauseOnSpacebar()
 
     env = SimEnvironment((), (
         time_settings, physics_manager, camera, gui_manager_component,
         event_processor, time_control_panel, camera_controller, pause_on_spacebar,
         attraction_manager, global_selection, vel_controller, reference_frame_manager,
-        camera_adjuster, clickable_manager, upper_panel
+        camera_adjuster, clickable_manager, upper_panel, sim_loader
     ))
 
     env.attach_sim_object(body_creator_object)
