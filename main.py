@@ -14,7 +14,7 @@ class SophysicsApplication:
         pygame.init()
 
         # loading the config file
-        self.__config = application.load_config("720config.json")
+        self.__config = application.load_config("config.json")
 
         # initializing the display
         self.__display = application.get_display_from_config(self.__config["displayCfg"])
