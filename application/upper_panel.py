@@ -66,6 +66,9 @@ class UpperPanel(GUIPanel):
                                                         defaultextension=".json",
                                                         filetypes=[("JSON", "*.json")])
 
+        if filepath == "":
+            return
+
         save_simulation_to_json(filepath, self.environment, self.environment.get_component(Camera))
 
     def __on_open_file_button_click(self):

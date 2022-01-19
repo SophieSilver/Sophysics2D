@@ -66,7 +66,7 @@
         },
         "velocityControllerCfg": {
             "rect": [0, 0, 1000, 580],
-            "scale_factor": 20000,
+            "scale_factor": 1000000,
             "button": 3,
             "hold_time": 0
         },
@@ -192,7 +192,7 @@
                 "layer": 4
             },
             "velocity_arrow": {
-                "scale_factor": 20000,
+                "scale_factor": 1000000,
                 "base_radius": 2,
                 "arrow_width": 2,
                 "arrow_head_length": 10,
@@ -203,7 +203,7 @@
             "trail": {
                 "alpha": 90,
                 "thickness": 2,
-                "max_points": 2000,
+                "max_points": 100,
                 "layer": 0
             }
         }

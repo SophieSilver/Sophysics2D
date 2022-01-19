@@ -22,13 +22,13 @@
             "n_layers": 8
         },
         "UIManagerArgs": {
-            "starting_language": "en",
+            "starting_language": "ru",
             "theme_path": "ui_theme.json",
             "enable_live_theme_updates": true,
             "translation_directory_paths": ["localizations"]
         },
         "GUIManagerComponentArgs": {
-            "layer": 6
+            "layer": 7
         },
         "cameraControllerCfg": {
             "rect": [0, 0, 1325, 750],
@@ -66,7 +66,7 @@
         },
         "velocityControllerCfg": {
             "rect": [0, 0, 1325, 750],
-            "scale_factor": 20000,
+            "scale_factor": 1000000,
             "button": 3,
             "hold_time": 0
         },
@@ -140,7 +140,7 @@
                 "enable_origin_rect": [10, 540, 50, 30],
                 "disable_origin_rect": [60, 540, 50, 30],
 
-                "delete_button_rect": [160, 618, 100, 30]
+                "delete_button_rect": [160, 797, 100, 30]
             },
             "creation_panel": {
                 "color_picker": {
@@ -177,7 +177,7 @@
                 "is_attractor_on_rect": [10, 330, 50, 30],
                 "is_attractor_off_rect": [60, 330, 50, 30],
 
-                "close_button_rect": [160, 618, 100, 30]
+                "close_button_rect": [160, 797, 100, 30]
             }
         },
         "celestialBodyCfg": {
@@ -191,7 +191,7 @@
                 "layer": 4
             },
             "velocity_arrow": {
-                "scale_factor": 20000,
+                "scale_factor": 1000000,
                 "base_radius": 2,
                 "arrow_width": 2,
                 "arrow_head_length": 10,
@@ -202,7 +202,7 @@
             "trail": {
                 "alpha": 90,
                 "thickness": 2,
-                "max_points": 2000,
+                "max_points": 100,
                 "layer": 0
             }
         }
