@@ -1,0 +1,158 @@
+{
+    "origin_id": 0,
+    "time_settings": {
+        "dt": 300.0,
+        "steps_per_frame": 50,
+        "paused": true
+    },
+    "camera_settings": {
+        "units_per_pixel": 1e+9,
+        "position": [0, 0]
+    },
+    "bodies": [
+        {
+            "id": 0,
+            "parameters": {
+                "name": "Sun",
+                "initial_position": [0, 0],
+                "initial_velocity": [0, 0],
+                "mass": 1988500e+24,
+                "radius": 695700e+3,
+                "is_attractor": true,
+                "min_screen_radius": 8,
+                "color": "#FCE570",
+                "draw_layer": 3,
+                "draw_trail": true,
+                "trail_vertex_distance": 6957e+5
+            }
+        },
+        {
+            "id": 1,
+            "parameters": {
+                "name": "Mercury",
+                "initial_position": [-5.156864852892354E+09, 4.595738365074082E+10],
+                "initial_velocity": [-5.818133861297060E+04, -3.662545084613595E+03],
+                "mass": 3.302e+23,
+                "radius": 2440e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#B5A7A7",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 44785e+5
+            }
+        },
+        {
+            "id": 2,
+            "parameters": {
+                "name": "Venus",
+                "initial_position": [-6.096701987223157E+10, 8.839231635012008E+10],
+                "initial_velocity": [-2.894887564857666E+04, -2.007632991595310E+04],
+                "mass": 48.685e+23,
+                "radius": 6051.84e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#DDD8D4",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 74785e+5
+            }
+        },
+        {
+            "id": 3,
+            "parameters": {
+                "name": "Earth",
+                "initial_position": [-7.038891718930210E+10, 1.292605049653704E+11],
+                "initial_velocity": [-2.663649144070698E+04, -1.435161838826469E+04],
+                "mass": 5.97219e+24,
+                "radius": 6371.01e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#8CB1DE",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 94785e+5
+            }
+        },
+        {
+            "id": 4,
+            "parameters": {
+                "name": "Mars",
+                "initial_position": [-9.555011603288488E+10, -2.052171122376555E+11],
+                "initial_velocity": [2.287562686017033E+04, -8.147722055461204E+03],
+                "mass": 6.4171e+23,
+                "radius": 3389.92e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#E27B58",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 149785e+5
+            }
+        },
+        {
+            "id": 4,
+            "parameters": {
+                "name": "Jupiter",
+                "initial_position": [7.036393119001867E+11, -2.484242659479400E+11],
+                "initial_velocity": [4.199773134714299E+03, 1.294853922970608E+04],
+                "mass": 189818.722e+22,
+                "radius": 69911e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#C88B3A",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 309785e+5
+            }
+        },
+        {
+            "id": 5,
+            "parameters": {
+                "name": "Saturn",
+                "initial_position": [1.051036435365949E+12, -1.046569600001581E+12],
+                "initial_velocity": [6.283688754507633E+03, 6.838107725017182E+03],
+                "mass": 5.6834e+26,
+                "radius": 58232e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#C5AB6E",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 309785e+5
+            }
+        },
+        {
+            "id": 6,
+            "parameters": {
+                "name": "Uranus",
+                "initial_position": [2.146530308305900E+12, 2.023632827440004E+12],
+                "initial_velocity": [-4.717990851970778E+03, 4.650601704950847E+03],
+                "mass": 86.813e+24,
+                "radius": 25362e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#BBE1E4",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 309785e+5
+            }
+        },
+        {
+            "id": 7,
+            "parameters": {
+                "name": "Neptune",
+                "initial_position": [4.434173828629067E+12, -6.035017211164927E+11],
+                "initial_velocity": [7.021799695331015E+02, 5.433312331663637E+03],
+                "mass": 102.409e+24,
+                "radius": 24624e+3,
+                "is_attractor": true,
+                "min_screen_radius": 7,
+                "color": "#6081FF",
+                "draw_layer": 2,
+                "draw_trail": true,
+                "trail_vertex_distance": 309785e+5
+            }
+        }
+    ]
+}
