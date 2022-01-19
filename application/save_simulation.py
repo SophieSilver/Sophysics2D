@@ -1,6 +1,7 @@
 from sophysics_engine import SimEnvironment, Camera, TimeSettings, RigidBody, SimObject
 from defaults import CircleRenderer, Attraction
 from .reference_frame import ReferenceFrameManager
+from .trail_renderer import TrailRenderer
 from typing import Optional, Dict, List
 import json
 
@@ -65,6 +66,7 @@ def get_body_dict(sim_object: SimObject) -> Optional[Dict]:
     body_id = id(rigidbody)
 
     renderers: List[CircleRenderer] = sim_object.get_components(CircleRenderer)
+    trail_renderer: TrailRenderer = sim_object.get_component(TrailRenderer)
     attraction: Attraction = sim_object.get_component(Attraction)
 
     circle_renderer = None
@@ -85,7 +87,9 @@ def get_body_dict(sim_object: SimObject) -> Optional[Dict]:
         "min_screen_radius": circle_renderer.min_pixel_radius,
         "is_attractor": attraction.is_attractor,
         "color": list(circle_renderer.color),
-        "draw_layer": circle_renderer.layer
+        "draw_layer": circle_renderer.layer,
+        "draw_trail": trail_renderer.is_active,
+        "trail_vertex_distance": trail_renderer.point_distance
     }
 
     # compiling everything into 1 dict

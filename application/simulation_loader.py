@@ -138,6 +138,13 @@ class SimulationLoader(EnvironmentComponent):
         if not 1 <= parameters["draw_layer"] <= 3:
             raise ValueError("the only allowed values for draw layer are 1, 2, or 3")
 
+        if parameters["draw_trail"] is not None and not isinstance(parameters["draw_trail"], bool):
+            raise TypeError("'draw_trail' parameter must be a bool")
+
+        if parameters["trail_vertex_distance"] is not None and\
+                not self.__is_positive_number(parameters["trail_vertex_distance"]):
+            raise ValueError("'trail_vertex_distance' parameter must be a positive number")
+
         # make sure it converts
         pygame.Color(parameters["color"])
 

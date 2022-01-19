@@ -1,6 +1,6 @@
 import pygame
 import pymunk
-from typing import Dict, List
+from typing import Dict, List, Optional
 from sophysics_engine import Transform, RigidBody, Camera, SimObject
 from defaults import Attraction, CircleRenderer, VelocityVectorRenderer
 from .select_renderer import SelectionRenderer
@@ -13,7 +13,8 @@ from .reference_frame import ReferenceFrame
 # the data types are such, so that we can fill all the parameters from a json file
 def get_celestial_body(config: Dict, name: str, initial_position: List[float], initial_velocity: List[float],
                        mass: float, radius: float, is_attractor: bool, min_screen_radius: int, color,
-                       draw_layer: int, camera: Camera) -> SimObject:
+                       draw_layer: int, camera: Camera, draw_trail: bool = True,
+                       trail_vertex_distance: Optional[float] = None) -> SimObject:
     transform = Transform(pygame.Vector2(initial_position))
 
     shape = pymunk.Circle(None, radius)
@@ -63,13 +64,17 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
     trail_color = pygame.Color(color)
     trail_color.a = trail_config["alpha"]
 
+    point_distance = trail_vertex_distance if trail_vertex_distance is not None else max(radius, 100_000)
+
     trail_renderer = TrailRenderer(
-        point_distance=max(radius, 100_000),
+        point_distance=point_distance,
         max_points=trail_config["max_points"],
         thickness=trail_config["thickness"],
         color=trail_color,
         layer=trail_config["layer"]
     )
+
+    trail_renderer.is_active = draw_trail
 
     merge_on_collision = MergeOnCollision()
     reference_frame = ReferenceFrame()
@@ -82,8 +87,5 @@ def get_celestial_body(config: Dict, name: str, initial_position: List[float], i
             reference_frame
         )
     )
-
-    # Add a collision listener
-    # add a trace renderer
 
     return sim_object

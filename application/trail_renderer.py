@@ -1,6 +1,7 @@
 from sophysics_engine import Renderer, Event, PostPhysicsUpdateEvent, Camera
 from collections import deque
 import pygame
+from math import sqrt
 
 
 class TrailResetEvent(Event):
@@ -27,6 +28,17 @@ class TrailRenderer(Renderer):
         self.__points = deque(maxlen=max_points)
 
         super().__init__(color, layer)
+
+    @property
+    def point_distance(self) -> float:
+        """
+        Distance between the vertices of the trail
+        """
+        return sqrt(self.__point_distance_squared)
+
+    @point_distance.setter
+    def point_distance(self, value: float):
+        self.__point_distance_squared = value * value
 
     def setup(self):
         super().setup()
