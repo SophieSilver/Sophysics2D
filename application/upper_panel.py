@@ -12,6 +12,9 @@ class UpperPanel(GUIPanel):
     def __init__(self, config: Dict):
         self.__config = config
 
+        # hide the tkinter root window
+        tkinter.Tk().withdraw()
+
         super().__init__()
 
     @property
@@ -59,9 +62,6 @@ class UpperPanel(GUIPanel):
         )
 
     def __on_save_file_button_click(self):
-        # hide the tkinter root window
-        tkinter.Tk().withdraw()
-
         filepath = tkinter.filedialog.asksaveasfilename(confirmoverwrite=True,
                                                         defaultextension=".json",
                                                         filetypes=[("JSON", "*.json")])
@@ -69,8 +69,6 @@ class UpperPanel(GUIPanel):
         save_simulation_to_json(filepath, self.environment, self.environment.get_component(Camera))
 
     def __on_open_file_button_click(self):
-        # hide the tkinter root window
-        tkinter.Tk().withdraw()
         filepath = tkinter.filedialog.askopenfilename(filetypes=[("JSON", "*.json")], initialdir="saves")
 
         # if the user pressed cancel
