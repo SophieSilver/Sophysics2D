@@ -8,6 +8,7 @@ from .celestial_body import get_celestial_body
 from .reference_frame import ReferenceFrameManager
 from defaults import VelocityVectorRenderer
 from .velocity_controller import VelocityController
+from .body_creator import BodyCreator
 import math
 import json
 
@@ -97,6 +98,12 @@ class SimulationLoader(EnvironmentComponent):
 
         for sim_object in self.environment.sim_objects:
             velocity_renderer: Optional[VelocityVectorRenderer] = sim_object.try_get_component(VelocityVectorRenderer)
+
+            body_creator: Optional[BodyCreator] = sim_object.try_get_component(BodyCreator)
+
+            if body_creator is not None:
+                body_creator.body_config["velocity_arrow"]["scale_factor"] = velocity_scale_factor
+                continue
 
             if velocity_renderer is None:
                 continue

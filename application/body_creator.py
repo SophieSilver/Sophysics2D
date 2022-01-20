@@ -35,6 +35,10 @@ class BodyCreator(Clickable):
         self.__renderer.is_active = value
 
     @property
+    def body_config(self) -> Dict:
+        return self.__body_config
+
+    @property
     def body_parameters(self) -> Dict:
         return self.__body_parameters
 

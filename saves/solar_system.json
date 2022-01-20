@@ -21,7 +21,7 @@
                 "radius": 695700e+3,
                 "is_attractor": true,
                 "min_screen_radius": 8,
-                "color": "#FCE570",
+                "color": [225, 216, 0],
                 "draw_layer": 3,
                 "draw_trail": true,
                 "trail_vertex_distance": 6957e+5
@@ -53,7 +53,7 @@
                 "radius": 6051.84e+3,
                 "is_attractor": true,
                 "min_screen_radius": 7,
-                "color": "#DDD8D4",
+                "color": [255, 140, 218],
                 "draw_layer": 2,
                 "draw_trail": true,
                 "trail_vertex_distance": 74785e+5
