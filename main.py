@@ -1,7 +1,6 @@
 import sophysics_engine
 import defaults
 import application
-from typing import List
 import pygame
 
 
