@@ -27,10 +27,6 @@ class SophysicsApplication:
         # creating the updater
         self.__environment_updater = defaults.DefaultUpdater(self.__environment)
 
-        # the first argument is usually the name of the program
-        # the second is the name of the file
-        # I'll just grab the last one
-
         self.__run_game_loop()
 
     def __run_game_loop(self):
