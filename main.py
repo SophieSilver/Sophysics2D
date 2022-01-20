@@ -3,11 +3,10 @@ import defaults
 import application
 from typing import List
 import pygame
-import sys
 
 
 class SophysicsApplication:
-    def __init__(self, args: List[str]):
+    def __init__(self):
         # initializing pygame
         pygame.init()
 
@@ -31,9 +30,6 @@ class SophysicsApplication:
         # the first argument is usually the name of the program
         # the second is the name of the file
         # I'll just grab the last one
-        if len(args) >= 2:
-            file_path = args[-1]
-            self.__environment.event_system.raise_event(application.SimulationLoadEvent(file_path))
 
         self.__run_game_loop()
 
@@ -57,4 +53,4 @@ class SophysicsApplication:
 
 
 if(__name__ == "__main__"):
-    SophysicsApplication(sys.argv)
+    SophysicsApplication()
