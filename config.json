@@ -66,7 +66,7 @@
         },
         "velocityControllerCfg": {
             "rect": [0, 0, 1325, 750],
-            "scale_factor": 1000000,
+            "scale_factor": 10000,
             "button": 3,
             "hold_time": 0
         },

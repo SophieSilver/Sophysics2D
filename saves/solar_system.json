@@ -20,7 +20,7 @@
                 "mass": 1988500e+24,
                 "radius": 695700e+3,
                 "is_attractor": true,
-                "min_screen_radius": 8,
+                "min_screen_radius": 10,
                 "color": [225, 216, 0],
                 "draw_layer": 3,
                 "draw_trail": true,
@@ -69,7 +69,7 @@
                 "radius": 6371.01e+3,
                 "is_attractor": true,
                 "min_screen_radius": 7,
-                "color": "#8CB1DE",
+                "color": [30, 50, 255],
                 "draw_layer": 2,
                 "draw_trail": true,
                 "trail_vertex_distance": 94785e+5
@@ -85,7 +85,7 @@
                 "radius": 3389.92e+3,
                 "is_attractor": true,
                 "min_screen_radius": 7,
-                "color": "#E27B58",
+                "color": [255, 59, 28],
                 "draw_layer": 2,
                 "draw_trail": true,
                 "trail_vertex_distance": 149785e+5

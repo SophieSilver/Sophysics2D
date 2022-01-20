@@ -1,5 +1,3 @@
-import pygame_gui.windows.ui_console_window
-
 import sophysics_engine
 import defaults
 import application
