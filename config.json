@@ -191,7 +191,7 @@
                 "layer": 4
             },
             "velocity_arrow": {
-                "scale_factor": 1000000,
+                "scale_factor": 10000,
                 "base_radius": 2,
                 "arrow_width": 2,
                 "arrow_head_length": 10,

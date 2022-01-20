@@ -6,6 +6,8 @@ from defaults import Attraction
 from typing import Optional, Dict, List, Union
 from .celestial_body import get_celestial_body
 from .reference_frame import ReferenceFrameManager
+from defaults import VelocityVectorRenderer
+from .velocity_controller import VelocityController
 import math
 import json
 
@@ -33,6 +35,7 @@ class SimulationLoader(EnvironmentComponent):
         self.__time_settings: Optional[TimeSettings] = None
         self.__gui_manager: Optional[GUIManager] = None
         self.__reference_frame_manager: Optional[ReferenceFrameManager] = None
+        self.__velocity_controller: Optional[VelocityController] = None
 
         super().__init__()
 
@@ -40,6 +43,7 @@ class SimulationLoader(EnvironmentComponent):
         self.__time_settings = self.environment.get_component(TimeSettings)
         self.__gui_manager = self.environment.get_component(GUIManager)
         self.__reference_frame_manager = self.environment.get_component(ReferenceFrameManager)
+        self.__velocity_controller = self.environment.get_component(VelocityController)
 
         self.environment.event_system.add_listener(SimulationLoadEvent, self.__handle_simulation_load_event)
 
@@ -67,6 +71,7 @@ class SimulationLoader(EnvironmentComponent):
         origin_id: Optional[int] = simulation_dict.get("origin_id", None)
         time_settings_config: Optional[Dict] = simulation_dict.get("time_settings", None)
         camera_settings: Optional[Dict] = simulation_dict.get("camera_settings", None)
+        velocity_scale_factor: Optional[float] = simulation_dict.get("velocity_vector_scale_factor", None)
 
         if time_settings_config is not None:
             self.__set_time_settings(time_settings_config)
@@ -80,6 +85,23 @@ class SimulationLoader(EnvironmentComponent):
             raise TypeError("'bodies' attribute must be a list")
 
         self.__load_bodies(bodies, origin_id)
+
+        if velocity_scale_factor is not None:
+            self.__set_scale_factor(velocity_scale_factor)
+
+    def __set_scale_factor(self, velocity_scale_factor: float):
+        if not self.__is_positive_number(velocity_scale_factor):
+            raise TypeError("'velocity_scale_factor' must be a positive number")
+
+        self.__velocity_controller.scale_factor = velocity_scale_factor
+
+        for sim_object in self.environment.sim_objects:
+            velocity_renderer: Optional[VelocityVectorRenderer] = sim_object.try_get_component(VelocityVectorRenderer)
+
+            if velocity_renderer is None:
+                continue
+
+            velocity_renderer.scale_factor = velocity_scale_factor
 
     def __load_bodies(self, bodies: List, origin_id: Optional[int]):
         new_bodies = []
@@ -240,5 +262,6 @@ class SimulationLoader(EnvironmentComponent):
         self.__gui_manager = None
         self.__camera = None
         self.__reference_frame_manager = None
+        self.__velocity_controller = None
 
         super()._on_destroy()

@@ -88,7 +88,7 @@
                     "Русский": "ru",
                     "English": "en"
                 },
-                "startingOption": "English"
+                "startingOption": "Русский"
             },
             "timestepPerFrameCfg": {
                 "labelRect": [580, 30, 200, 30],
@@ -110,7 +110,7 @@
             "starting_layer_height": 0,
             "create_button_rect": [45, 10, 190, 30],
             "info_panel": {
-                "name_label_rect": [10, 60, 70, 30],
+                "name_label_rect": [10, 60, 75, 30],
                 "name_textbox_rect": [80, 60, 180, 30],
 
                 "mass_label_rect": [10, 100, 70, 30],
@@ -161,7 +161,7 @@
                     "b_slider_rect": [130, 100, 95, 30],
                     "b_textbox_rect": [225, 100, 40, 30]
                 },
-                "name_label_rect": [10, 140, 70, 30],
+                "name_label_rect": [10, 140, 75, 30],
                 "name_textbox_rect": [80, 140, 185, 30],
 
                 "mass_label_rect": [10, 180, 70, 30],
@@ -192,7 +192,7 @@
                 "layer": 4
             },
             "velocity_arrow": {
-                "scale_factor": 1000000,
+                "scale_factor": 10000,
                 "base_radius": 2,
                 "arrow_width": 2,
                 "arrow_head_length": 10,

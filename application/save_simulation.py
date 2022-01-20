@@ -2,6 +2,7 @@ from sophysics_engine import SimEnvironment, Camera, TimeSettings, RigidBody, Si
 from defaults import CircleRenderer, Attraction
 from .reference_frame import ReferenceFrameManager
 from .trail_renderer import TrailRenderer
+from .velocity_controller import VelocityController
 from typing import Optional, Dict, List
 import json
 
@@ -33,6 +34,9 @@ def get_simulation_dict(environment: SimEnvironment, camera: Optional[Camera]) -
         "position": list(camera.position)
     }
 
+    velocity_controller: VelocityController = environment.get_component(VelocityController)
+    velocity_vector_scale_factor = velocity_controller.scale_factor
+
     # get the origin id
     # get the reference to the origin object
     reference_frame_manager: ReferenceFrameManager = environment.get_component(ReferenceFrameManager)
@@ -50,6 +54,7 @@ def get_simulation_dict(environment: SimEnvironment, camera: Optional[Camera]) -
 
     simulation_dict = {
         "origin_id": origin_id,
+        "velocity_vector_scale_factor": velocity_vector_scale_factor,
         "time_settings": time_settings_dict,
         "camera_settings": camera_settings_dict,
         "bodies": bodies

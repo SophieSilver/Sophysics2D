@@ -1,5 +1,6 @@
 {
     "origin_id": 0,
+    "velocity_vector_scale_factor": 1000,
     "time_settings": {
         "dt": 0.128,
         "steps_per_frame": 1,
