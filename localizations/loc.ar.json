@@ -1,0 +1,42 @@
+{
+    "ar": {
+        "timestep_label": "الخطوة الزمنية",
+        "timestep_tooltip": "تحذير, تغيير الخطوة الزمنية قد يسبب في عدم استقرار",
+        "timestep_per_frame_label": "الخطوات الزمنية لكل فريم",
+
+        "open_file_button": "افتح ملف",
+        "save_file_button": "احفظ الملف",
+
+        "create": "اصنع كائن جديد",
+        "close": "اغلق",
+        "name": "الاسم:",
+        "mass": "الكتلة:",
+        "radius": "نصف القطر:",
+        "position": "الموقع:",
+        "velocity": "السرعة المنجهة:",
+        "draw_trail": "اظهر الذيل",
+        "yes": "نعم",
+        "no": "لا",
+        "use_as_origin": "استخدم كأصل الحركة",
+        "delete": "امسح",
+
+        "color": "اللون:",
+        "r": "R:",
+        "g": "G:",
+        "b": "B:",
+
+        "min_pixel_radius": "أقل نصف قطر ظاهر:",
+        "is_attractor": "ينتج جاذبية:",
+
+        "wrong_dt": "تحذير: صيغة خاطئة ل time_settings.dt",
+        "wrong_steps_per_frame": "تحذير: صيغة خاطئة ل time_settings.steps_per_frame",
+        "wrong_paused": "تحذير: صيغة خاطئة ل time_settings.paused",
+
+        "wrong_units_per_pixel": "تحذير: صيغة خاطئة ل camera_settings.units_per_pixel",
+        "wrong_position": "تحذير: صيغة خاطئة ل camera_settings.position",
+
+        "warning": "تحذير",
+        "error": "خطأ",
+        "ok": "موافق"
+    }
+}
