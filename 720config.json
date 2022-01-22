@@ -86,7 +86,8 @@
                 "rect": [10, 90, 100, 30],
                 "options": {
                     "Русский": "ru",
-                    "English": "en"
+                    "English": "en",
+                    "عربى": "ar"
                 },
                 "startingOption": "English"
             },
