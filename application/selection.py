@@ -57,6 +57,10 @@ class GlobalSelection(GlobalClickable):
     def _on_click(self):
         self.deselect()
 
+    # having something like this would be nice? dunno
+    # def _on_button_press(self):
+    #    pass
+
 
 class BodyController(CircleClickable):
     def _clickable_start(self):
