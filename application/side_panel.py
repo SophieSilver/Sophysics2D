@@ -41,6 +41,10 @@ class SidePanel(GUIPanel):
             self.__panel.disable()
             self.__panel.hide()
 
+    def disable_panels(self):
+        self.__disable_info_panel()
+        self.__disable_creation_panel()
+
     def _setup_ui(self):
         self.__time_settings: TimeSettings = self.environment.get_component(TimeSettings)
         self.__reference_frame_manager: ReferenceFrameManager = self.environment.get_component(ReferenceFrameManager)

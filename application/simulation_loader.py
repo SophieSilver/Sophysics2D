@@ -59,14 +59,14 @@ class SimulationLoader(EnvironmentComponent):
                 json_string = file.read()
 
             sim_dict = json.loads(json_string)
-            self.__load_from_dict(sim_dict)
+            self.load_from_dict(sim_dict)
 
             self.environment.event_system.raise_event(SimulationParametersChangedEvent())
 
         except (ValueError, TypeError, KeyError) as e:
             self.__create_warning_window("loc.error", f"Could not load the file. {repr(e)}")
 
-    def __load_from_dict(self, simulation_dict: Dict):
+    def load_from_dict(self, simulation_dict: Dict):
         self.__clear_current_simulation()
 
         origin_id: Optional[int] = simulation_dict.get("origin_id", None)

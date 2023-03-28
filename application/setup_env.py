@@ -14,6 +14,7 @@ from .upper_panel import UpperPanel
 from .side_panel import SidePanel
 from .body_creator import BodyCreator
 from .simulation_loader import SimulationLoader
+from .revert_simulation import RevertSimulation
 from typing import Dict
 
 
@@ -84,12 +85,13 @@ def get_environment_from_config(display: pygame.Surface, config: Dict) -> SimEnv
 
     pause_on_spacebar = PauseOnSpacebar()
     keyboard_shortcuts = KeyboardShortcuts()
+    revert_simulation = RevertSimulation()
 
     env = SimEnvironment((), (
         time_settings, physics_manager, camera, gui_manager_component,
         event_processor, time_control_panel, camera_controller, pause_on_spacebar, keyboard_shortcuts,
         attraction_manager, global_selection, vel_controller, reference_frame_manager,
-        camera_adjuster, clickable_manager, upper_panel, sim_loader
+        camera_adjuster, clickable_manager, upper_panel, sim_loader, revert_simulation
     ))
 
     env.attach_sim_object(body_creator_object)
