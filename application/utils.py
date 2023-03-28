@@ -11,7 +11,7 @@ def delete_body(environment: SimEnvironment, body: BodyController):
     # If it's the current reference frame, reset it
     reference_frame_manager: ReferenceFrameManager = environment.get_component(ReferenceFrameManager)
     if body.rigidbody is reference_frame_manager.origin_body:
-        body.origin_body = None
+        reference_frame_manager.origin_body = None
 
     body.sim_object.destroy()
 

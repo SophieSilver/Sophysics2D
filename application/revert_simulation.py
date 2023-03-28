@@ -1,5 +1,5 @@
 """
-
+A thingamajig that saves when the simulation is unpaused and lets you reload it
 """
 from sophysics_engine import Camera, EnvironmentComponent, UnpauseEvent, TimeSettings
 
