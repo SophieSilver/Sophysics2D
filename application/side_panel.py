@@ -10,10 +10,13 @@ from .ui_elements import UIElement, TextBox, SwitchButtons
 from .reference_frame import ReferenceFrameManager
 from .body_creator import BodyCreator
 from typing import Dict, Optional, List
+from . import utils
 
 # I hate this fucking code so much, it's so fucking shitty
 # if I had more time, I'd fucking nuke it and do it the right way
 # but here we are, and here means in hell
+
+# ^ damn
 
 
 class SidePanel(GUIPanel):
@@ -37,6 +40,10 @@ class SidePanel(GUIPanel):
         else:
             self.__panel.disable()
             self.__panel.hide()
+
+    def disable_panels(self):
+        self.__disable_info_panel()
+        self.__disable_creation_panel()
 
     def _setup_ui(self):
         self.__time_settings: TimeSettings = self.environment.get_component(TimeSettings)
@@ -725,6 +732,8 @@ class SidePanel(GUIPanel):
         )
 
     def __on_delete_button_pressed(self):
+        utils.delete_body(self.environment, self.__selected_body)
+        """
         if self.__selected_body is None:
             return
 
@@ -732,6 +741,7 @@ class SidePanel(GUIPanel):
             self.__reference_frame_manager.origin_body = None
 
         self.__selected_body.sim_object.destroy()
+        """
 
     def __on_origin_change(self):
         if self.__selected_body is None:
